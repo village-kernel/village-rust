@@ -4,6 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::kernel::traits::vk_kernel::kernel;
 use crate::kernel::traits::vk_kernel::Memory;
 
 /// sturct concrete memory
@@ -13,7 +14,8 @@ pub struct ConcreteMemory;
 impl ConcreteMemory {
     /// setup
     pub fn setup(&self) {
-
+        //output debug info
+        kernel().debug().info("Memory setup done!");
     }
 
     /// exit

@@ -4,6 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::kernel::traits::vk_kernel::kernel;
 use crate::kernel::traits::vk_kernel::Debug;
 
 // 打印
@@ -26,7 +27,8 @@ pub struct ConcreteDebug;
 impl ConcreteDebug {
     /// setup
     pub fn setup(&self) {
-
+        //output debug info
+        kernel().debug().info("Debug setup done!");
     }
 
     /// exit

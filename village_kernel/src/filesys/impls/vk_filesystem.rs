@@ -4,6 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::kernel::traits::vk_kernel::kernel;
 use crate::kernel::traits::vk_kernel::FileSystem;
 
 /// struct concrete file system
@@ -13,7 +14,8 @@ pub struct ConcreteFileSystem;
 impl ConcreteFileSystem {
     /// setup
     pub fn setup(&self) {
-
+        //output debug info
+        kernel().debug().info("File system setup completed!");
     }
 
     /// exit

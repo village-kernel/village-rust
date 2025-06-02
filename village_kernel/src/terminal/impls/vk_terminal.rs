@@ -4,6 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::kernel::traits::vk_kernel::kernel;
 use crate::kernel::traits::vk_kernel::Terminal;
 
 /// struct concrete terminal
@@ -13,7 +14,8 @@ pub struct ConcreteTerminal;
 impl ConcreteTerminal {
     /// setup
     pub fn setup(&self) {
-
+        //output debug info
+        kernel().debug().info("Terminal setup done!");
     }
 
     /// exit

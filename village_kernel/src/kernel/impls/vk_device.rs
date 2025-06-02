@@ -14,7 +14,8 @@ pub struct ConcreteDevice;
 impl ConcreteDevice {
     /// setup
     pub fn setup(&self) {
-        kernel().debug().info("Concrete device setup done!");
+        //output debug info
+        kernel().debug().info("Device setup done!");
     }
 
     /// exit

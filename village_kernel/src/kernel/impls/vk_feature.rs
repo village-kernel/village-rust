@@ -4,6 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::kernel::traits::vk_kernel::kernel;
 use crate::kernel::traits::vk_kernel::Feature;
 
 /// struct concrete feature
@@ -13,7 +14,8 @@ pub struct ConcreteFeature;
 impl ConcreteFeature {
     /// setup
     pub fn setup(&self) {
-
+        //output debug info
+        kernel().debug().info("Feature setup done!");
     }
 
     /// exit

@@ -4,6 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::kernel::traits::vk_kernel::kernel;
 use crate::kernel::traits::vk_kernel::Interrupt;
 
 /// struct concrete interrupt
@@ -13,7 +14,8 @@ pub struct ConcreteInterrupt;
 impl ConcreteInterrupt {
     /// setup
     pub fn setup(&self) {
-
+        //output debug info
+        kernel().debug().info("Interrupt setup done!");
     }
 
     /// exit

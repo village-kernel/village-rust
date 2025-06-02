@@ -4,6 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::kernel::traits::vk_kernel::kernel;
 use crate::kernel::traits::vk_kernel::Protocol;
 
 /// struct concrete protocol
@@ -13,7 +14,8 @@ pub struct ConcreteProtocol;
 impl ConcreteProtocol {
     /// setup
     pub fn setup(&self) {
-
+        //output debug info
+        kernel().debug().info("Protocol setup done!");
     }
 
     /// exit

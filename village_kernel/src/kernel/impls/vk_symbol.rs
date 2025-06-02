@@ -4,6 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::kernel::traits::vk_kernel::kernel;
 use crate::kernel::traits::vk_kernel::Symbol;
 
 /// struct concrete symbol
@@ -13,7 +14,8 @@ pub struct ConcreteSymbol;
 impl ConcreteSymbol {
     /// setup
     pub fn setup(&self) {
-
+        //output debug info
+        kernel().debug().info("Symbol setup done!");
     }
 
     /// exit

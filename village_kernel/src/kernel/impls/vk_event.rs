@@ -4,6 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::kernel::traits::vk_kernel::kernel;
 use crate::kernel::traits::vk_kernel::Event;
 
 /// struct concrete event
@@ -13,7 +14,8 @@ pub struct ConcreteEvent;
 impl ConcreteEvent {
     /// setup
     pub fn setup(&self) {
-
+        //output debug info
+        kernel().debug().info("Input event setup done!");
     }
 
     /// exit

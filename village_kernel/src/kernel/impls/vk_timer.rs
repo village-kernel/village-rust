@@ -4,6 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::kernel::traits::vk_kernel::kernel;
 use crate::kernel::traits::vk_kernel::Timer;
 
 /// struct concrete timer
@@ -13,7 +14,8 @@ pub struct ConcreteTimer;
 impl ConcreteTimer {
     /// setup
     pub fn setup(&self) {
-
+        //output debug info
+        kernel().debug().info("Timer setup done!");
     }
 
     /// exit

@@ -4,6 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::kernel::traits::vk_kernel::kernel;
 use crate::kernel::traits::vk_kernel::WorkQueue;
 
 /// struct concrete work queue
@@ -13,7 +14,8 @@ pub struct ConcreteWorkQueue;
 impl ConcreteWorkQueue {
     /// setup
     pub fn setup(&self) {
-
+        //output debug info
+        kernel().debug().info("Work queue setup done!");
     }
 
     /// exit
