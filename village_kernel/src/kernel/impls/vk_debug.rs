@@ -1,3 +1,9 @@
+//###########################################################################
+// vk_debug.rs
+// The specific implementation of functions related to debug
+//
+// $Copyright: Copyright (C) village
+//###########################################################################
 use crate::kernel::traits::vk_kernel::Debug;
 
 // 打印
@@ -13,25 +19,45 @@ fn print(message: &str) {
     }
 }
 
+/// struct concrete debug
 pub struct ConcreteDebug;
 
+/// impl concrete debug
+impl ConcreteDebug {
+    /// setup
+    pub fn setup(&self) {
+
+    }
+
+    /// exit
+    pub fn exit(&self) {
+
+    }
+}
+
+/// impl debug for concrete debug
 impl Debug for ConcreteDebug {
+    /// log
     fn log(&self, log: &str) {
         print(log);
     }
 
+    /// info
     fn info(&self, info: &str) {
         print(info);
     }
 
+    /// error
     fn error(&self, error: &str) {
         print(error);
     }
 
+    /// warn
     fn warn(&self, warn: &str) {
         print(warn);
     }
 
+    /// output
     fn output(&self, level: i32, msg: &str) {
         if level >= 0 && level <= 5 {
             print(msg);

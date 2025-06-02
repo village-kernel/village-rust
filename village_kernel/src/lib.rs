@@ -1,6 +1,12 @@
+//###########################################################################
+// lib.rs
+// The specific implementation of functions related to lib
+//
+// $Copyright: Copyright (C) village
+//###########################################################################
 #![no_std]
 
-// import arch
+// import arch modules
 pub mod arch {
     pub mod ia32 {
         pub mod legacy {
@@ -11,14 +17,14 @@ pub mod arch {
     }
 }
 
-// import filesys
+// import filesys modules
 pub mod filesys {
     pub mod impls {
         pub mod vk_filesystem;
     }
 }
 
-// import kernel 
+// import kernel modules
 pub mod kernel {
     pub mod traits {
         pub mod vk_kernel;
@@ -41,21 +47,21 @@ pub mod kernel {
     }
 }
 
-// import protocol
+// import protocol modules
 pub mod protocol {
     pub mod impls {
         pub mod vk_protocol;
     }
 }
 
-// import terminal
+// import terminal modules
 pub mod terminal {
     pub mod impls {
         pub mod vk_terminal;
     }
 }
 
-// import vendor
+// import vendor modules
 pub mod vendor {
     pub mod ia32legacy {
         pub mod crt0 {
@@ -64,7 +70,7 @@ pub mod vendor {
     }
 }
 
-// import vklibs
+// import vklibs modules
 pub mod vklibs {
     pub mod libc{
         pub mod string;
