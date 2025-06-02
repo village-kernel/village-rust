@@ -4,8 +4,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::kernel::traits::vk_kernel::kernel;
-use crate::kernel::traits::vk_kernel::Debug;
+use crate::traits::vk_kernel::kernel;
+use crate::traits::vk_kernel::Debug;
 
 // 打印
 fn print(message: &str) {

@@ -19,46 +19,39 @@ pub mod arch {
 
 // import filesys modules
 pub mod filesys {
-    pub mod impls {
-        pub mod vk_filesystem;
-    }
+    pub mod vk_filesystem;
 }
 
 // import kernel modules
 pub mod kernel {
-    pub mod traits {
-        pub mod vk_kernel;
-    }
-    pub mod impls {
-        pub mod vk_debug;
-        pub mod vk_device;
-        pub mod vk_event;
-        pub mod vk_feature;
-        pub mod vk_interrupt;
-        pub mod vk_loader;
-        pub mod vk_memory;
-        pub mod vk_process;
-        pub mod vk_signal;
-        pub mod vk_symbol;
-        pub mod vk_thread;
-        pub mod vk_timer;
-        pub mod vk_village;
-        pub mod vk_workqueue;
-    }
+    pub mod vk_debug;
+    pub mod vk_device;
+    pub mod vk_event;
+    pub mod vk_feature;
+    pub mod vk_interrupt;
+    pub mod vk_loader;
+    pub mod vk_memory;
+    pub mod vk_process;
+    pub mod vk_signal;
+    pub mod vk_symbol;
+    pub mod vk_thread;
+    pub mod vk_timer;
+    pub mod vk_village;
+    pub mod vk_workqueue;
 }
 
 // import protocol modules
 pub mod protocol {
-    pub mod impls {
-        pub mod vk_protocol;
-    }
+    pub mod vk_protocol;
 }
 
 // import terminal modules
 pub mod terminal {
-    pub mod impls {
-        pub mod vk_terminal;
-    }
+    pub mod vk_terminal;
+}
+
+pub mod traits {
+    pub mod vk_kernel;
 }
 
 // import vendor modules

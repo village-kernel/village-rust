@@ -5,8 +5,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################use crate::kernel::traits::vk_kernel::Loader;
-use crate::kernel::traits::vk_kernel::kernel;
-use crate::kernel::traits::vk_kernel::Loader;
+use crate::traits::vk_kernel::kernel;
+use crate::traits::vk_kernel::Loader;
 
 /// struct concrete loader
 pub struct ConcreteLoader;

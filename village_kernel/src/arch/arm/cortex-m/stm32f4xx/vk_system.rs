@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::kernel::traits::vk_kernel::System;
+use crate::traits::vk_kernel::System;
 
 /// struct concrete system
 pub struct ConcreteSystem;

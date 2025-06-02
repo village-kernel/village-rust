@@ -4,8 +4,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::kernel::traits::vk_kernel::kernel;
-use crate::kernel::traits::vk_kernel::Event;
+use crate::traits::vk_kernel::kernel;
+use crate::traits::vk_kernel::Event;
 
 /// struct concrete event
 pub struct ConcreteEvent;

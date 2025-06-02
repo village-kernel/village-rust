@@ -4,8 +4,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::kernel::traits::vk_kernel::kernel;
-use crate::kernel::traits::vk_kernel::Thread;
+use crate::traits::vk_kernel::kernel;
+use crate::traits::vk_kernel::Thread;
 
 /// struct concrete thread
 pub struct ConcreteThread;

@@ -4,8 +4,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::kernel::traits::vk_kernel::kernel;
-use crate::kernel::traits::vk_kernel::WorkQueue;
+use crate::traits::vk_kernel::kernel;
+use crate::traits::vk_kernel::WorkQueue;
 
 /// struct concrete work queue
 pub struct ConcreteWorkQueue;

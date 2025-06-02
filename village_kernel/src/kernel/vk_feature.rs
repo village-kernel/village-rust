@@ -4,8 +4,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::kernel::traits::vk_kernel::kernel;
-use crate::kernel::traits::vk_kernel::Feature;
+use crate::traits::vk_kernel::kernel;
+use crate::traits::vk_kernel::Feature;
 
 /// struct concrete feature
 pub struct ConcreteFeature;

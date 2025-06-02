@@ -8,8 +8,8 @@
 #![no_main]
 
 use core::panic::PanicInfo;
-use village_kernel::kernel::traits::vk_kernel::*;
-use village_kernel::kernel::impls::vk_village;
+use village_kernel::traits::vk_kernel::{init_kernel, kernel};
+use village_kernel::kernel::vk_village;
 
 /// init
 #[unsafe(no_mangle)]

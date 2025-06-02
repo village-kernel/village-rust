@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::kernel::traits::vk_kernel::*;
+use crate::traits::vk_kernel::*;
 use super::vk_debug::ConcreteDebug;
 use super::vk_device::ConcreteDevice;
 use super::vk_event::ConcreteEvent;
@@ -20,9 +20,9 @@ use super::vk_timer::ConcreteTimer;
 use super::vk_workqueue::ConcreteWorkQueue;
 use crate::arch::ia32::legacy::vk_system::ConcreteSystem;
 use crate::arch::ia32::legacy::vk_scheduler::ConcreteScheduler;
-use crate::filesys::impls::vk_filesystem::ConcreteFileSystem;
-use crate::protocol::impls::vk_protocol::ConcreteProtocol;
-use crate::terminal::impls::vk_terminal::ConcreteTerminal;
+use crate::filesys::vk_filesystem::ConcreteFileSystem;
+use crate::protocol::vk_protocol::ConcreteProtocol;
+use crate::terminal::vk_terminal::ConcreteTerminal;
 
 /// struct village
 pub struct Village {

@@ -4,8 +4,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::kernel::traits::vk_kernel::kernel;
-use crate::kernel::traits::vk_kernel::Interrupt;
+use crate::traits::vk_kernel::kernel;
+use crate::traits::vk_kernel::Interrupt;
 
 /// struct concrete interrupt
 pub struct ConcreteInterrupt;

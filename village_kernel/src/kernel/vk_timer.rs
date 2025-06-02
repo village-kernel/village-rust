@@ -4,8 +4,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::kernel::traits::vk_kernel::kernel;
-use crate::kernel::traits::vk_kernel::Timer;
+use crate::traits::vk_kernel::kernel;
+use crate::traits::vk_kernel::Timer;
 
 /// struct concrete timer
 pub struct ConcreteTimer;
