@@ -1,0 +1,6 @@
+/build
+/include
+/.config.old
+/.config
+.DS_Store
+/*.img

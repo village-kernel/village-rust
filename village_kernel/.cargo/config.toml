@@ -1,0 +1,16 @@
+[build]
+target = "./targets/ia32legacy.json"
+target-dir = "../build/village_kernel"
+
+[unstable]
+build-std = ["core", "compiler_builtins"]
+
+[target.ia32legacy]
+rustflags = [
+    "-C", "opt-level=0",
+    "-C", "debuginfo=2",
+    "-C", "link-arg=-T./targets/ia32legacy.lds",
+    "-C", "link-arg=-Map=../build/village_kernel/ia32legacy/debug/map.txt",
+    "-C", "linker=rust-lld",
+    "-C", "panic=abort",
+]

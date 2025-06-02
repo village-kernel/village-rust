@@ -1,0 +1,5 @@
+{
+  "rust-analyzer.linkedProjects": [
+    "./village_kernel/Cargo.toml"
+  ]
+}
