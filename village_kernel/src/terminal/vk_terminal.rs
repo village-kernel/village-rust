@@ -12,6 +12,13 @@ pub struct ConcreteTerminal;
 
 // impl concrete terminal
 impl ConcreteTerminal {
+    pub const fn new() -> Self {
+        Self { }
+    }
+}
+
+// impl concrete terminal
+impl ConcreteTerminal {
     // setup
     pub fn setup(&self) {
         //output debug info

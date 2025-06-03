@@ -12,6 +12,13 @@ pub struct ConcreteProtocol;
 
 // impl concrete protocol
 impl ConcreteProtocol {
+    pub const fn new() -> Self {
+        Self { }
+    }
+}
+
+// impl concrete protocol
+impl ConcreteProtocol {
     // setup
     pub fn setup(&self) {
         //output debug info

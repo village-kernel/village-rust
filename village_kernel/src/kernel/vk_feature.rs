@@ -12,6 +12,13 @@ pub struct ConcreteFeature;
 
 // impl concrete feature
 impl ConcreteFeature {
+    pub const fn new() -> Self {
+        Self { }
+    }
+}
+
+// impl concrete feature
+impl ConcreteFeature {
     // setup
     pub fn setup(&self) {
         //output debug info

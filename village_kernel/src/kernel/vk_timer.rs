@@ -12,6 +12,13 @@ pub struct ConcreteTimer;
 
 // impl concrete timer
 impl ConcreteTimer {
+    pub const fn new() -> Self {
+        Self { }
+    }
+}
+
+// impl concrete timer
+impl ConcreteTimer {
     // setup
     pub fn setup(&self) {
         //output debug info

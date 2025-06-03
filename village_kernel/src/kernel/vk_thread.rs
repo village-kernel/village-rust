@@ -12,6 +12,13 @@ pub struct ConcreteThread;
 
 // impl concrete thread
 impl ConcreteThread {
+    pub const fn new() -> Self {
+        Self { }
+    }
+}
+
+// impl concrete thread
+impl ConcreteThread {
     // setup
     pub fn setup(&self) {
         //output debug info

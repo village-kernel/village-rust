@@ -12,6 +12,13 @@ pub struct ConcreteDevice;
 
 // impl concrete device
 impl ConcreteDevice {
+    pub const fn new() -> Self {
+        Self { }
+    }
+}
+
+// impl concrete device
+impl ConcreteDevice {
     // setup
     pub fn setup(&self) {
         //output debug info

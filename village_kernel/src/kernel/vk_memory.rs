@@ -12,6 +12,13 @@ pub struct ConcreteMemory;
 
 // impl concrete memory
 impl ConcreteMemory {
+    pub const fn new() -> Self {
+        Self { }
+    }
+}
+
+// impl concrete memory
+impl ConcreteMemory {
     // setup
     pub fn setup(&self) {
         //output debug info

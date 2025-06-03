@@ -12,6 +12,13 @@ pub struct ConcreteWorkQueue;
 
 // impl concrete work queue
 impl ConcreteWorkQueue {
+    pub const fn new() -> Self {
+        Self { }
+    }
+}
+
+// impl concrete work queue
+impl ConcreteWorkQueue {
     // setup
     pub fn setup(&self) {
         //output debug info

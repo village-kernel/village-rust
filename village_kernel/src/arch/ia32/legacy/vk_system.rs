@@ -10,6 +10,13 @@ use crate::traits::vk_kernel::System;
 pub struct ConcreteSystem;
 
 // impl concrete system
+impl ConcreteSystem {    
+    pub const fn new() -> Self {
+        Self { }
+    }
+}
+
+// impl concrete system
 impl ConcreteSystem {
     // setup
     pub fn setup(&self) {

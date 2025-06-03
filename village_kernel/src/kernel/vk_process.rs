@@ -12,6 +12,13 @@ pub struct ConcreteProcess;
 
 // impl concrete process
 impl ConcreteProcess {
+    pub const fn new() -> Self {
+        Self { }
+    }
+}
+
+// impl concrete process
+impl ConcreteProcess {
     // setup
     pub fn setup(&self) {
         //output debug info

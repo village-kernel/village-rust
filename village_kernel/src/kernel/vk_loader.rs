@@ -13,6 +13,13 @@ pub struct ConcreteLoader;
 
 // impl concrete loader
 impl ConcreteLoader {
+    pub const fn new() -> Self {
+        Self { }
+    }
+}
+
+// impl concrete loader
+impl ConcreteLoader {
     // setup
     pub fn setup(&self) {
         //output debug info

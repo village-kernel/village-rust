@@ -9,6 +9,13 @@
 pub struct ConcreteException;
 
 /// impl concrete exception
+impl ConcreteException {  
+    pub const fn new() -> Self {
+        Self { }
+    }
+}
+
+/// impl concrete exception
 impl ConcreteException {
     /// setup
     pub fn setup(&self) {

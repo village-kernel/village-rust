@@ -11,6 +11,13 @@ use crate::traits::vk_kernel::FileSystem;
 pub struct ConcreteFileSystem;
 
 // impl concrete file system
+impl ConcreteFileSystem {  
+    pub const fn new() -> Self {
+        Self { }
+    }
+}
+
+// impl concrete file system
 impl ConcreteFileSystem {
     // setup
     pub fn setup(&self) {

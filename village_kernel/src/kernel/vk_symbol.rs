@@ -12,6 +12,13 @@ pub struct ConcreteSymbol;
 
 // impl concrete symbol
 impl ConcreteSymbol {
+    pub const fn new() -> Self {
+        Self { }
+    }
+}
+
+// impl concrete symbol
+impl ConcreteSymbol {
     // setup
     pub fn setup(&self) {
         //output debug info

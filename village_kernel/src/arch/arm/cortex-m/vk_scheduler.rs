@@ -10,6 +10,13 @@ use crate::traits::vk_kernel::Scheduler;
 /// struct concrete scheduler
 pub struct ConcreteScheduler;
 
+// impl concrete scheduler
+impl ConcreteScheduler {    
+    pub const fn new() -> Self {
+        Self { }
+    }
+}
+
 /// impl concrete scheduler
 impl ConcreteScheduler {
     /// setup

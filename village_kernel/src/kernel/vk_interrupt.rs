@@ -4,23 +4,48 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use spin::Mutex;
 use crate::traits::vk_kernel::kernel;
 use crate::traits::vk_kernel::Interrupt;
+use crate::arch::ia32::legacy::vk_exception::ConcreteException;
 
 // struct concrete interrupt
-pub struct ConcreteInterrupt;
+pub struct ConcreteInterrupt {
+    is_ready: Mutex<bool>,
+    exception: ConcreteException
+}
+
+// impl concrete interrupt
+impl ConcreteInterrupt {
+    pub const fn new() -> Self {
+        Self {
+            is_ready: Mutex::new(false),
+            exception: ConcreteException,
+        }
+    }
+}
 
 // impl concrete interrupt
 impl ConcreteInterrupt {
     // setup
     pub fn setup(&self) {
+        //setupt exception
+        self.exception.setup();
+
+        //set ready flag
+        *self.is_ready.lock() = true;
+
         //output debug info
         kernel().debug().info("Interrupt setup done!");
     }
 
     // exit
     pub fn exit(&self) {
+        // clear ready flag
+        *self.is_ready.lock() = false;
 
+        //exit exception
+        self.exception.exit();
     }
 }
 

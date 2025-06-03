@@ -12,6 +12,13 @@ pub struct ConcreteEvent;
 
 // impl concrete event
 impl ConcreteEvent {
+    pub const fn new() -> Self {
+        Self { }
+    }
+}
+
+// impl concrete event
+impl ConcreteEvent {
     // setup
     pub fn setup(&self) {
         //output debug info
