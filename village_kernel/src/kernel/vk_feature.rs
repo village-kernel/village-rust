@@ -45,6 +45,6 @@ impl Feature for ConcreteFeature {
 
     // get module
     fn get_module(&self, name: &str) {
-        
+        let _ = name;
     }
 }

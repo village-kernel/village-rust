@@ -35,17 +35,20 @@ impl ConcreteMemory {
 impl Memory for ConcreteMemory {
     // heap alloc
     fn heap_alloc(&self, size: u32) -> u32 {
+        let _ = size;
         0
     }
     
     // stack alloc
     fn stack_alloc(&self, size: u32) -> u32 {
+        let _ = size;
         0
     }
 
     // free
     fn free(&self, address: u32, size: u32) {
-        
+        let _ = size;
+        let _ = address;
     }
 
     // get size

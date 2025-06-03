@@ -50,31 +50,37 @@ impl Thread for ConcreteThread {
 
     // start task
     fn start_task(&self, tid: i32) -> bool {
+        let _ = tid;
         false
     }
 
     // stop task
     fn stop_task(&self, tid: i32) -> bool {
+        let _ = tid;
         false
     }
 
     // wait for task
     fn wait_for_task(&self, tid: i32) -> bool {
+        let _ = tid;
         false
     }
 
     // exit blocked
     fn exit_blocked(&self, tid: i32) -> bool {
+        let _ = tid;
         false
     }
 
     // delete task
     fn delete_task(&self, tid: i32) -> bool {
+        let _ = tid;
         false
     }
 
     // is task alive
     fn is_task_alive(&self, tid: i32) -> bool {
+        let _ = tid;
         false
     }
 
@@ -105,7 +111,7 @@ impl Thread for ConcreteThread {
 
     // save task psp
     fn save_task_psp(&self, psp: u32) {
-
+        let _ = psp;
     }
 
     // get task psp

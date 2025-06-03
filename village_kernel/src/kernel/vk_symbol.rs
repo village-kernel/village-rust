@@ -35,16 +35,17 @@ impl ConcreteSymbol {
 impl Symbol for ConcreteSymbol {
     // export
     fn export(&self, sym_addr: u32, name: &str) {
-
+        let _ = name;
+        let _ = sym_addr;
     }
 
     // unexport
     fn unexport(&self, name: &str) {
-
+        let _ = name;
     }
     
     // search
     fn search(&self, name: &str) {
-
+        let _ = name;
     }
 }

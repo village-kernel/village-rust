@@ -35,6 +35,6 @@ impl ConcreteSignal {
 impl Signal for ConcreteSignal {
     // raising
     fn raising(&self, signal: i32) {
-        
+        let _ = signal;
     }
 }

@@ -43,7 +43,7 @@ impl System for ConcreteSystem {
 
     // delay ms
     fn delay_ms(&self, millis: u32) {
-        
+        let _ = millis;
     }
 
     // enable irq

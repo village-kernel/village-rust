@@ -35,26 +35,28 @@ impl ConcreteFileSystem {
 impl FileSystem for ConcreteFileSystem {
     // mount hard drive
     fn mount_hard_drive(&self, disk: &str) -> bool {
+        let _ = disk;
         false
     }
 
     // unmount hard drive
     fn unmount_hard_drive(&self, disk: &str) -> bool {
+        let _ = disk;
         false
     }
 
     // register fs
     fn register_fs(&self, name: &str) {
-
+        let _ = name;
     }
 
     // unregister fs
     fn unregister_fs(&self, name: &str) {
-
+        let _ = name;
     }
 
     // get volume
     fn get_volume(&self, name: &str) {
-        
+        let _ = name;
     }
 }
