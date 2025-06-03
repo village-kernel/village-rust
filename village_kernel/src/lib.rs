@@ -5,6 +5,8 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 #![no_std]
+#![no_main]
+#![feature(linkage)]
 
 // import arch modules
 pub mod arch {
