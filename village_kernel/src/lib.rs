@@ -42,6 +42,13 @@ pub mod kernel {
     pub mod vk_workqueue;
 }
 
+// import misc modules
+pub mod misc {
+    pub mod lock {
+        pub mod vk_spinlock;
+    }
+}
+
 // import protocol modules
 pub mod protocol {
     pub mod vk_protocol;
