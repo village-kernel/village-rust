@@ -7,31 +7,31 @@
 use crate::traits::vk_kernel::kernel;
 use crate::traits::vk_kernel::Terminal;
 
-/// struct concrete terminal
+// struct concrete terminal
 pub struct ConcreteTerminal;
 
-/// impl concrete terminal
+// impl concrete terminal
 impl ConcreteTerminal {
-    /// setup
+    // setup
     pub fn setup(&self) {
         //output debug info
         kernel().debug().info("Terminal setup done!");
     }
 
-    /// exit
+    // exit
     pub fn exit(&self) {
 
     }
 }
 
-/// impl terminal for concrete terminal
+// impl terminal for concrete terminal
 impl Terminal for ConcreteTerminal {
-    /// register cmd
+    // register cmd
     fn register_cmd(&self) {
 
     }
 
-    /// unregister cmd
+    // unregister cmd
     fn unregister_cmd(&self) {
         
     }

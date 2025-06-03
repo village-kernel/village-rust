@@ -7,31 +7,31 @@
 use crate::traits::vk_kernel::kernel;
 use crate::traits::vk_kernel::Protocol;
 
-/// struct concrete protocol
+// struct concrete protocol
 pub struct ConcreteProtocol;
 
-/// impl concrete protocol
+// impl concrete protocol
 impl ConcreteProtocol {
-    /// setup
+    // setup
     pub fn setup(&self) {
         //output debug info
         kernel().debug().info("Protocol setup done!");
     }
 
-    /// exit
+    // exit
     pub fn exit(&self) {
 
     }
 }
 
-/// impl protocol for concrete protocol
+// impl protocol for concrete protocol
 impl Protocol for ConcreteProtocol {
-    /// register stack
+    // register stack
     fn register_stack(&self) {
 
     }
 
-    /// unregister stack
+    // unregister stack
     fn unregister_stack(&self) {
         
     }

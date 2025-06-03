@@ -7,31 +7,31 @@
 use crate::traits::vk_kernel::kernel;
 use crate::traits::vk_kernel::Event;
 
-/// struct concrete event
+// struct concrete event
 pub struct ConcreteEvent;
 
-/// impl concrete event
+// impl concrete event
 impl ConcreteEvent {
-    /// setup
+    // setup
     pub fn setup(&self) {
         //output debug info
         kernel().debug().info("Input event setup done!");
     }
 
-    /// exit
+    // exit
     pub fn exit(&self) {
 
     }
 }
 
-/// impl event for concrete event
+// impl event for concrete event
 impl Event for ConcreteEvent {
-    /// init input device
+    // init input device
     fn init_input_device(&self) {
 
     }
 
-    /// exit input device
+    // exit input device
     fn exit_input_device(&self) {
 
     }

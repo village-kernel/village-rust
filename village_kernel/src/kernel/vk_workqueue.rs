@@ -7,36 +7,36 @@
 use crate::traits::vk_kernel::kernel;
 use crate::traits::vk_kernel::WorkQueue;
 
-/// struct concrete work queue
+// struct concrete work queue
 pub struct ConcreteWorkQueue;
 
-/// impl concrete work queue
+// impl concrete work queue
 impl ConcreteWorkQueue {
-    /// setup
+    // setup
     pub fn setup(&self) {
         //output debug info
         kernel().debug().info("Work queue setup done!");
     }
 
-    /// exit
+    // exit
     pub fn exit(&self) {
 
     }
 }
 
-/// impl work queue for concrete work queue
+// impl work queue for concrete work queue
 impl WorkQueue for ConcreteWorkQueue {
-    /// create
+    // create
     fn create(&self) {
 
     }
 
-    /// delete
+    // delete
     fn delete(&self) {
 
     }
 
-    /// sched
+    // sched
     fn sched(&self) {
         
     }

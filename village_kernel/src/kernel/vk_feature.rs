@@ -7,36 +7,36 @@
 use crate::traits::vk_kernel::kernel;
 use crate::traits::vk_kernel::Feature;
 
-/// struct concrete feature
+// struct concrete feature
 pub struct ConcreteFeature;
 
-/// impl concrete feature
+// impl concrete feature
 impl ConcreteFeature {
-    /// setup
+    // setup
     pub fn setup(&self) {
         //output debug info
         kernel().debug().info("Feature setup done!");
     }
 
-    /// exit
+    // exit
     pub fn exit(&self) {
 
     }
 }
 
-/// impl feature for concrete feature
+// impl feature for concrete feature
 impl Feature for ConcreteFeature {
-    /// register module
+    // register module
     fn register_module(&self) {
 
     }
 
-    /// unregister module
+    // unregister module
     fn unregister_module(&self) {
 
     }
 
-    /// get module
+    // get module
     fn get_module(&self, name: &str) {
         
     }

@@ -7,31 +7,31 @@
 use crate::traits::vk_kernel::kernel;
 use crate::traits::vk_kernel::Process;
 
-/// struct concrete process
+// struct concrete process
 pub struct ConcreteProcess;
 
-/// impl concrete process
+// impl concrete process
 impl ConcreteProcess {
-    /// setup
+    // setup
     pub fn setup(&self) {
         //output debug info
         kernel().debug().info("Process setup done!");
     }
 
-    /// exit
+    // exit
     pub fn exit(&self) {
 
     }
 }
 
-/// impl process for concrete process
+// impl process for concrete process
 impl Process for ConcreteProcess {
-    /// register executor
+    // register executor
     fn register_executor(&self) {
 
     }
     
-    /// unregister executor
+    // unregister executor
     fn unregister_executor(&self) {
 
     }

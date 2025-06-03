@@ -5,17 +5,17 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 
-/// struct concrete exception
+// struct concrete exception
 pub struct ConcreteException;
 
-/// impl concrete exception
+// impl concrete exception
 impl ConcreteException {
-    /// setup
+    // setup
     pub fn setup(&self) {
 
     }
 
-    /// exit
+    // exit
     pub fn exit(&self) {
 
     }

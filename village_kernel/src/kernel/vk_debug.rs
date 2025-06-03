@@ -20,46 +20,46 @@ fn print(message: &str) {
     }
 }
 
-/// struct concrete debug
+// struct concrete debug
 pub struct ConcreteDebug;
 
-/// impl concrete debug
+// impl concrete debug
 impl ConcreteDebug {
-    /// setup
+    // setup
     pub fn setup(&self) {
         //output debug info
         kernel().debug().info("Debug setup done!");
     }
 
-    /// exit
+    // exit
     pub fn exit(&self) {
 
     }
 }
 
-/// impl debug for concrete debug
+// impl debug for concrete debug
 impl Debug for ConcreteDebug {
-    /// log
+    // log
     fn log(&self, log: &str) {
         print(log);
     }
 
-    /// info
+    // info
     fn info(&self, info: &str) {
         print(info);
     }
 
-    /// error
+    // error
     fn error(&self, error: &str) {
         print(error);
     }
 
-    /// warn
+    // warn
     fn warn(&self, warn: &str) {
         print(warn);
     }
 
-    /// output
+    // output
     fn output(&self, level: i32, msg: &str) {
         if level >= 0 && level <= 5 {
             print(msg);

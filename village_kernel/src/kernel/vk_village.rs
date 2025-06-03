@@ -18,13 +18,13 @@ use super::vk_symbol::ConcreteSymbol;
 use super::vk_thread::ConcreteThread;
 use super::vk_timer::ConcreteTimer;
 use super::vk_workqueue::ConcreteWorkQueue;
-use crate::arch::ia32::legacy::vk_system::ConcreteSystem;
-use crate::arch::ia32::legacy::vk_scheduler::ConcreteScheduler;
 use crate::filesys::vk_filesystem::ConcreteFileSystem;
 use crate::protocol::vk_protocol::ConcreteProtocol;
 use crate::terminal::vk_terminal::ConcreteTerminal;
+use crate::arch::ia32::legacy::vk_system::ConcreteSystem;
+use crate::arch::ia32::legacy::vk_scheduler::ConcreteScheduler;
 
-/// struct village
+// struct village
 pub struct Village {
     system:    ConcreteSystem,
     memory:    ConcreteMemory,
@@ -46,7 +46,7 @@ pub struct Village {
     protocol:  ConcreteProtocol,
 }
 
-/// impl village 
+// impl village 
 impl Village {
     //new village object
     pub const fn new() -> Self {
@@ -73,9 +73,9 @@ impl Village {
     }
 }
 
-/// impl kernel for village 
+// impl kernel for village 
 impl Kernel for Village {
-    ///setup
+    //setup
     fn setup(&self) {
         //setup interrupt
         self.interrupt.setup();
@@ -129,7 +129,7 @@ impl Kernel for Village {
         self.protocol.setup();
     }
 
-    ///start
+    //start
     fn start(&self) {
         //start thread
         self.thread.start();
@@ -141,7 +141,7 @@ impl Kernel for Village {
         loop {}
     }
 
-    ///exit
+    //exit
     fn exit(&self) {
         //exit protocol
         self.protocol.exit();
@@ -195,132 +195,132 @@ impl Kernel for Village {
         self.interrupt.exit();
     }
 
-    ///sleep
+    //sleep
     fn sleep(&self) {
         self.system.sleep();
     }
 
-    ///standby
+    //standby
     fn standby(&self) {
         self.system.standby();
     }
 
-    ///shutdown
+    //shutdown
     fn shutdown(&self) {
         self.system.shutdown();
     }
 
-    ///reboot
+    //reboot
     fn reboot(&self) {
         self.system.reboot();
     }
 
-    ///get build date
+    //get build date
     fn get_build_date(&self) {
         
     }
 
-    ///get build time
+    //get build time
     fn get_build_time(&self) {
         
     }
 
-    ///get build version
+    //get build version
     fn get_build_version(&self) {
         
     }
 
-    ///get build git sha
+    //get build git sha
     fn get_build_git_sha(&self) {
         
     }
 
-    ///system
+    //system
     fn system(&self) -> &dyn System {
         &self.system
     }
     
-    ///memory
+    //memory
     fn memory(&self) -> &dyn Memory {
         &self.memory
     }
 
-    ///debug
+    //debug
     fn debug(&self) -> &dyn Debug {
         &self.debug
     }
 
-    ///interrupt
+    //interrupt
     fn interrupt(&self) -> &dyn Interrupt {
         &self.interrupt
     }
 
-    ///scheduler
+    //scheduler
     fn scheduler(&self) -> &dyn Scheduler {
         &self.scheduler
     }
 
-    ///thread
+    //thread
     fn thread(&self) -> &dyn Thread {
         &self.thread
     }
 
-    ///workqueue
+    //workqueue
     fn workqueue(&self) -> &dyn WorkQueue {
         &self.workqueue
     }
 
-    ///event
+    //event
     fn event(&self) -> &dyn Event {
         &self.event
     }
 
-    ///symbol
+    //symbol
     fn symbol(&self) -> &dyn Symbol {
         &self.symbol
     }
 
-    ///device
+    //device
     fn device(&self) -> &dyn Device {
         &self.device
     }
 
-    ///feature
+    //feature
     fn feature(&self) -> &dyn Feature {
         &self.feature
     }
 
-    ///filesys
+    //filesys
     fn filesys(&self) -> &dyn FileSystem {
         &self.filesys
     }
 
-    ///loader
+    //loader
     fn loader(&self) -> &dyn Loader {
         &self.loader
     }
 
-    ///process
+    //process
     fn process(&self) -> &dyn Process {
         &self.process
     }
 
-    ///timer
+    //timer
     fn timer(&self) -> &dyn Timer {
         &self.timer
     }
 
-    ///terminal
+    //terminal
     fn terminal(&self) -> &dyn Terminal {
         &self.terminal
     }
 
-    ///signal
+    //signal
     fn signal(&self) -> &dyn Signal {
         &self.signal
     }
 
-    ///protocol
+    //protocol
     fn protocol(&self) -> &dyn Protocol {
         &self.protocol
     }

@@ -8,31 +8,31 @@
 use crate::traits::vk_kernel::kernel;
 use crate::traits::vk_kernel::Loader;
 
-/// struct concrete loader
+// struct concrete loader
 pub struct ConcreteLoader;
 
-/// impl concrete loader
+// impl concrete loader
 impl ConcreteLoader {
-    /// setup
+    // setup
     pub fn setup(&self) {
         //output debug info
         kernel().debug().info("Loader setup done!");
     }
 
-    /// exit
+    // exit
     pub fn exit(&self) {
 
     }
 }
 
-/// impl loader for concrete loader
+// impl loader for concrete loader
 impl Loader for ConcreteLoader {
-    /// load
+    // load
     fn load(&self) {
 
     }
 
-    /// unload
+    // unload
     fn unload(&self) {
         
     }

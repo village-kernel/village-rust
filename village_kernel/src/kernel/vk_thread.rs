@@ -7,111 +7,111 @@
 use crate::traits::vk_kernel::kernel;
 use crate::traits::vk_kernel::Thread;
 
-/// struct concrete thread
+// struct concrete thread
 pub struct ConcreteThread;
 
-/// impl concrete thread
+// impl concrete thread
 impl ConcreteThread {
-    /// setup
+    // setup
     pub fn setup(&self) {
         //output debug info
         kernel().debug().info("Thread setup done!");
     }
 
-    /// start
+    // start
     pub fn start(&self) {
 
     }
 
-    /// exit
+    // exit
     pub fn exit(&self) {
 
     }
 }
 
-/// impl thread for concrete thread
+// impl thread for concrete thread
 impl Thread for ConcreteThread {
-    /// create task
+    // create task
     fn create_task(&self) -> i32 {
         0
     }
     
-    /// get task id
+    // get task id
     fn get_task_id(&self) -> i32 {
         0
     }
 
-    /// start task
+    // start task
     fn start_task(&self, tid: i32) -> bool {
         false
     }
 
-    /// stop task
+    // stop task
     fn stop_task(&self, tid: i32) -> bool {
         false
     }
 
-    /// wait for task
+    // wait for task
     fn wait_for_task(&self, tid: i32) -> bool {
         false
     }
 
-    /// exit blocked
+    // exit blocked
     fn exit_blocked(&self, tid: i32) -> bool {
         false
     }
 
-    /// delete task
+    // delete task
     fn delete_task(&self, tid: i32) -> bool {
         false
     }
 
-    /// is task alive
+    // is task alive
     fn is_task_alive(&self, tid: i32) -> bool {
         false
     }
 
-    /// get tasks
+    // get tasks
     fn get_tasks(&self) {
 
     }
 
-    /// change state
+    // change state
     fn change_state(&self) {
 
     }
 
-    /// sleep
+    // sleep
     fn sleep(&self) {
 
     }
 
-    /// blocked
+    // blocked
     fn blocked(&self) {
 
     }
     
-    /// task exit
+    // task exit
     fn task_exit(&self) {
 
     }
 
-    /// save task psp
+    // save task psp
     fn save_task_psp(&self, psp: u32) {
 
     }
 
-    /// get task psp
+    // get task psp
     fn get_task_psp(&self) -> u32 {
         0
     }
     
-    /// select next task
+    // select next task
     fn select_next_task(&self) {
 
     }
 
-    /// idle task
+    // idle task
     fn idle_task(&self) {
 
     }

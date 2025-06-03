@@ -11,23 +11,22 @@ use core::panic::PanicInfo;
 use village_kernel::traits::vk_kernel::{init_kernel, kernel};
 use village_kernel::kernel::vk_village;
 
-/// init
-#[unsafe(no_mangle)]
-pub fn init() {
+// init kernel
+#[no_mangle]
+pub fn __init_kernel() {
     init_kernel(&vk_village::KERNEL_INSTANCE);
 }
 
-/// main
-#[unsafe(no_mangle)]
-pub fn main() -> ! {
+// main
+#[no_mangle]
+pub fn main() {
     let kernel = kernel();
     kernel.setup();
     kernel.start();
     kernel.exit();
-    loop {}
 }
 
-/// panic
+// panic
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
     loop {}

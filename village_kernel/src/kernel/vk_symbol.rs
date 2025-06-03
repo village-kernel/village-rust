@@ -7,36 +7,36 @@
 use crate::traits::vk_kernel::kernel;
 use crate::traits::vk_kernel::Symbol;
 
-/// struct concrete symbol
+// struct concrete symbol
 pub struct ConcreteSymbol;
 
-/// impl concrete symbol
+// impl concrete symbol
 impl ConcreteSymbol {
-    /// setup
+    // setup
     pub fn setup(&self) {
         //output debug info
         kernel().debug().info("Symbol setup done!");
     }
 
-    /// exit
+    // exit
     pub fn exit(&self) {
 
     }
 }
 
-/// impl symbol for concrete symbol
+// impl symbol for concrete symbol
 impl Symbol for ConcreteSymbol {
-    /// export
+    // export
     fn export(&self, sym_addr: u32, name: &str) {
 
     }
 
-    /// unexport
+    // unexport
     fn unexport(&self, name: &str) {
 
     }
     
-    /// search
+    // search
     fn search(&self, name: &str) {
 
     }

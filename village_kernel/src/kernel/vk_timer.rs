@@ -7,36 +7,36 @@
 use crate::traits::vk_kernel::kernel;
 use crate::traits::vk_kernel::Timer;
 
-/// struct concrete timer
+// struct concrete timer
 pub struct ConcreteTimer;
 
-/// impl concrete timer
+// impl concrete timer
 impl ConcreteTimer {
-    /// setup
+    // setup
     pub fn setup(&self) {
         //output debug info
         kernel().debug().info("Timer setup done!");
     }
 
-    /// exit
+    // exit
     pub fn exit(&self) {
 
     }
 }
 
-/// impl timer for concrete timer
+// impl timer for concrete timer
 impl Timer for ConcreteTimer {
-    /// create
+    // create
     fn create(&self) {
 
     }
 
-    /// modify
+    // modify
     fn modify(&self) {
 
     }
 
-    /// delete
+    // delete
     fn delete(&self) {
         
     }

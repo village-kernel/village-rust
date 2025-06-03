@@ -5,7 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 
-/// System
+// System
 pub trait System {
     fn systick_counter(&self);
     fn get_sysclk_counts(&self) -> u32;
@@ -20,7 +20,7 @@ pub trait System {
     fn reboot(&self);
 }
 
-/// Memory
+// Memory
 pub trait Memory {
     fn heap_alloc(&self, size: u32) -> u32;
     fn stack_alloc(&self, size: u32) -> u32;
@@ -31,7 +31,7 @@ pub trait Memory {
     fn get_curr_addr(&self) -> u32;
 }
 
-/// Debug
+// Debug
 pub trait Debug {
     fn log(&self, log: &str);
     fn info(&self, log: &str);
@@ -40,7 +40,7 @@ pub trait Debug {
     fn output(&self, level: i32, msg: &str);
 }
 
-/// Interrupt
+// Interrupt
 pub trait Interrupt {
     fn set_isr(&self);
     fn append_isr(&self);
@@ -50,13 +50,13 @@ pub trait Interrupt {
     fn handler(&self);
 }
 
-/// Scheduler
+// Scheduler
 pub trait Scheduler {
     fn start(&self);
     fn sched(&self);
 }
 
-/// Thread
+// Thread
 pub trait Thread {
     fn create_task(&self) -> i32;
     
@@ -80,27 +80,27 @@ pub trait Thread {
     fn idle_task(&self);
 }
 
-/// Symbol
+// Symbol
 pub trait Symbol {
     fn export(&self, sym_addr: u32, name: &str);
     fn unexport(&self, name: &str);
     fn search(&self, name: &str);
 }
 
-/// Device
+// Device
 pub trait Device {
     fn register_block_device(&self);
     fn unregister_block_device(&self);
 }
 
-/// Feature
+// Feature
 pub trait Feature {
     fn register_module(&self);
     fn unregister_module(&self);
     fn get_module(&self, name: &str);
 }
 
-/// FileSystem
+// FileSystem
 pub trait FileSystem {
     fn mount_hard_drive(&self, disk: &str) -> bool;
     fn unmount_hard_drive(&self, disk: &str) -> bool;
@@ -111,7 +111,7 @@ pub trait FileSystem {
     fn get_volume(&self, name: &str);
 }
 
-/// WorkQueue
+// WorkQueue
 pub trait WorkQueue {
     fn create(&self);
 
@@ -119,49 +119,49 @@ pub trait WorkQueue {
     fn sched(&self);
 }
 
-/// Event
+// Event
 pub trait Event {
     fn init_input_device(&self);
     fn exit_input_device(&self);
 }
 
-/// Loader
+// Loader
 pub trait Loader {
     fn load(&self);
     fn unload(&self);
 }
 
-/// Process
+// Process
 pub trait Process {
     fn register_executor(&self);
     fn unregister_executor(&self);
 }
 
-/// Timer
+// Timer
 pub trait Timer {
     fn create(&self);
     fn modify(&self);
     fn delete(&self);
 }
 
-/// Terminal
+// Terminal
 pub trait Terminal {
     fn register_cmd(&self);
     fn unregister_cmd(&self);
 }
 
-/// Signal
+// Signal
 pub trait Signal {
     fn raising(&self, signal: i32);
 }
 
-/// Protocol
+// Protocol
 pub trait Protocol {
     fn register_stack(&self);
     fn unregister_stack(&self);
 }
 
-/// Kernel
+// Kernel
 pub trait Kernel {
     fn setup(&self);
     fn start(&self);
@@ -197,19 +197,19 @@ pub trait Kernel {
     fn protocol(&self) -> &dyn Protocol;
 }
 
-/// Declarations kernel pointer
+// Declarations kernel pointer
 use core::sync::atomic::{AtomicBool, Ordering};
 static mut KERNEL: Option<&'static dyn Kernel> = None;
 static INITIALIZED: AtomicBool = AtomicBool::new(false);
 
-/// Kernel
+// Kernel
 pub fn kernel() -> &'static dyn Kernel {
     unsafe {
         KERNEL.expect("Kernel not initialized")
     }
 }
 
-/// Init kernel
+// Init kernel
 pub fn init_kernel(k: &'static dyn Kernel) {
     if INITIALIZED.compare_exchange(
         false, 

@@ -7,51 +7,51 @@
 use crate::traits::vk_kernel::kernel;
 use crate::traits::vk_kernel::Interrupt;
 
-/// struct concrete interrupt
+// struct concrete interrupt
 pub struct ConcreteInterrupt;
 
-/// impl concrete interrupt
+// impl concrete interrupt
 impl ConcreteInterrupt {
-    /// setup
+    // setup
     pub fn setup(&self) {
         //output debug info
         kernel().debug().info("Interrupt setup done!");
     }
 
-    /// exit
+    // exit
     pub fn exit(&self) {
 
     }
 }
 
-/// impl interrupt for concrete interrupt
+// impl interrupt for concrete interrupt
 impl Interrupt for ConcreteInterrupt {
-    /// set isr
+    // set isr
     fn set_isr(&self) {
 
     }
 
-    /// append isr
+    // append isr
     fn append_isr(&self) {
 
     }
 
-    /// remove isr
+    // remove isr
     fn remove_isr(&self) {
 
     }
 
-    /// clear isr
+    // clear isr
     fn clear_isr(&self) {
 
     }
 
-    /// replace
+    // replace
     fn replace(&self) {
 
     }
 
-    /// handler
+    // handler
     fn handler(&self) {
 
     }

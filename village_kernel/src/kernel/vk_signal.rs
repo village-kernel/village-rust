@@ -7,26 +7,26 @@
 use crate::traits::vk_kernel::kernel;
 use crate::traits::vk_kernel::Signal;
 
-/// struct concrete signal
+// struct concrete signal
 pub struct ConcreteSignal;
 
-/// impl concrete signal
+// impl concrete signal
 impl ConcreteSignal {
-    /// setup
+    // setup
     pub fn setup(&self) {
         //output debug info
         kernel().debug().info("Signal setup done!");
     }
 
-    /// exit
+    // exit
     pub fn exit(&self) {
 
     }
 }
 
-/// impl signal for concrete signal
+// impl signal for concrete signal
 impl Signal for ConcreteSignal {
-    /// raising
+    // raising
     fn raising(&self, signal: i32) {
         
     }

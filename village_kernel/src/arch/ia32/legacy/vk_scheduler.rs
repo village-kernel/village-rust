@@ -7,31 +7,31 @@
 use crate::traits::vk_kernel::kernel;
 use crate::traits::vk_kernel::Scheduler;
 
-/// struct concrete scheduler
+// struct concrete scheduler
 pub struct ConcreteScheduler;
 
-/// impl concrete scheduler
+// impl concrete scheduler
 impl ConcreteScheduler {
-    /// setup
+    // setup
     pub fn setup(&self) {
         //output debug info
         kernel().debug().info("Scheduler setup done!");
     }
 
-    /// exit
+    // exit
     pub fn exit(&self) {
 
     }
 }
 
-/// impl scheduler for concrete scheduler
+// impl scheduler for concrete scheduler
 impl Scheduler for ConcreteScheduler {
-    /// start
+    // start
     fn start(&self) {
 
     }
     
-    /// sched
+    // sched
     fn sched(&self) {
 
     }

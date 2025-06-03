@@ -6,65 +6,65 @@
 //###########################################################################
 use crate::traits::vk_kernel::System;
 
-/// struct concrete system
+// struct concrete system
 pub struct ConcreteSystem;
 
-/// impl concrete system
+// impl concrete system
 impl ConcreteSystem {
-    /// setup
+    // setup
     pub fn setup(&self) {
 
     }
 
-    /// exit
+    // exit
     pub fn exit(&self) {
 
     }
 }
 
-/// impl system for concrete system
+// impl system for concrete system
 impl System for ConcreteSystem {
-    /// systick counter
+    // systick counter
     fn systick_counter(&self) {
 
     }
 
-    /// get sysclk counts
+    // get sysclk counts
     fn get_sysclk_counts(&self) -> u32 {
         0
     }
 
-    /// delay ms
+    // delay ms
     fn delay_ms(&self, millis: u32) {
         
     }
 
-    /// enable irq
+    // enable irq
     fn enable_irq(&self) {
 
     }
 
-    /// disable irq
+    // disable irq
     fn disable_irq(&self) {
 
     }
 
-    /// sleep
+    // sleep
     fn sleep(&self) {
 
     }
 
-    /// standby
+    // standby
     fn standby(&self) {
 
     }
 
-    /// shutdown
+    // shutdown
     fn shutdown(&self) {
 
     }
 
-    /// reboot
+    // reboot
     fn reboot(&self) {
         
     }
