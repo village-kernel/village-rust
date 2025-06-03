@@ -68,6 +68,7 @@ pub mod vendor {
 // import vklibs modules
 pub mod vklibs {
     pub mod libc{
+        pub mod stdlib;
         pub mod string;
     }
 }
