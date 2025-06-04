@@ -59,7 +59,9 @@ pub mod terminal {
     pub mod vk_terminal;
 }
 
+// import traits modules
 pub mod traits {
+    pub mod vk_callback;
     pub mod vk_kernel;
 }
 
