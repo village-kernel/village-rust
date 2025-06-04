@@ -48,7 +48,7 @@ pub struct Village {
 
 // impl village 
 impl Village {
-    //new village object
+    // new village object
     pub const fn new() -> Self {
         Self {
             system:    ConcreteSystem::new(),
@@ -75,256 +75,259 @@ impl Village {
 
 // impl kernel for village 
 impl Kernel for Village {
-    //setup
+    // setup
     fn setup(&self) {
-        //setup interrupt
-        self.interrupt.setup();
-
-        //setup system
+        // setup system
         self.system.setup();
 
-        //setup memory
+        // setup memory
         self.memory.setup();
 
-        //setup device
+        // setup interrupt
+        self.interrupt.setup();
+
+        // setup device
         self.device.setup();
 
-        //setup scheduler
+        // setup debug
+        self.debug.setup();
+
+        // setup scheduler
         self.scheduler.setup();
 
-        //setup thread
+        // setup thread
         self.thread.setup();
 
-        //setup work queue
+        // setup work queue
         self.workqueue.setup();
 
-        //setup event
+        // setup event
         self.event.setup();
 
-        //setup symbol
+        // setup symbol
         self.symbol.setup();
 
-        //setup timer
+        // setup timer
         self.timer.setup();
 
-        //setup filesys
+        // setup filesys
         self.filesys.setup();
 
-        //setup terminal
+        // setup terminal
         self.terminal.setup();
 
-        //setup feature
+        // setup feature
         self.feature.setup();
 
-        //setup loader
+        // setup loader
         self.loader.setup();
 
-        //setup process
+        // setup process
         self.process.setup();
 
-        //setup signal
+        // setup signal
         self.signal.setup();
 
-        //setup protocol
+        // setup protocol
         self.protocol.setup();
     }
 
-    //start
+    // start
     fn start(&self) {
-        //start thread
+        // start thread
         self.thread.start();
 
-        //start scheduler
+        // start scheduler
         self.scheduler.start();
 
-        //should not go to here
+        // should not go to here
         loop {}
     }
 
-    //exit
+    // exit
     fn exit(&self) {
-        //exit protocol
+        // exit protocol
         self.protocol.exit();
 
-        //exit signal
+        // exit signal
         self.signal.exit();
 
-        //exit process
+        // exit process
         self.process.exit();
 
-        //exit loader
+        // exit loader
         self.loader.exit();
 
-        //exit feature
+        // exit feature
         self.feature.exit();
 
-        //exit terminal
+        // exit terminal
         self.terminal.exit();
 
-        //exit filesys
+        // exit filesys
         self.filesys.exit();
 
-        //exit timer
+        // exit timer
         self.timer.exit();
 
-        //exit symbol
+        // exit symbol
         self.symbol.exit();
 
-        //exit event
+        // exit event
         self.event.exit();
 
-        //exit work queue
+        // exit work queue
         self.workqueue.exit();
 
-        //exit thread
+        // exit thread
         self.thread.exit();
 
-        //exit debug
+        // exit debug
         self.debug.exit();
 
-        //exit device
+        // exit device
         self.device.exit();
 
-        //exit memory
+        // exit interrupt
+        self.interrupt.exit();
+
+        // exit memory
         self.memory.exit();
 
-        //exit system
+        // exit system
         self.system.exit();
-
-        //exit interrupt
-        self.interrupt.exit();
     }
 
-    //sleep
+    // sleep
     fn sleep(&self) {
         self.system.sleep();
     }
 
-    //standby
+    // standby
     fn standby(&self) {
         self.system.standby();
     }
 
-    //shutdown
+    // shutdown
     fn shutdown(&self) {
         self.system.shutdown();
     }
 
-    //reboot
+    // reboot
     fn reboot(&self) {
         self.system.reboot();
     }
 
-    //get build date
+    // get build date
     fn get_build_date(&self) {
         
     }
 
-    //get build time
+    // get build time
     fn get_build_time(&self) {
         
     }
 
-    //get build version
+    // get build version
     fn get_build_version(&self) {
         
     }
 
-    //get build git sha
+    // get build git sha
     fn get_build_git_sha(&self) {
         
     }
 
-    //system
+    // system
     fn system(&self) -> &dyn System {
         &self.system
     }
     
-    //memory
+    // memory
     fn memory(&self) -> &dyn Memory {
         &self.memory
     }
 
-    //debug
+    // debug
     fn debug(&self) -> &dyn Debug {
         &self.debug
     }
 
-    //interrupt
+    // interrupt
     fn interrupt(&self) -> &dyn Interrupt {
         &self.interrupt
     }
 
-    //scheduler
+    // scheduler
     fn scheduler(&self) -> &dyn Scheduler {
         &self.scheduler
     }
 
-    //thread
+    // thread
     fn thread(&self) -> &dyn Thread {
         &self.thread
     }
 
-    //workqueue
+    // workqueue
     fn workqueue(&self) -> &dyn WorkQueue {
         &self.workqueue
     }
 
-    //event
+    // event
     fn event(&self) -> &dyn Event {
         &self.event
     }
 
-    //symbol
+    // symbol
     fn symbol(&self) -> &dyn Symbol {
         &self.symbol
     }
 
-    //device
+    // device
     fn device(&self) -> &dyn Device {
         &self.device
     }
 
-    //feature
+    // feature
     fn feature(&self) -> &dyn Feature {
         &self.feature
     }
 
-    //filesys
+    // filesys
     fn filesys(&self) -> &dyn FileSystem {
         &self.filesys
     }
 
-    //loader
+    // loader
     fn loader(&self) -> &dyn Loader {
         &self.loader
     }
 
-    //process
+    // process
     fn process(&self) -> &dyn Process {
         &self.process
     }
 
-    //timer
+    // timer
     fn timer(&self) -> &dyn Timer {
         &self.timer
     }
 
-    //terminal
+    // terminal
     fn terminal(&self) -> &dyn Terminal {
         &self.terminal
     }
 
-    //signal
+    // signal
     fn signal(&self) -> &dyn Signal {
         &self.signal
     }
 
-    //protocol
+    // protocol
     fn protocol(&self) -> &dyn Protocol {
         &self.protocol
     }
 }
 
-//static kernel instance
+// static kernel instance
 pub static KERNEL_INSTANCE: Village = Village::new();

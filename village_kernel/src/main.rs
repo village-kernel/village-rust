@@ -20,10 +20,9 @@ pub fn __init_kernel() {
 // main
 #[no_mangle]
 pub fn main() {
-    let kernel = kernel();
-    kernel.setup();
-    kernel.start();
-    kernel.exit();
+    kernel().setup();
+    kernel().start();
+    kernel().exit();
 }
 
 // panic
