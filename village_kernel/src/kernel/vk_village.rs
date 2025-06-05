@@ -24,7 +24,7 @@ use crate::terminal::vk_terminal::ConcreteTerminal;
 use crate::arch::ia32::legacy::vk_system::ConcreteSystem;
 use crate::arch::ia32::legacy::vk_scheduler::ConcreteScheduler;
 
-// struct village
+// Struct village
 pub struct Village {
     system:    ConcreteSystem,
     memory:    ConcreteMemory,
@@ -46,9 +46,9 @@ pub struct Village {
     protocol:  ConcreteProtocol,
 }
 
-// impl village 
+// Impl village 
 impl Village {
-    // new village object
+    // New village object
     pub const fn new() -> Self {
         Self {
             system:    ConcreteSystem::new(),
@@ -73,261 +73,258 @@ impl Village {
     }
 }
 
-// impl kernel for village 
+// Impl kernel for village 
 impl Kernel for Village {
-    // setup
+    // Setup
     fn setup(&self) {
-        // setup system
+        // Setup system
         self.system.setup();
 
-        // setup memory
+        // Setup memory
         self.memory.setup();
 
-        // setup interrupt
+        // Setup interrupt
         self.interrupt.setup();
 
-        // setup device
+        // Setup device
         self.device.setup();
 
-        // setup debug
+        // Setup debug
         self.debug.setup();
 
-        // setup scheduler
+        // Setup scheduler
         self.scheduler.setup();
 
-        // setup thread
+        // Setup thread
         self.thread.setup();
 
-        // setup work queue
+        // Setup work queue
         self.workqueue.setup();
 
-        // setup event
+        // Setup event
         self.event.setup();
 
-        // setup symbol
+        // Setup symbol
         self.symbol.setup();
 
-        // setup timer
+        // Setup timer
         self.timer.setup();
 
-        // setup filesys
+        // Setup filesys
         self.filesys.setup();
 
-        // setup terminal
+        // Setup terminal
         self.terminal.setup();
 
-        // setup feature
+        // Setup feature
         self.feature.setup();
 
-        // setup loader
+        // Setup loader
         self.loader.setup();
 
-        // setup process
+        // Setup process
         self.process.setup();
 
-        // setup signal
+        // Setup signal
         self.signal.setup();
 
-        // setup protocol
+        // Setup protocol
         self.protocol.setup();
     }
 
-    // start
+    // Start
     fn start(&self) {
-        // start thread
+        // Start thread
         self.thread.start();
 
-        // start scheduler
+        // Start scheduler
         self.scheduler.start();
 
-        // should not go to here
+        // Should not go to here
         loop {}
     }
 
-    // exit
+    // Exit
     fn exit(&self) {
-        // exit protocol
+        // Exit protocol
         self.protocol.exit();
 
-        // exit signal
+        // Exit signal
         self.signal.exit();
 
-        // exit process
+        // Exit process
         self.process.exit();
 
-        // exit loader
+        // Exit loader
         self.loader.exit();
 
-        // exit feature
+        // Exit feature
         self.feature.exit();
 
-        // exit terminal
+        // Exit terminal
         self.terminal.exit();
 
-        // exit filesys
+        // Exit filesys
         self.filesys.exit();
 
-        // exit timer
+        // Exit timer
         self.timer.exit();
 
-        // exit symbol
+        // Exit symbol
         self.symbol.exit();
 
-        // exit event
+        // Exit event
         self.event.exit();
 
-        // exit work queue
+        // Exit work queue
         self.workqueue.exit();
 
-        // exit thread
+        // Exit thread
         self.thread.exit();
 
-        // exit debug
+        // Exit debug
         self.debug.exit();
 
-        // exit device
+        // Exit device
         self.device.exit();
 
-        // exit interrupt
+        // Exit interrupt
         self.interrupt.exit();
 
-        // exit memory
+        // Exit memory
         self.memory.exit();
 
-        // exit system
+        // Exit system
         self.system.exit();
     }
 
-    // sleep
+    // Sleep
     fn sleep(&self) {
         self.system.sleep();
     }
 
-    // standby
+    // Standby
     fn standby(&self) {
         self.system.standby();
     }
 
-    // shutdown
+    // Shutdown
     fn shutdown(&self) {
         self.system.shutdown();
     }
 
-    // reboot
+    // Reboot
     fn reboot(&self) {
         self.system.reboot();
     }
 
-    // get build date
+    // Get build date
     fn get_build_date(&self) {
         
     }
 
-    // get build time
+    // Get build time
     fn get_build_time(&self) {
         
     }
 
-    // get build version
+    // Get build version
     fn get_build_version(&self) {
         
     }
 
-    // get build git sha
+    // Get build git sha
     fn get_build_git_sha(&self) {
         
     }
 
-    // system
+    // System
     fn system(&self) -> &dyn System {
         &self.system
     }
     
-    // memory
+    // Memory
     fn memory(&self) -> &dyn Memory {
         &self.memory
     }
 
-    // debug
+    // Debug
     fn debug(&self) -> &dyn Debug {
         &self.debug
     }
 
-    // interrupt
+    // Interrupt
     fn interrupt(&self) -> &dyn Interrupt {
         &self.interrupt
     }
 
-    // scheduler
+    // Scheduler
     fn scheduler(&self) -> &dyn Scheduler {
         &self.scheduler
     }
 
-    // thread
+    // Thread
     fn thread(&self) -> &dyn Thread {
         &self.thread
     }
 
-    // workqueue
+    // Workqueue
     fn workqueue(&self) -> &dyn WorkQueue {
         &self.workqueue
     }
 
-    // event
+    // Event
     fn event(&self) -> &dyn Event {
         &self.event
     }
 
-    // symbol
+    // Symbol
     fn symbol(&self) -> &dyn Symbol {
         &self.symbol
     }
 
-    // device
+    // Device
     fn device(&self) -> &dyn Device {
         &self.device
     }
 
-    // feature
+    // Feature
     fn feature(&self) -> &dyn Feature {
         &self.feature
     }
 
-    // filesys
+    // Filesys
     fn filesys(&self) -> &dyn FileSystem {
         &self.filesys
     }
 
-    // loader
+    // Loader
     fn loader(&self) -> &dyn Loader {
         &self.loader
     }
 
-    // process
+    // Process
     fn process(&self) -> &dyn Process {
         &self.process
     }
 
-    // timer
+    // Timer
     fn timer(&self) -> &dyn Timer {
         &self.timer
     }
 
-    // terminal
+    // Terminal
     fn terminal(&self) -> &dyn Terminal {
         &self.terminal
     }
 
-    // signal
+    // Signal
     fn signal(&self) -> &dyn Signal {
         &self.signal
     }
 
-    // protocol
+    // Protocol
     fn protocol(&self) -> &dyn Protocol {
         &self.protocol
     }
 }
-
-// static kernel instance
-pub static KERNEL_INSTANCE: Village = Village::new();

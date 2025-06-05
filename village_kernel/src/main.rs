@@ -8,24 +8,27 @@
 #![no_main]
 
 use core::panic::PanicInfo;
+use village_kernel::kernel::vk_village::Village;
 use village_kernel::traits::vk_kernel::{init_kernel, kernel};
-use village_kernel::kernel::vk_village;
 
-// init kernel
-#[no_mangle]
+// Static village kernel instance
+pub static VILLAGE: Village = Village::new();
+
+// Init kernel
+#[unsafe(no_mangle)]
 pub fn __init_kernel() {
-    init_kernel(&vk_village::KERNEL_INSTANCE);
+    init_kernel(&VILLAGE);
 }
 
-// main
-#[no_mangle]
+// Main
+#[unsafe(no_mangle)]
 pub fn main() {
     kernel().setup();
     kernel().start();
     kernel().exit();
 }
 
-// panic
+// Panic
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
     loop {}
