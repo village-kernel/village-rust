@@ -68,6 +68,10 @@ pub mod traits {
 // import vendor modules
 pub mod vendor {
     pub mod ia32legacy {
+        pub mod core {
+            pub mod i686;
+        }
+        
         pub mod crt0 {
             pub mod crt0_kernel;
         }
