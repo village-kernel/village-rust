@@ -8,16 +8,12 @@ extern crate alloc;
 use alloc::boxed::Box;
 use core::any::Any;
 
-// Callback trait that all callable types must implement
-pub trait Callback: Any { }
-
 // Type aliases for callback instance and function
 pub type CbInstance = Box<dyn Any>;
 pub type CbFunction = Box<dyn for<'a> FnMut(&'a mut dyn Any, *mut ())>;
 
-// Type aliases for function callback and method callback
+// Type aliases for function callback
 pub type FnCallback = fn(*mut ());
-pub type MethodCb<T> = fn(&mut T, *mut ());
 
 // Erase a function pointer to a callback function
 pub fn convert_fn_to_cb(func: FnCallback) -> CbFunction {
@@ -26,13 +22,29 @@ pub fn convert_fn_to_cb(func: FnCallback) -> CbFunction {
     })
 }
 
-// Erase a method pointer to a callback function
-pub fn convert_method_to_cb<T: 'static + Callback>(method: MethodCb<T>) -> CbFunction {
-    Box::new(move |obj: &mut dyn Any, data_ptr| {
-        if let Some(concrete_obj) = obj.downcast_mut::<T>() {
-            (method)(concrete_obj, data_ptr);
+// Type-erased callback wrapper struct that encapsulates 
+// a callable instance and its invocation logic
+pub struct MethodCb {
+    instance: CbInstance,
+    callback: CbFunction,
+}
+
+impl MethodCb {
+    pub fn new<T: 'static + Callback>(instance: T, method: fn(&mut T, *mut ())) -> Self {
+        MethodCb {
+            instance: Box::new(instance),
+            callback: Box::new(move |obj: &mut dyn Any, data| {
+                if let Some(concrete_obj) = obj.downcast_mut::<T>() {
+                    (method)(concrete_obj, data);
+                }
+            }),
         }
-    })
+    }
+}
+
+// Callback trait that all callable types must implement
+pub trait Callback: Any {
+    fn to_cb(self, method: fn(&mut Self, *mut ())) -> MethodCb;
 }
 
 // Structure to hold callback function, instance, and user data
@@ -60,9 +72,9 @@ impl CbInvoker {
     }
 
     // Register a class method-based callback
-    pub fn register_method<T: 'static + Callback>(&mut self, instance: T, method: MethodCb<T>, data: *mut ()) {
-        self.callback = Some(convert_method_to_cb(method));
-        self.instance = Some(Box::new(instance));
+    pub fn register_method(&mut self, method: MethodCb, data: *mut ()) {
+        self.callback = Some(method.callback);
+        self.instance = Some(method.instance);
         self.userdata = data;
     }
 
