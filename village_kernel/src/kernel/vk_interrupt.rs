@@ -7,15 +7,16 @@
 use spin::Mutex;
 use crate::traits::vk_kernel::kernel;
 use crate::traits::vk_kernel::Interrupt;
+use crate::traits::vk_callback::*;
 use crate::arch::ia32::legacy::vk_exception::ConcreteException;
 
-// struct concrete interrupt
+// Struct concrete interrupt
 pub struct ConcreteInterrupt {
     is_ready: Mutex<bool>,
-    exception: ConcreteException
+    exception: ConcreteException,
 }
 
-// impl concrete interrupt
+// Impl concrete interrupt
 impl ConcreteInterrupt {
     pub const fn new() -> Self {
         Self {
@@ -25,59 +26,74 @@ impl ConcreteInterrupt {
     }
 }
 
-// impl concrete interrupt
+// Impl concrete interrupt
 impl ConcreteInterrupt {
-    // setup
+    // Setup
     pub fn setup(&self) {
-        //setupt exception
+        // Setupt exception
         self.exception.setup();
 
-        //set ready flag
+        // Set ready flag
         *self.is_ready.lock() = true;
 
-        //output debug info
+        // Output debug info
         kernel().debug().info("Interrupt setup done!");
     }
 
-    // exit
+    // Exit
     pub fn exit(&self) {
-        // clear ready flag
+        // Clear ready flag
         *self.is_ready.lock() = false;
 
-        //exit exception
+        // Exit exception
         self.exception.exit();
     }
 }
 
-// impl interrupt for concrete interrupt
+// Impl interrupt for concrete interrupt
 impl Interrupt for ConcreteInterrupt {
-    // set isr
-    fn set_isr(&self) {
+     // Set ISR function callback
+    fn set_isr_fn_cb(&self, irq: isize, func: FnCallback, args: *mut()) {
 
     }
 
-    // append isr
-    fn append_isr(&self) {
+    // Set ISR method callback
+    fn set_isr_meth_cb(&mut self, irq: isize, method: MethodCb, data: *mut ()) {
 
     }
 
-    // remove isr
-    fn remove_isr(&self) {
+    // Add ISR function callback
+    fn add_isr_fn_cb(&self, irq: isize, func: FnCallback, args: *mut()) {
 
     }
 
-    // clear isr
-    fn clear_isr(&self) {
+    // Add ISR method callback
+    fn add_isr_meth_cb(&mut self, irq: isize, method: MethodCb, data: *mut ()) {
 
     }
 
-    // replace
-    fn replace(&self) {
+    // Del ISR function callback
+    fn del_isr_fn_cb(&self, irq: isize, func: FnCallback, args: *mut()) {
 
     }
 
-    // handler
-    fn handler(&self) {
+    // Del ISR method callback
+    fn del_isr_meth_cb(&mut self, irq: isize, method: MethodCb, data: *mut ()) {
+
+    }
+    
+    // Clear ISR callbacks
+    fn clear_isr_cb(&self, irq: isize) {
+
+    }
+    
+    // Replace ISR handler
+    fn replace(&self, handler: usize) {
+
+    }
+    
+    // Feature Methods
+    fn handler(&self, irq: isize) {
 
     }
 }
