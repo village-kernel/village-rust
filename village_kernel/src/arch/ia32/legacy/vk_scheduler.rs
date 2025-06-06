@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::traits::vk_kernel::kernel;
+use crate::village::kernel;
 use crate::traits::vk_kernel::Scheduler;
 
 // struct concrete scheduler
@@ -20,13 +20,13 @@ impl ConcreteScheduler {
 // impl concrete scheduler
 impl ConcreteScheduler {
     // setup
-    pub fn setup(&self) {
+    pub fn setup(&mut self) {
         //output debug info
         kernel().debug().info("Scheduler setup done!");
     }
 
     // exit
-    pub fn exit(&self) {
+    pub fn exit(&mut self) {
 
     }
 }
@@ -34,12 +34,12 @@ impl ConcreteScheduler {
 // impl scheduler for concrete scheduler
 impl Scheduler for ConcreteScheduler {
     // start
-    fn start(&self) {
+    fn start(&mut self) {
 
     }
     
     // sched
-    fn sched(&self) {
+    fn sched(&mut self) {
 
     }
 }

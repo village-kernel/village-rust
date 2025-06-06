@@ -8,17 +8,7 @@
 #![no_main]
 
 use core::panic::PanicInfo;
-use village_kernel::kernel::vk_village::Village;
-use village_kernel::traits::vk_kernel::{init_kernel, kernel};
-
-// Static village kernel instance
-pub static VILLAGE: Village = Village::new();
-
-// Init kernel
-#[unsafe(no_mangle)]
-pub fn __init_kernel() {
-    init_kernel(&VILLAGE);
-}
+use village_kernel::village::kernel;
 
 // Main
 #[unsafe(no_mangle)]

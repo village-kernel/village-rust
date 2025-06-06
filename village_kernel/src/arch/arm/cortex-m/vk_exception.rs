@@ -18,12 +18,12 @@ impl ConcreteException {
 /// impl concrete exception
 impl ConcreteException {
     /// setup
-    pub fn setup(&self) {
+    pub fn setup(&mut self) {
 
     }
 
     /// exit
-    pub fn exit(&self) {
+    pub fn exit(&mut self) {
 
     }
 }

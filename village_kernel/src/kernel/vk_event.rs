@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::traits::vk_kernel::kernel;
+use crate::village::kernel;
 use crate::traits::vk_kernel::Event;
 
 // struct concrete event
@@ -20,13 +20,13 @@ impl ConcreteEvent {
 // impl concrete event
 impl ConcreteEvent {
     // setup
-    pub fn setup(&self) {
+    pub fn setup(&mut self) {
         //output debug info
         kernel().debug().info("Input event setup done!");
     }
 
     // exit
-    pub fn exit(&self) {
+    pub fn exit(&mut self) {
 
     }
 }
@@ -34,12 +34,12 @@ impl ConcreteEvent {
 // impl event for concrete event
 impl Event for ConcreteEvent {
     // init input device
-    fn init_input_device(&self) {
+    fn init_input_device(&mut self) {
 
     }
 
     // exit input device
-    fn exit_input_device(&self) {
+    fn exit_input_device(&mut self) {
 
     }
 }

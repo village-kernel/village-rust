@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::traits::vk_kernel::kernel;
+use crate::village::kernel;
 use crate::traits::vk_kernel::Terminal;
 
 // struct concrete terminal
@@ -20,13 +20,13 @@ impl ConcreteTerminal {
 // impl concrete terminal
 impl ConcreteTerminal {
     // setup
-    pub fn setup(&self) {
+    pub fn setup(&mut self) {
         //output debug info
         kernel().debug().info("Terminal setup done!");
     }
 
     // exit
-    pub fn exit(&self) {
+    pub fn exit(&mut self) {
 
     }
 }
@@ -34,12 +34,12 @@ impl ConcreteTerminal {
 // impl terminal for concrete terminal
 impl Terminal for ConcreteTerminal {
     // register cmd
-    fn register_cmd(&self) {
+    fn register_cmd(&mut self) {
 
     }
 
     // unregister cmd
-    fn unregister_cmd(&self) {
+    fn unregister_cmd(&mut self) {
         
     }
 }

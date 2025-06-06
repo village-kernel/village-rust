@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::traits::vk_kernel::kernel;
+use crate::village::kernel;
 use crate::traits::vk_kernel::WorkQueue;
 
 // struct concrete work queue
@@ -20,13 +20,13 @@ impl ConcreteWorkQueue {
 // impl concrete work queue
 impl ConcreteWorkQueue {
     // setup
-    pub fn setup(&self) {
+    pub fn setup(&mut self) {
         //output debug info
         kernel().debug().info("Work queue setup done!");
     }
 
     // exit
-    pub fn exit(&self) {
+    pub fn exit(&mut self) {
 
     }
 }
@@ -34,17 +34,17 @@ impl ConcreteWorkQueue {
 // impl work queue for concrete work queue
 impl WorkQueue for ConcreteWorkQueue {
     // create
-    fn create(&self) {
+    fn create(&mut self) {
 
     }
 
     // delete
-    fn delete(&self) {
+    fn delete(&mut self) {
 
     }
 
     // sched
-    fn sched(&self) {
+    fn sched(&mut self) {
         
     }
 }

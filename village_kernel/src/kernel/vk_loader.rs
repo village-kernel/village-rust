@@ -5,7 +5,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################use crate::kernel::traits::vk_kernel::Loader;
-use crate::traits::vk_kernel::kernel;
+use crate::village::kernel;
 use crate::traits::vk_kernel::Loader;
 
 // struct concrete loader
@@ -21,13 +21,13 @@ impl ConcreteLoader {
 // impl concrete loader
 impl ConcreteLoader {
     // setup
-    pub fn setup(&self) {
+    pub fn setup(&mut self) {
         //output debug info
         kernel().debug().info("Loader setup done!");
     }
 
     // exit
-    pub fn exit(&self) {
+    pub fn exit(&mut self) {
 
     }
 }
@@ -35,12 +35,12 @@ impl ConcreteLoader {
 // impl loader for concrete loader
 impl Loader for ConcreteLoader {
     // load
-    fn load(&self) {
+    fn load(&mut self) {
 
     }
 
     // unload
-    fn unload(&self) {
+    fn unload(&mut self) {
         
     }
 }

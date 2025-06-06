@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::traits::vk_kernel::kernel;
+use crate::village::kernel;
 use crate::traits::vk_kernel::Debug;
 
 // 打印
@@ -33,13 +33,13 @@ impl ConcreteDebug {
 // impl concrete debug
 impl ConcreteDebug {
     // setup
-    pub fn setup(&self) {
+    pub fn setup(&mut self) {
         //output debug info
         kernel().debug().info("Debug setup done!");
     }
 
     // exit
-    pub fn exit(&self) {
+    pub fn exit(&mut self) {
 
     }
 }
@@ -47,27 +47,27 @@ impl ConcreteDebug {
 // impl debug for concrete debug
 impl Debug for ConcreteDebug {
     // log
-    fn log(&self, log: &str) {
+    fn log(&mut self, log: &str) {
         print(log);
     }
 
     // info
-    fn info(&self, info: &str) {
+    fn info(&mut self, info: &str) {
         print(info);
     }
 
     // error
-    fn error(&self, error: &str) {
+    fn error(&mut self, error: &str) {
         print(error);
     }
 
     // warn
-    fn warn(&self, warn: &str) {
+    fn warn(&mut self, warn: &str) {
         print(warn);
     }
 
     // output
-    fn output(&self, level: i32, msg: &str) {
+    fn output(&mut self, level: i32, msg: &str) {
         if level >= 0 && level <= 5 {
             print(msg);
         }

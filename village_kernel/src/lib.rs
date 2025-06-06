@@ -8,6 +8,9 @@
 #![no_main]
 #![feature(linkage)]
 
+// import village module
+pub mod village;
+
 // import arch modules
 pub mod arch {
     pub mod ia32 {
@@ -71,7 +74,7 @@ pub mod vendor {
         pub mod core {
             pub mod i686;
         }
-        
+
         pub mod crt0 {
             pub mod crt0_kernel;
         }

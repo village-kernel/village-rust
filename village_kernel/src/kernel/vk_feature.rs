@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::traits::vk_kernel::kernel;
+use crate::village::kernel;
 use crate::traits::vk_kernel::Feature;
 
 // struct concrete feature
@@ -20,13 +20,13 @@ impl ConcreteFeature {
 // impl concrete feature
 impl ConcreteFeature {
     // setup
-    pub fn setup(&self) {
+    pub fn setup(&mut self) {
         //output debug info
         kernel().debug().info("Feature setup done!");
     }
 
     // exit
-    pub fn exit(&self) {
+    pub fn exit(&mut self) {
 
     }
 }
@@ -34,17 +34,17 @@ impl ConcreteFeature {
 // impl feature for concrete feature
 impl Feature for ConcreteFeature {
     // register module
-    fn register_module(&self) {
+    fn register_module(&mut self) {
 
     }
 
     // unregister module
-    fn unregister_module(&self) {
+    fn unregister_module(&mut self) {
 
     }
 
     // get module
-    fn get_module(&self, name: &str) {
+    fn get_module(&mut self, name: &str) {
         let _ = name;
     }
 }

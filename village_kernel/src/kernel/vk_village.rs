@@ -4,7 +4,26 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::traits::vk_kernel::*;
+use crate::traits::vk_kernel::Kernel;
+use crate::traits::vk_kernel::System;
+use crate::traits::vk_kernel::Memory;
+use crate::traits::vk_kernel::Debug;
+use crate::traits::vk_kernel::Interrupt;
+use crate::traits::vk_kernel::Scheduler;
+use crate::traits::vk_kernel::Thread;
+use crate::traits::vk_kernel::WorkQueue;
+use crate::traits::vk_kernel::Event;
+use crate::traits::vk_kernel::Symbol;
+use crate::traits::vk_kernel::Device;
+use crate::traits::vk_kernel::Feature;
+use crate::traits::vk_kernel::FileSystem;
+use crate::traits::vk_kernel::Loader;
+use crate::traits::vk_kernel::Process;
+use crate::traits::vk_kernel::Timer;
+use crate::traits::vk_kernel::Terminal;
+use crate::traits::vk_kernel::Signal;
+use crate::traits::vk_kernel::Protocol;
+
 use super::vk_debug::ConcreteDebug;
 use super::vk_device::ConcreteDevice;
 use super::vk_event::ConcreteEvent;
@@ -76,7 +95,7 @@ impl Village {
 // Impl kernel for village 
 impl Kernel for Village {
     // Setup
-    fn setup(&self) {
+    fn setup(&mut self) {
         // Setup system
         self.system.setup();
 
@@ -133,7 +152,7 @@ impl Kernel for Village {
     }
 
     // Start
-    fn start(&self) {
+    fn start(&mut self) {
         // Start thread
         self.thread.start();
 
@@ -145,7 +164,7 @@ impl Kernel for Village {
     }
 
     // Exit
-    fn exit(&self) {
+    fn exit(&mut self) {
         // Exit protocol
         self.protocol.exit();
 
@@ -199,132 +218,132 @@ impl Kernel for Village {
     }
 
     // Sleep
-    fn sleep(&self) {
+    fn sleep(&mut self) {
         self.system.sleep();
     }
 
     // Standby
-    fn standby(&self) {
+    fn standby(&mut self) {
         self.system.standby();
     }
 
     // Shutdown
-    fn shutdown(&self) {
+    fn shutdown(&mut self) {
         self.system.shutdown();
     }
 
     // Reboot
-    fn reboot(&self) {
+    fn reboot(&mut self) {
         self.system.reboot();
     }
 
     // Get build date
-    fn get_build_date(&self) {
+    fn get_build_date(&mut self) {
         
     }
 
     // Get build time
-    fn get_build_time(&self) {
+    fn get_build_time(&mut self) {
         
     }
 
     // Get build version
-    fn get_build_version(&self) {
+    fn get_build_version(&mut self) {
         
     }
 
     // Get build git sha
-    fn get_build_git_sha(&self) {
+    fn get_build_git_sha(&mut self) {
         
     }
 
     // System
-    fn system(&self) -> &dyn System {
-        &self.system
+    fn system(&mut self) -> &mut dyn System {
+        &mut self.system
     }
     
     // Memory
-    fn memory(&self) -> &dyn Memory {
-        &self.memory
+    fn memory(&mut self) -> &mut dyn Memory {
+        &mut self.memory
     }
 
     // Debug
-    fn debug(&self) -> &dyn Debug {
-        &self.debug
+    fn debug(&mut self) -> &mut dyn Debug {
+        &mut self.debug
     }
 
     // Interrupt
-    fn interrupt(&self) -> &dyn Interrupt {
-        &self.interrupt
+    fn interrupt(&mut self) -> &mut dyn Interrupt {
+        &mut self.interrupt
     }
 
     // Scheduler
-    fn scheduler(&self) -> &dyn Scheduler {
-        &self.scheduler
+    fn scheduler(&mut self) -> &mut dyn Scheduler {
+        &mut self.scheduler
     }
 
     // Thread
-    fn thread(&self) -> &dyn Thread {
-        &self.thread
+    fn thread(&mut self) -> &mut dyn Thread {
+        &mut self.thread
     }
 
     // Workqueue
-    fn workqueue(&self) -> &dyn WorkQueue {
-        &self.workqueue
+    fn workqueue(&mut self) -> &mut dyn WorkQueue {
+        &mut self.workqueue
     }
 
     // Event
-    fn event(&self) -> &dyn Event {
-        &self.event
+    fn event(&mut self) -> &mut dyn Event {
+        &mut self.event
     }
 
     // Symbol
-    fn symbol(&self) -> &dyn Symbol {
-        &self.symbol
+    fn symbol(&mut self) -> &mut dyn Symbol {
+        &mut self.symbol
     }
 
     // Device
-    fn device(&self) -> &dyn Device {
-        &self.device
+    fn device(&mut self) -> &mut dyn Device {
+        &mut self.device
     }
 
     // Feature
-    fn feature(&self) -> &dyn Feature {
-        &self.feature
+    fn feature(&mut self) -> &mut dyn Feature {
+        &mut self.feature
     }
 
     // Filesys
-    fn filesys(&self) -> &dyn FileSystem {
-        &self.filesys
+    fn filesys(&mut self) -> &mut dyn FileSystem {
+        &mut self.filesys
     }
 
     // Loader
-    fn loader(&self) -> &dyn Loader {
-        &self.loader
+    fn loader(&mut self) -> &mut dyn Loader {
+        &mut self.loader
     }
 
     // Process
-    fn process(&self) -> &dyn Process {
-        &self.process
+    fn process(&mut self) -> &mut dyn Process {
+        &mut self.process
     }
 
     // Timer
-    fn timer(&self) -> &dyn Timer {
-        &self.timer
+    fn timer(&mut self) -> &mut dyn Timer {
+        &mut self.timer
     }
 
     // Terminal
-    fn terminal(&self) -> &dyn Terminal {
-        &self.terminal
+    fn terminal(&mut self) -> &mut dyn Terminal {
+        &mut self.terminal
     }
 
     // Signal
-    fn signal(&self) -> &dyn Signal {
-        &self.signal
+    fn signal(&mut self) -> &mut dyn Signal {
+        &mut self.signal
     }
 
     // Protocol
-    fn protocol(&self) -> &dyn Protocol {
-        &self.protocol
+    fn protocol(&mut self) -> &mut dyn Protocol {
+        &mut self.protocol
     }
 }

@@ -19,12 +19,12 @@ impl ConcreteSystem {
 // impl concrete system
 impl ConcreteSystem {
     // setup
-    pub fn setup(&self) {
+    pub fn setup(&mut self) {
 
     }
 
     // exit
-    pub fn exit(&self) {
+    pub fn exit(&mut self) {
 
     }
 }
@@ -32,47 +32,47 @@ impl ConcreteSystem {
 // impl system for concrete system
 impl System for ConcreteSystem {
     // systick counter
-    fn systick_counter(&self) {
+    fn systick_counter(&mut self) {
 
     }
 
     // get sysclk counts
-    fn get_sysclk_counts(&self) -> u32 {
+    fn get_sysclk_counts(&mut self) -> u32 {
         0
     }
 
     // delay ms
-    fn delay_ms(&self, millis: u32) {
+    fn delay_ms(&mut self, millis: u32) {
         let _ = millis;
     }
 
     // enable irq
-    fn enable_irq(&self) {
+    fn enable_irq(&mut self) {
 
     }
 
     // disable irq
-    fn disable_irq(&self) {
+    fn disable_irq(&mut self) {
 
     }
 
     // sleep
-    fn sleep(&self) {
+    fn sleep(&mut self) {
 
     }
 
     // standby
-    fn standby(&self) {
+    fn standby(&mut self) {
 
     }
 
     // shutdown
-    fn shutdown(&self) {
+    fn shutdown(&mut self) {
 
     }
 
     // reboot
-    fn reboot(&self) {
+    fn reboot(&mut self) {
         
     }
 }

@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::traits::vk_kernel::kernel;
+use crate::village::kernel;
 use crate::traits::vk_kernel::Thread;
 
 // struct concrete thread
@@ -20,18 +20,18 @@ impl ConcreteThread {
 // impl concrete thread
 impl ConcreteThread {
     // setup
-    pub fn setup(&self) {
+    pub fn setup(&mut self) {
         //output debug info
         kernel().debug().info("Thread setup done!");
     }
 
     // start
-    pub fn start(&self) {
+    pub fn start(&mut self) {
 
     }
 
     // exit
-    pub fn exit(&self) {
+    pub fn exit(&mut self) {
 
     }
 }
@@ -39,93 +39,93 @@ impl ConcreteThread {
 // impl thread for concrete thread
 impl Thread for ConcreteThread {
     // create task
-    fn create_task(&self) -> i32 {
+    fn create_task(&mut self) -> i32 {
         0
     }
     
     // get task id
-    fn get_task_id(&self) -> i32 {
+    fn get_task_id(&mut self) -> i32 {
         0
     }
 
     // start task
-    fn start_task(&self, tid: i32) -> bool {
+    fn start_task(&mut self, tid: i32) -> bool {
         let _ = tid;
         false
     }
 
     // stop task
-    fn stop_task(&self, tid: i32) -> bool {
+    fn stop_task(&mut self, tid: i32) -> bool {
         let _ = tid;
         false
     }
 
     // wait for task
-    fn wait_for_task(&self, tid: i32) -> bool {
+    fn wait_for_task(&mut self, tid: i32) -> bool {
         let _ = tid;
         false
     }
 
     // exit blocked
-    fn exit_blocked(&self, tid: i32) -> bool {
+    fn exit_blocked(&mut self, tid: i32) -> bool {
         let _ = tid;
         false
     }
 
     // delete task
-    fn delete_task(&self, tid: i32) -> bool {
+    fn delete_task(&mut self, tid: i32) -> bool {
         let _ = tid;
         false
     }
 
     // is task alive
-    fn is_task_alive(&self, tid: i32) -> bool {
+    fn is_task_alive(&mut self, tid: i32) -> bool {
         let _ = tid;
         false
     }
 
     // get tasks
-    fn get_tasks(&self) {
+    fn get_tasks(&mut self) {
 
     }
 
     // change state
-    fn change_state(&self) {
+    fn change_state(&mut self) {
 
     }
 
     // sleep
-    fn sleep(&self) {
+    fn sleep(&mut self) {
 
     }
 
     // blocked
-    fn blocked(&self) {
+    fn blocked(&mut self) {
 
     }
     
     // task exit
-    fn task_exit(&self) {
+    fn task_exit(&mut self) {
 
     }
 
     // save task psp
-    fn save_task_psp(&self, psp: u32) {
+    fn save_task_psp(&mut self, psp: u32) {
         let _ = psp;
     }
 
     // get task psp
-    fn get_task_psp(&self) -> u32 {
+    fn get_task_psp(&mut self) -> u32 {
         0
     }
     
     // select next task
-    fn select_next_task(&self) {
+    fn select_next_task(&mut self) {
 
     }
 
     // idle task
-    fn idle_task(&self) {
+    fn idle_task(&mut self) {
 
     }
 }

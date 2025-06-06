@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::traits::vk_kernel::kernel;
+use crate::village::kernel;
 use crate::traits::vk_kernel::Device;
 
 // struct concrete device
@@ -20,13 +20,13 @@ impl ConcreteDevice {
 // impl concrete device
 impl ConcreteDevice {
     // setup
-    pub fn setup(&self) {
+    pub fn setup(&mut self) {
         //output debug info
         kernel().debug().info("Device setup done!");
     }
 
     // exit
-    pub fn exit(&self) {
+    pub fn exit(&mut self) {
 
     }
 }
@@ -34,12 +34,12 @@ impl ConcreteDevice {
 // impl deivce for concrete device
 impl Device for ConcreteDevice {
     // register block device
-    fn register_block_device(&self) {
+    fn register_block_device(&mut self) {
 
     }
 
     // unregister block device
-    fn unregister_block_device(&self) {
+    fn unregister_block_device(&mut self) {
 
     }
 }

@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::traits::vk_kernel::kernel;
+use crate::village::kernel;
 use crate::traits::vk_kernel::FileSystem;
 
 // struct concrete file system
@@ -20,13 +20,13 @@ impl ConcreteFileSystem {
 // impl concrete file system
 impl ConcreteFileSystem {
     // setup
-    pub fn setup(&self) {
+    pub fn setup(&mut self) {
         //output debug info
         kernel().debug().info("File system setup completed!");
     }
 
     // exit
-    pub fn exit(&self) {
+    pub fn exit(&mut self) {
 
     }
 }
@@ -34,29 +34,29 @@ impl ConcreteFileSystem {
 // impl file system for concrete file system
 impl FileSystem for ConcreteFileSystem {
     // mount hard drive
-    fn mount_hard_drive(&self, disk: &str) -> bool {
+    fn mount_hard_drive(&mut self, disk: &str) -> bool {
         let _ = disk;
         false
     }
 
     // unmount hard drive
-    fn unmount_hard_drive(&self, disk: &str) -> bool {
+    fn unmount_hard_drive(&mut self, disk: &str) -> bool {
         let _ = disk;
         false
     }
 
     // register fs
-    fn register_fs(&self, name: &str) {
+    fn register_fs(&mut self, name: &str) {
         let _ = name;
     }
 
     // unregister fs
-    fn unregister_fs(&self, name: &str) {
+    fn unregister_fs(&mut self, name: &str) {
         let _ = name;
     }
 
     // get volume
-    fn get_volume(&self, name: &str) {
+    fn get_volume(&mut self, name: &str) {
         let _ = name;
     }
 }

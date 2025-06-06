@@ -6,9 +6,6 @@
 //###########################################################################
 use core::arch::naked_asm;
 
-// extern init kernel
-unsafe extern "Rust" { unsafe fn __init_kernel(); }
-
 // extern main
 unsafe extern "Rust" { unsafe fn main(); }
 
@@ -277,8 +274,6 @@ pub extern "C" fn __fini_array() {
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn _start() {
     __init_data_bss();
-
-    __init_kernel();
 
     __preinit_array();
 

@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::traits::vk_kernel::kernel;
+use crate::village::kernel;
 use crate::traits::vk_kernel::Symbol;
 
 // struct concrete symbol
@@ -20,13 +20,13 @@ impl ConcreteSymbol {
 // impl concrete symbol
 impl ConcreteSymbol {
     // setup
-    pub fn setup(&self) {
+    pub fn setup(&mut self) {
         //output debug info
         kernel().debug().info("Symbol setup done!");
     }
 
     // exit
-    pub fn exit(&self) {
+    pub fn exit(&mut self) {
 
     }
 }
@@ -34,18 +34,18 @@ impl ConcreteSymbol {
 // impl symbol for concrete symbol
 impl Symbol for ConcreteSymbol {
     // export
-    fn export(&self, sym_addr: u32, name: &str) {
+    fn export(&mut self, sym_addr: u32, name: &str) {
         let _ = name;
         let _ = sym_addr;
     }
 
     // unexport
-    fn unexport(&self, name: &str) {
+    fn unexport(&mut self, name: &str) {
         let _ = name;
     }
     
     // search
-    fn search(&self, name: &str) {
+    fn search(&mut self, name: &str) {
         let _ = name;
     }
 }

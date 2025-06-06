@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::traits::vk_kernel::kernel;
+use crate::village::kernel;
 use crate::traits::vk_kernel::Signal;
 
 // struct concrete signal
@@ -20,13 +20,13 @@ impl ConcreteSignal {
 // impl concrete signal
 impl ConcreteSignal {
     // setup
-    pub fn setup(&self) {
+    pub fn setup(&mut self) {
         //output debug info
         kernel().debug().info("Signal setup done!");
     }
 
     // exit
-    pub fn exit(&self) {
+    pub fn exit(&mut self) {
 
     }
 }
@@ -34,7 +34,7 @@ impl ConcreteSignal {
 // impl signal for concrete signal
 impl Signal for ConcreteSignal {
     // raising
-    fn raising(&self, signal: i32) {
+    fn raising(&mut self, signal: i32) {
         let _ = signal;
     }
 }

@@ -5,7 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 extern crate alloc;
-use crate::traits::vk_kernel::kernel;
+use crate::village::kernel;
 use crate::traits::vk_kernel::Memory;
 use core::ptr;
 use core::alloc::{GlobalAlloc, Layout};
@@ -87,7 +87,7 @@ impl ConcreteMemory {
 // Impl concrete memory
 impl ConcreteMemory {
     // Setup
-    pub fn setup(&self) {
+    pub fn setup(&mut self) {
         // Return when initialized
         if self.initialized.load(Ordering::Acquire) != false {
             return;
@@ -158,7 +158,7 @@ impl ConcreteMemory {
     }
 
     // Exit
-    pub fn exit(&self) {
+    pub fn exit(&mut self) {
         // Clear initialized flag
         self.initialized.store(false, Ordering::Relaxed);
     }
@@ -167,7 +167,7 @@ impl ConcreteMemory {
 // Impl memory for concrete memory
 impl Memory for ConcreteMemory {
     // Heap alloc
-    fn heap_alloc(&self, size: u32) -> u32 {
+    fn heap_alloc(&mut self, size: u32) -> u32 {
         let size_of_node = core::mem::size_of::<MapNode>() as u32;
         let mut curr_node = self.curr.load(Ordering::Acquire);
         let mut alloc_addr = 0;
@@ -233,7 +233,7 @@ impl Memory for ConcreteMemory {
     }
     
     // Stack alloc
-    fn stack_alloc(&self, size: u32) -> u32 {
+    fn stack_alloc(&mut self, size: u32) -> u32 {
         let mut curr_node = self.tail.load(Ordering::Acquire);
         let mut alloc_addr = 0;
 
@@ -295,7 +295,7 @@ impl Memory for ConcreteMemory {
     }
     
     // Free
-    fn free(&self, memory: u32, size: u32) {
+    fn free(&mut self, memory: u32, size: u32) {
         if memory == 0 { return; }
 
         let size_of_node = core::mem::size_of::<MapNode>() as u32;
@@ -365,20 +365,20 @@ impl Memory for ConcreteMemory {
     }
     
     // Get size
-    fn get_size(&self) -> u32 {
+    fn get_size(&mut self) -> u32 {
         let sram_start = self.sram_start.load(Ordering::Relaxed);
         let sram_ended = self.sram_ended.load(Ordering::Relaxed);
         sram_ended - sram_start
     }
     
     // Get used
-    fn get_used(&self) -> u32 {
+    fn get_used(&mut self) -> u32 {
         let sram_used = self.sram_used.load(Ordering::Relaxed);
         sram_used
     }
     
     // Get curr addr
-    fn get_curr_addr(&self) -> u32 {
+    fn get_curr_addr(&mut self) -> u32 {
         let curr_ptr = self.curr.load(Ordering::Relaxed);
         unsafe { (*curr_ptr).map.addr }
     }
