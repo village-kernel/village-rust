@@ -45,10 +45,10 @@ use crate::arch::ia32::legacy::vk_scheduler::ConcreteScheduler;
 
 // Struct village
 pub struct Village {
-    system:    ConcreteSystem,
     memory:    ConcreteMemory,
     debug:     ConcreteDebug,
     interrupt: ConcreteInterrupt,
+    system:    ConcreteSystem,
     scheduler: ConcreteScheduler,
     thread:    ConcreteThread,
     workqueue: ConcreteWorkQueue,
@@ -70,10 +70,10 @@ impl Village {
     // New village object
     pub const fn new() -> Self {
         Self {
-            system:    ConcreteSystem::new(),
             memory:    ConcreteMemory::new(),
             debug:     ConcreteDebug::new(),
             interrupt: ConcreteInterrupt::new(),
+            system:    ConcreteSystem::new(),
             scheduler: ConcreteScheduler::new(),
             thread:    ConcreteThread::new(),
             workqueue: ConcreteWorkQueue::new(),
@@ -96,14 +96,14 @@ impl Village {
 impl Kernel for Village {
     // Setup
     fn setup(&mut self) {
-        // Setup system
-        self.system.setup();
-
         // Setup memory
         self.memory.setup();
 
         // Setup interrupt
         self.interrupt.setup();
+
+        // Setup system
+        self.system.setup();
 
         // Setup device
         self.device.setup();

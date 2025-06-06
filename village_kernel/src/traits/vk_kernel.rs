@@ -46,22 +46,26 @@ pub trait Debug {
 // Interrupt
 pub trait Interrupt  {
     // Set ISR Methods
-    fn set_isr_fn_cb(&mut self, irq: isize, func: FnCallback, args: *mut());
-    fn set_isr_meth_cb(&mut self, irq: isize, method: MethodCb, data: *mut ());
+    fn set_isr_fn_cb(&mut self, irq: isize, func: FnCallback);
+    fn set_isr_meth_cb(&mut self, irq: isize, method: MethodCb);
+    fn set_isr_fn_cb_with_data(&mut self, irq: isize, func: FnCallback, args: *mut());
+    fn set_isr_meth_cb_with_data(&mut self, irq: isize, method: MethodCb, args: *mut ());
     
-    // Append ISR Methods
-    fn add_isr_fn_cb(&mut self, irq: isize, func: FnCallback, args: *mut());
-    fn add_isr_meth_cb(&mut self, irq: isize, method: MethodCb, data: *mut ());
+    // Add ISR Methods
+    fn add_isr_fn_cb(&mut self, irq: isize, func: FnCallback);
+    fn add_isr_meth_cb(&mut self, irq: isize, method: MethodCb);
+    fn add_isr_fn_cb_with_data(&mut self, irq: isize, func: FnCallback, args: *mut());
+    fn add_isr_meth_cb_with_data(&mut self, irq: isize, method: MethodCb, args: *mut ());
     
-    // Remove ISR Methods
-    fn del_isr_fn_cb(&mut self, irq: isize, func: FnCallback, args: *mut());
-    fn del_isr_meth_cb(&mut self, irq: isize, method: MethodCb, data: *mut ());    
+    // Del ISR Methods
+    fn del_isr_fn_cb(&mut self, irq: isize, func: FnCallback);
+    fn del_isr_meth_cb(&mut self, irq: isize, method: MethodCb);
     
     // Clear ISR Methods
     fn clear_isr_cb(&mut self, irq: isize);
     
     // Replace Methods
-    fn replace(&mut self, handler: usize);
+    fn replace(&mut self, irq: isize, handler: usize);
     
     // Feature Methods
     fn handler(&mut self, irq: isize);

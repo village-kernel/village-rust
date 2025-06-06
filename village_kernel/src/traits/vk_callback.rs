@@ -15,6 +15,11 @@ pub type CbFunction = Box<dyn for<'a> FnMut(&'a mut dyn Any, *mut ())>;
 // Type aliases for function callback
 pub type FnCallback = fn(*mut ());
 
+// No user data
+pub fn no_user_data<T>() -> *mut T {
+    core::ptr::null_mut()
+}
+
 // Erase a function pointer to a callback function
 pub fn convert_fn_to_cb(func: FnCallback) -> CbFunction {
     Box::new(move |_: &mut dyn Any, data_ptr| {
@@ -30,9 +35,12 @@ pub struct MethodCb {
 }
 
 impl MethodCb {
-    pub fn new<T: 'static + Callback>(instance: T, method: fn(&mut T, *mut ())) -> Self {
+    pub fn new<T: 'static + Callback>(instance: &mut T, method: fn(&mut T, *mut ())) -> Self {
+        let instance_ptr = instance as *mut T;
+        let instance_box = unsafe { Box::from_raw(instance_ptr) };
+
         MethodCb {
-            instance: Box::new(instance),
+            instance: instance_box as CbInstance,
             callback: Box::new(move |obj: &mut dyn Any, data| {
                 if let Some(concrete_obj) = obj.downcast_mut::<T>() {
                     (method)(concrete_obj, data);
@@ -44,7 +52,11 @@ impl MethodCb {
 
 // Callback trait that all callable types must implement
 pub trait Callback: Any {
-    fn to_cb(self, method: fn(&mut Self, *mut ())) -> MethodCb;
+    // fn to_cb template
+    // fn to_cb(&mut self, method: fn(&mut Self, *mut ())) -> MethodCb {
+    //     MethodCb::new(self, method)
+    // }
+    fn to_cb(&mut self, method: fn(&mut Self, *mut ())) -> MethodCb;
 }
 
 // Structure to hold callback function, instance, and user data
@@ -65,14 +77,28 @@ impl CbInvoker {
     }
 
     // Register a function pointer-based callback
-    pub fn register_fn(&mut self, func: FnCallback, data: *mut ()) {
+    pub fn register_fn(&mut self, func: FnCallback) {
+        self.callback = Some(convert_fn_to_cb(func));
+        self.instance = Some(Box::new(()));
+        self.userdata = no_user_data();
+    }
+
+    // Register a function pointer-based callback with data
+    pub fn register_fn_with_data(&mut self, func: FnCallback, data: *mut ()) {
         self.callback = Some(convert_fn_to_cb(func));
         self.instance = Some(Box::new(()));
         self.userdata = data;
     }
 
     // Register a class method-based callback
-    pub fn register_method(&mut self, method: MethodCb, data: *mut ()) {
+    pub fn register_method(&mut self, method: MethodCb) {
+        self.callback = Some(method.callback);
+        self.instance = Some(method.instance);
+        self.userdata = no_user_data();
+    }
+
+    // Register a class method-based callback with data
+    pub fn register_method_with_data(&mut self, method: MethodCb, data: *mut ()) {
         self.callback = Some(method.callback);
         self.instance = Some(method.instance);
         self.userdata = data;

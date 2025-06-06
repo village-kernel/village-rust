@@ -16,6 +16,7 @@ pub mod arch {
     pub mod ia32 {
         pub mod legacy {
             pub mod vk_system;
+            pub mod vk_registers;
             pub mod vk_exception;
             pub mod vk_scheduler;
         }

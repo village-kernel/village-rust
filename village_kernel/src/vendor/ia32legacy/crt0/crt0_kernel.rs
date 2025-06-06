@@ -12,7 +12,7 @@ unsafe extern "Rust" { unsafe fn main(); }
 // irq handler
 #[linkage = "weak"]
 #[unsafe(naked)]
-#[unsafe(no_mangle)]
+//#[unsafe(no_mangle)]
 pub unsafe extern "C" fn irq_handler() {
     naked_asm!(
         "jmp .",
