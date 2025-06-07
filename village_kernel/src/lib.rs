@@ -8,6 +8,8 @@
 #![no_main]
 #![feature(linkage)]
 
+use core::panic::PanicInfo;
+
 // import village module
 pub mod village;
 
@@ -88,4 +90,10 @@ pub mod vklibs {
         pub mod stdlib;
         pub mod string;
     }
+}
+
+// Panic
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    loop {}
 }

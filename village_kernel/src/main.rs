@@ -7,7 +7,6 @@
 #![no_std]
 #![no_main]
 
-use core::panic::PanicInfo;
 use village_kernel::village::kernel;
 
 // Main
@@ -16,10 +15,4 @@ pub fn main() {
     kernel().setup();
     kernel().start();
     kernel().exit();
-}
-
-// Panic
-#[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    loop {}
 }
