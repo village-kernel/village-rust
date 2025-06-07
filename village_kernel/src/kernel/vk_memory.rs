@@ -103,7 +103,7 @@ impl ConcreteMemory {
 
             // Calculate sram start and end address
             let sram_start = unsafe { &_ebss as *const u32 as u32 } + KERNEL_RSVD_HEAP;
-            let sram_ended = unsafe { &_estack as *const u32 as u32 } + KERNEL_RSVD_STACK;
+            let sram_ended = unsafe { &_estack as *const u32 as u32 } - KERNEL_RSVD_STACK;
 
             // Aligning sram_start and sram_ended by align byte
             let sram_start = align_up(sram_start, ALIGN);
