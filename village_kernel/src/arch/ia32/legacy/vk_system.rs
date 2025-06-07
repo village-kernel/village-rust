@@ -36,7 +36,7 @@ impl ConcreteSystem {
         // Set interrupt handler
         kernel().interrupt().set_isr_meth_cb(
             SYSTICK_IRQN,
-            self.to_cb(ConcreteSystem::systick_handler)
+            self.to_cb(Self::systick_handler)
         );
 
         // Configure clock
@@ -47,7 +47,7 @@ impl ConcreteSystem {
     pub fn exit(&mut self) {
         kernel().interrupt().del_isr_meth_cb(
             SYSTICK_IRQN,
-            self.to_cb(ConcreteSystem::systick_handler)
+            self.to_cb(Self::systick_handler)
         );
     }
 
