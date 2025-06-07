@@ -25,7 +25,12 @@
             "miDebuggerPath": "i386-elf-gdb",
             "miDebuggerServerAddress": "localhost:1234",
             "stopAtEntry": true,
-            "preLaunchTask": "Run QEMU x86 bios"
+            "preLaunchTask": "Run QEMU x86 bios",
+            "setupCommands": [ {
+                "description": "Enable pretty-printing and set hex output",
+                "text": "-enable-pretty-printing\nset output-radix 16",
+                "ignoreFailures": false
+            } ]
         },
     ]
 }
