@@ -5,11 +5,12 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 extern crate alloc;
-use crate::village::kernel;
-use crate::traits::vk_kernel::Memory;
 use core::ptr;
 use core::alloc::{GlobalAlloc, Layout};
 use core::sync::atomic::{AtomicBool, AtomicPtr, AtomicU32, Ordering};
+use crate::village::kernel;
+use crate::traits::vk_kernel::Memory;
+use crate::misc::lock::vk_spinlock::SpinLock;
 
 const ALIGN: u32 = 4;
 const KERNEL_RSVD_HEAP: u32 = 1024;
@@ -58,8 +59,10 @@ pub struct ConcreteMemory {
     head: AtomicPtr<MapNode>,
     tail: AtomicPtr<MapNode>,
     curr: AtomicPtr<MapNode>,
-    
+
     initialized: AtomicBool,
+
+    lock: SpinLock,
 }
 
 // Impl sync for conrete memory
@@ -80,6 +83,8 @@ impl ConcreteMemory {
             curr: AtomicPtr::new(core::ptr::null_mut()),
 
             initialized: AtomicBool::new(false),
+
+            lock: SpinLock::new(),
         }
     }
 }
@@ -89,7 +94,7 @@ impl ConcreteMemory {
     // Setup
     pub fn setup(&mut self) {
         // Return when initialized
-        if self.initialized.load(Ordering::Acquire) != false {
+        if self.initialized.load(Ordering::Acquire) == true {
             return;
         }
 
@@ -118,7 +123,7 @@ impl ConcreteMemory {
             self.sbrk_heap.store(sbrk_heap, Ordering::Relaxed);
         }
 
-        // Initialize list, align 4 byts
+        // Initialize list, align 4 bytes
         if self.head.load(Ordering::Relaxed).is_null() ||
            self.head.load(Ordering::Relaxed).is_null()
         {
@@ -168,6 +173,8 @@ impl ConcreteMemory {
 impl Memory for ConcreteMemory {
     // Heap alloc
     fn heap_alloc(&mut self, size: u32) -> u32 {
+        self.lock.lock();
+
         let size_of_node = core::mem::size_of::<MapNode>() as u32;
         let mut curr_node = self.curr.load(Ordering::Acquire);
         let mut alloc_addr = 0;
@@ -178,43 +185,46 @@ impl Memory for ConcreteMemory {
                 let next_node = (*curr_node).next.load(Ordering::Relaxed);
 
                 if !next_node.is_null() {
-                    // Calculate the next map size
-                    let next_map_size = size_of_node + size;
+                    // Calculate the new node map size
+                    let new_map_size = size_of_node + size;
 
-                    // Calculate the next map
-                    let next_map_addr = (*curr_node).map.addr + (*curr_node).map.size;
+                    // Calculate the new node map
+                    let new_map_addr = (*curr_node).map.addr + (*curr_node).map.size;
 
                     // Align memory by aligning allocation sizes
-                    let next_map_size = align_up(next_map_size, ALIGN);
+                    let new_map_size = align_up(new_map_size, ALIGN);
 
                     // Align memory by aligning allocation addr
-                    let next_map_addr = align_up(next_map_addr, ALIGN);
+                    let new_map_addr = align_up(new_map_addr, ALIGN);
 
                     // Calculate the end addr
-                    let next_end_addr = next_map_addr + next_map_size;
+                    let new_end_addr = new_map_addr + new_map_size;
 
                     // There is free space between the current node and the next node
-                    if next_end_addr <= (*next_node).map.addr {
+                    if new_end_addr <= (*next_node).map.addr {
                         // Update the used size of sram
-                        self.sram_used.fetch_add(next_map_size, Ordering::SeqCst);
+                        self.sram_used.fetch_add(new_map_size, Ordering::SeqCst);
 
-                        // Add new node into list
-                        let new_node = next_map_addr as *mut MapNode;
+                        // Create an new node
+                        let new_node = new_map_addr as *mut MapNode;
                         ptr::write(new_node, MapNode{
-                            map: Map::new(next_map_addr, next_map_size),
+                            map: Map::new(new_map_addr, new_map_size),
                             prev: curr_node.into(),
                             next: next_node.into(),
                         });
 
+                        // Memory barrier: Ensure that the pointer update of the new node is visible to other threads.
+                        core::sync::atomic::fence(Ordering::Release);
+
                         // Update list
-                        (*curr_node).next.store(new_node, Ordering::Relaxed);
-                        (*next_node).prev.store(new_node, Ordering::Relaxed);
+                        (*curr_node).next.store(new_node, Ordering::Release);
+                        (*next_node).prev.store(new_node, Ordering::Release);
                         
                         // Update curr node
-                        self.curr.store(new_node, Ordering::Release);
+                        self.curr.store(new_node, Ordering::Relaxed);
 
                         // Calculate the alloc address
-                        alloc_addr = next_map_addr + size_of_node;
+                        alloc_addr = new_map_addr + size_of_node;
                         break;
                     }
                 }
@@ -229,11 +239,19 @@ impl Memory for ConcreteMemory {
             loop {}
         }
 
+        self.lock.unlock();
+
         alloc_addr
     }
     
     // Stack alloc
     fn stack_alloc(&mut self, size: u32) -> u32 {
+        // Create an new node by heap alloc
+        let size_of_node = core::mem::size_of::<MapNode>() as u32;
+        let new_node = self.heap_alloc(size_of_node) as *mut MapNode;
+
+        self.lock.lock();
+
         let mut curr_node = self.tail.load(Ordering::Acquire);
         let mut alloc_addr = 0;
 
@@ -243,40 +261,51 @@ impl Memory for ConcreteMemory {
                 let prev_node = (*curr_node).prev.load(Ordering::Acquire);
 
                 if !prev_node.is_null() {
-                    // Calculate the prev map size
-                    let prev_map_size = size;
+                    // Calculate the new map size
+                    let new_map_size = size;
                     
-                    // Calculate the prev map
-                    let prev_map_addr = (*curr_node).map.addr - (*curr_node).map.size;
+                    // Calculate the new map
+                    let new_map_addr = (*curr_node).map.addr - (*curr_node).map.size;
 
                     // Align memory by aligning allocation sizes
-                    let prev_map_size = align_up(prev_map_size, ALIGN);
+                    let new_map_size = align_up(new_map_size, ALIGN);
 
                     // Align memory by aligning allocation addr
-                    let prev_map_addr = align_up(prev_map_addr, ALIGN);
+                    let new_map_addr = align_up(new_map_addr, ALIGN);
 
                     // Calculate the end addr
-                    let prev_end_addr = prev_map_addr - prev_map_size;
+                    let new_end_addr = new_map_addr - new_map_size;
 
                     // There is free space between the current node and the prev node
-                    if prev_end_addr >= (*prev_node).map.addr {
+                    if new_end_addr >= (*prev_node).map.addr {
                         // Update the used size of sram
-                        self.sram_used.fetch_add(prev_map_size, Ordering::SeqCst);
+                        self.sram_used.fetch_add(new_map_size, Ordering::SeqCst);
 
-                        // Add new node into list
-                        let new_node = prev_map_addr as *mut MapNode;
+                        // Create an new node
+                        //let new_node = self.heap_alloc(core::mem::size_of::<MapNode>() as u32) as *mut MapNode;
                         ptr::write(new_node, MapNode{
-                            map: Map::new(prev_map_addr, prev_map_size),
+                            map: Map::new(new_map_addr, new_map_size),
                             prev: prev_node.into(),
                             next: curr_node.into(),
                         });
 
+                        // Memory barrier: Ensure that the pointer update of the new node is visible to other threads.
+                        core::sync::atomic::fence(Ordering::Release);
+
                         // Update list
-                        (*prev_node).next.store(new_node, Ordering::Relaxed);
-                        (*curr_node).prev.store(new_node, Ordering::Relaxed);
+                        (*prev_node).next.store(new_node, Ordering::Release);
+                        (*curr_node).prev.store(new_node, Ordering::Release);
+
+                        // Update current node
+                        let new_curr = (*new_node).prev.load(Ordering::Acquire);
+                        if !new_curr.is_null() {
+                            self.curr.store(new_curr, Ordering::Relaxed);
+                        } else {
+                            self.curr.store(self.head.load(Ordering::Relaxed), Ordering::Relaxed);
+                        }
 
                         // Calculate the alloc address
-                        alloc_addr = prev_map_addr;
+                        alloc_addr = new_map_addr;
                         break;
                     }
                 }
@@ -291,12 +320,16 @@ impl Memory for ConcreteMemory {
             loop {}
         }
 
+        self.lock.unlock();
+
         alloc_addr
     }
     
     // Free
     fn free(&mut self, memory: u32, size: u32) {
         if memory == 0 { return; }
+
+        self.lock.lock();
 
         let size_of_node = core::mem::size_of::<MapNode>() as u32;
         let mut curr_node = self.curr.load(Ordering::Acquire);
@@ -337,31 +370,28 @@ impl Memory for ConcreteMemory {
                         (*curr_node).map.size = curr_map_size - size;
                     }
 
-                    // Select new current node
-                    let prev_node = (*curr_node).prev.load(Ordering::Acquire);
-                    let new_curr = if !prev_node.is_null() {
-                        prev_node
-                    } else {
-                        self.head.load(Ordering::Relaxed)
-                    };
-                    
                     // Update current node
-                    if (*self.curr.load(Ordering::Relaxed)).map.addr > (*new_curr).map.addr {
-                        self.curr.store(new_curr, Ordering::Release);
-                    }
+                    let new_curr = (*curr_node).prev.load(Ordering::Acquire);
+                    if !new_curr.is_null() {
+                        self.curr.store(new_curr, Ordering::Relaxed);
+                    } else {
+                        self.curr.store(self.head.load(Ordering::Relaxed), Ordering::Relaxed);
+                    };
                     
                     // Update the used size of sram
                     self.sram_used.fetch_sub((*curr_node).map.size, Ordering::SeqCst);
                     break;
                 } else {
-                    curr_node = if memory <  (*curr_node).map.addr {
-                        (*curr_node).prev.load(Ordering::Acquire)
+                    if memory < (*curr_node).map.addr {
+                        curr_node = (*curr_node).prev.load(Ordering::Acquire);
                     } else {
-                        (*curr_node).next.load(Ordering::Acquire)
-                    };
+                        curr_node = (*curr_node).next.load(Ordering::Acquire);
+                    }
                 }   
             }
         }
+
+        self.lock.unlock();
     }
     
     // Get size
