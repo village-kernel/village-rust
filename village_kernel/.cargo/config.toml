@@ -10,7 +10,7 @@ rustflags = [
     "-C", "opt-level=0",
     "-C", "debuginfo=2",
     "-C", "link-arg=-T./targets/ia32legacy.lds",
-    "-C", "link-arg=-Map=../build/village_kernel/ia32legacy/debug/map.txt",
+    "-C", "link-arg=-Map=../build/village_kernel/ia32legacy/debug/village_kernel.map",
     "-C", "linker=rust-lld",
     "-C", "panic=abort",
 ]
