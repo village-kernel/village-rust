@@ -49,6 +49,105 @@ pub const COM6: u16 = 0x4f8;
 pub const COM7: u16 = 0x5e8;
 pub const COM8: u16 = 0x4e8;
 
+pub const COM_DATA_POS: u16 = 0;
+pub const COM_IT_ENA_POS: u16 = 1;
+pub const COM_LO_BAUD_POS: u16 = 0;
+pub const COM_HI_BAUD_POS: u16 = 1;
+pub const COM_IT_FIFO_POS: u16 = 2;
+pub const COM_LINE_CTRL_POS: u16 = 3;
+pub const COM_MODEM_CTRL_POS: u16 = 4;
+pub const COM_LINE_STATUS_POS: u16 = 5;
+pub const COM_MODEM_STATUS_POS: u16 = 6;
+pub const COM_SCRATCH_POS: u16 = 7;
+
+pub const COM1_DATA: u16 = COM1 + 0;
+pub const COM1_IT_ENA_REG: u16 = COM1 + 1;
+pub const COM1_LO_BAUD_REG: u16 = COM1 + 0;
+pub const COM1_HI_BAUD_REG: u16 = COM1 + 1;
+pub const COM1_IT_FIFO_REG: u16 = COM1 + 2;
+pub const COM1_LINE_CTRL_REG: u16 = COM1 + 3;
+pub const COM1_MODEM_CTRL_REG: u16 = COM1 + 4;
+pub const COM1_LINE_STATUS_REG: u16 = COM1 + 5;
+pub const COM1_MODEM_STATUS_REG: u16 = COM1 + 6;
+pub const COM1_SCRATCH_REG: u16 = COM1 + 7;
+
+pub const COM2_DATA: u16 = COM2 + 0;
+pub const COM2_IT_ENA_REG: u16 = COM2 + 1;
+pub const COM2_LO_BAUD_REG: u16 = COM2 + 0;
+pub const COM2_HI_BAUD_REG: u16 = COM2 + 1;
+pub const COM2_IT_FIFO_REG: u16 = COM2 + 2;
+pub const COM2_LINE_CTRL_REG: u16 = COM2 + 3;
+pub const COM2_MODEM_CTRL_REG: u16 = COM2 + 4;
+pub const COM2_LINE_STATUS_REG: u16 = COM2 + 5;
+pub const COM2_MODEM_STATUS_REG: u16 = COM2 + 6;
+pub const COM2_SCRATCH_REG: u16 = COM2 + 7;
+
+pub const COM3_DATA: u16 = COM3 + 0;
+pub const COM3_IT_ENA_REG: u16 = COM3 + 1;
+pub const COM3_LO_BAUD_REG: u16 = COM3 + 0;
+pub const COM3_HI_BAUD_REG: u16 = COM3 + 1;
+pub const COM3_IT_FIFO_REG: u16 = COM3 + 2;
+pub const COM3_LINE_CTRL_REG: u16 = COM3 + 3;
+pub const COM3_MODEM_CTRL_REG: u16 = COM3 + 4;
+pub const COM3_LINE_STATUS_REG: u16 = COM3 + 5;
+pub const COM3_MODEM_STATUS_REG: u16 = COM3 + 6;
+pub const COM3_SCRATCH_REG: u16 = COM3 + 7;
+
+pub const COM4_DATA: u16 = COM4 + 0;
+pub const COM4_IT_ENA_REG: u16 = COM4 + 1;
+pub const COM4_LO_BAUD_REG: u16 = COM4 + 0;
+pub const COM4_HI_BAUD_REG: u16 = COM4 + 1;
+pub const COM4_IT_FIFO_REG: u16 = COM4 + 2;
+pub const COM4_LINE_CTRL_REG: u16 = COM4 + 3;
+pub const COM4_MODEM_CTRL_REG: u16 = COM4 + 4;
+pub const COM4_LINE_STATUS_REG: u16 = COM4 + 5;
+pub const COM4_MODEM_STATUS_REG: u16 = COM4 + 6;
+pub const COM4_SCRATCH_REG: u16 = COM4 + 7;
+
+pub const COM5_DATA: u16 = COM5 + 0;
+pub const COM5_IT_ENA_REG: u16 = COM5 + 1;
+pub const COM5_LO_BAUD_REG: u16 = COM5 + 0;
+pub const COM5_HI_BAUD_REG: u16 = COM5 + 1;
+pub const COM5_IT_FIFO_REG: u16 = COM5 + 2;
+pub const COM5_LINE_CTRL_REG: u16 = COM5 + 3;
+pub const COM5_MODEM_CTRL_REG: u16 = COM5 + 4;
+pub const COM5_LINE_STATUS_REG: u16 = COM5 + 5;
+pub const COM5_MODEM_STATUS_REG: u16 = COM5 + 6;
+pub const COM5_SCRATCH_REG: u16 = COM5 + 7;
+
+pub const COM6_DATA: u16 = COM6 + 0;
+pub const COM6_IT_ENA_REG: u16 = COM6 + 1;
+pub const COM6_LO_BAUD_REG: u16 = COM6 + 0;
+pub const COM6_HI_BAUD_REG: u16 = COM6 + 1;
+pub const COM6_IT_FIFO_REG: u16 = COM6 + 2;
+pub const COM6_LINE_CTRL_REG: u16 = COM6 + 3;
+pub const COM6_MODEM_CTRL_REG: u16 = COM6 + 4;
+pub const COM6_LINE_STATUS_REG: u16 = COM6 + 5;
+pub const COM6_MODEM_STATUS_REG: u16 = COM6 + 6;
+pub const COM6_SCRATCH_REG: u16 = COM6 + 7;
+
+pub const COM7_DATA: u16 = COM7 + 0;
+pub const COM7_IT_ENA_REG: u16 = COM7 + 1;
+pub const COM7_LO_BAUD_REG: u16 = COM7 + 0;
+pub const COM7_HI_BAUD_REG: u16 = COM7 + 1;
+pub const COM7_IT_FIFO_REG: u16 = COM7 + 2;
+pub const COM7_LINE_CTRL_REG: u16 = COM7 + 3;
+pub const COM7_MODEM_CTRL_REG: u16 = COM7 + 4;
+pub const COM7_LINE_STATUS_REG: u16 = COM7 + 5;
+pub const COM7_MODEM_STATUS_REG: u16 = COM7 + 6;
+pub const COM7_SCRATCH_REG: u16 = COM7 + 7;
+
+pub const COM8_DATA: u16 = COM8 + 0;
+pub const COM8_IT_ENA_REG: u16 = COM8 + 1;
+pub const COM8_LO_BAUD_REG: u16 = COM8 + 0;
+pub const COM8_HI_BAUD_REG: u16 = COM8 + 1;
+pub const COM8_IT_FIFO_REG: u16 = COM8 + 2;
+pub const COM8_LINE_CTRL_REG: u16 = COM8 + 3;
+pub const COM8_MODEM_CTRL_REG: u16 = COM8 + 4;
+pub const COM8_LINE_STATUS_REG: u16 = COM8 + 5;
+pub const COM8_MODEM_STATUS_REG: u16 = COM8 + 6;
+pub const COM8_SCRATCH_REG: u16 = COM8 + 7;
+
 // COM line control register bits
 pub const COM_LINE_CTRL_DATA_BITS_POS: u8 = 0;
 pub const COM_LINE_CTRL_DATA_BITS_MSK: u8 = 0x3 << COM_LINE_CTRL_DATA_BITS_POS;

@@ -25,6 +25,15 @@ pub mod arch {
     }
 }
 
+// import drivers modules
+pub mod drivers {
+    pub mod platdrv {
+        pub mod serial {
+            pub mod vk_pic32_uart;
+        }
+    }
+}
+
 // import filesys modules
 pub mod filesys {
     pub mod vk_filesystem;
