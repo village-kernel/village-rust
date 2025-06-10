@@ -10,11 +10,12 @@ use core::arch::asm;
 use crate::village::kernel;
 use super::vk_registers::Registers;
 use crate::vendor::ia32legacy::core::i686::*;
+use crate::traits::vk_callback::Callback;
 
 // Constant members
-pub const ISR_NUM: usize = 256;
+pub const ISR_NUM: usize = 48;
 pub const RSVD_ISR_SIZE: usize = 0;
-const IDT_ENTRIES: u32 = 256;
+const IDT_ENTRIES: u32 = 48;
 const KERNEL_CODE_SEGMENT: u16 = 8;
 
 #[repr(C, packed)]
@@ -164,9 +165,9 @@ impl ConcreteException {
     fn install_handlers(&mut self) {
         macro_rules! install_handler {
             ($irq:expr, $handler:expr) => {
-                kernel().interrupt().add_isr_fn_cb(
+                kernel().interrupt().add_isr_cb(
                     $irq,
-                    $handler,
+                    Callback::new($handler as u32)
                 );
             };
         }
@@ -196,9 +197,9 @@ impl ConcreteException {
     fn uninstall_handlers(&mut self) {
         macro_rules! uninstall_handler {
             ($irq:expr, $handler:expr) => {
-                kernel().interrupt().del_isr_fn_cb(
-                     $irq,
-                    $handler,
+                kernel().interrupt().del_isr_cb(
+                    $irq,
+                    Callback::new($handler as u32)
                 );
             };
         }
@@ -225,115 +226,115 @@ impl ConcreteException {
     }
 
     // Division by zero handler
-    fn division_by_zero_handler(_data: *mut ()) {
+    fn division_by_zero_handler() {
         kernel().debug().error("Division By Zero");
         loop {}
     }
 
     // Debug handler
-    fn debug_handler(_data: *mut ()) {
+    fn debug_handler() {
         kernel().debug().error("Debug");
         loop {}
     }
 
     // Non maskable interrupthandler
-    fn non_maskable_interrupt_handler(_data: *mut ()) {
+    fn non_maskable_interrupt_handler() {
         kernel().debug().error("Non Maskable Interrupt");
         loop {}
     }
 
     // Breakpoint handler
-    fn breakpoint_handler(_data: *mut ()) {
+    fn breakpoint_handler() {
         kernel().debug().error("Breakpoint");
         loop {}
     }
 
     // Into detected overflow handler
-    fn into_detected_overflow_handler(_data: *mut ()) {
+    fn into_detected_overflow_handler() {
         kernel().debug().error("Into Detected Overflow");
         loop {}
     }
 
     // Out of bounds handler
-    fn out_of_bounds_handler(_data: *mut ()) {
+    fn out_of_bounds_handler() {
         kernel().debug().error("Out Of Bounds");
         loop {}
     }
 
     // Invalid opcode handler
-    fn invalid_opcode_handler(_data: *mut ()) {
+    fn invalid_opcode_handler() {
         kernel().debug().error("Invalid Opcode");
         loop {}
     }
 
     // No coprocessor handler
-    fn no_coprocessor_handler(_data: *mut ()) {
+    fn no_coprocessor_handler() {
         kernel().debug().error("No Coprocessor");
         loop {}
     }
 
     // Double fault handler
-    fn double_fault_handler(_data: *mut ()) {
+    fn double_fault_handler() {
         kernel().debug().error("Double Fault");
         loop {}
     }
 
     // Coprocessor segment overrun handler
-    fn coprocessor_segment_overrun_handler(_data: *mut ()) {
+    fn coprocessor_segment_overrun_handler() {
         kernel().debug().error("Coprocessor Segment Overrun");
         loop {}
     }
 
     // Bad tss handler
-    fn bad_tss_handler(_data: *mut ()) {
+    fn bad_tss_handler() {
         kernel().debug().error("Bad TSS");
         loop {}
     }
 
     // Segment not present handler
-    fn segment_not_present_handler(_data: *mut ()) {
+    fn segment_not_present_handler() {
         kernel().debug().error("Segment Not Present");
         loop {}
     }
 
     // Stack fault handler
-    fn stack_fault_handler(_data: *mut ()) {
+    fn stack_fault_handler() {
         kernel().debug().error("Stack Fault");
         loop {}
     }
 
     // General protection fault handler
-    fn general_protection_fault_handler(_data: *mut ()) {
+    fn general_protection_fault_handler() {
         kernel().debug().error("General Protection Fault");
         loop {}
     }
 
     // Page fault handler
-    fn page_fault_handler(_data: *mut ()) {
+    fn page_fault_handler() {
         kernel().debug().error("Page Fault");
         loop {}
     }
 
     // Unknown interrupt handler
-    fn unknown_interrupt_handler(_data: *mut ()) {
+    fn unknown_interrupt_handler() {
         kernel().debug().error("Unknown Interrupt");
         loop {}
     }
 
     // Coprocessor fault handler
-    fn coprocessor_fault_handler(_data: *mut ()) {
+    fn coprocessor_fault_handler() {
         kernel().debug().error("Coprocessor Fault");
         loop {}
     }
 
     // Alignment check handler
-    fn alignment_check_handler(_data: *mut ()) {
+    fn alignment_check_handler() {
         kernel().debug().error("Alignment Check");
         loop {}
     }
 
     // Machine check handler
-    fn machine_check_handler(_data: *mut ()) {
+    fn machine_check_handler() {
         kernel().debug().error("Machine Check");
         loop {}
     }

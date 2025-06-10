@@ -9,14 +9,14 @@ use alloc::format;
 use alloc::vec::Vec;
 use crate::village::kernel;
 use crate::traits::vk_kernel::Interrupt;
-use crate::traits::vk_callback::{CbInvoker, FnCallback, MethodCb};
+use crate::traits::vk_callback::Callback;
 use crate::arch::ia32::legacy::vk_exception::{ConcreteException, ISR_NUM, RSVD_ISR_SIZE};
 
 // Struct concrete interrupt
 pub struct ConcreteInterrupt {
     exception: ConcreteException,
     warnings: [u8; ISR_NUM],
-    isr_tabs: [Vec<CbInvoker>; ISR_NUM],
+    isr_tabs: [Vec<Callback>; ISR_NUM],
     is_ready: bool,
 }
 
@@ -64,85 +64,28 @@ impl ConcreteInterrupt {
 // Impl interrupt for concrete interrupt
 impl Interrupt for ConcreteInterrupt {
     // Set ISR function callback
-    fn set_isr_fn_cb(&mut self, irq: isize, func: FnCallback) {
+    fn set_isr_cb(&mut self, irq: isize, callback: Callback) {
         self.clear_isr_cb(irq);
-        let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
-        let mut invoker = CbInvoker::new();
-        invoker.register_fn(func);
-        self.isr_tabs[irq_idx].push(invoker);
-    }
-
-    // Set ISR method callback
-    fn set_isr_meth_cb(&mut self, irq: isize, method: MethodCb) {
-        self.clear_isr_cb(irq);
-        let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
-        let mut invoker = CbInvoker::new();
-        invoker.register_method(method);
-        self.isr_tabs[irq_idx].push(invoker);
-    }
-
-    // Set ISR function callback with data
-    fn set_isr_fn_cb_with_data(&mut self, irq: isize, func: FnCallback, args: *mut()) {
-        self.clear_isr_cb(irq);
-        let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
-        let mut invoker = CbInvoker::new();
-        invoker.register_fn_with_data(func, args);
-        self.isr_tabs[irq_idx].push(invoker);
-    }
-
-    // Set ISR method callback
-    fn set_isr_meth_cb_with_data(&mut self, irq: isize, method: MethodCb, args: *mut ()) {
-        self.clear_isr_cb(irq);
-        let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
-        let mut invoker = CbInvoker::new();
-        invoker.register_method_with_data(method, args);
-        self.isr_tabs[irq_idx].push(invoker);
+        self.add_isr_cb(irq, callback);
     }
 
     // Add ISR function callback
-    fn add_isr_fn_cb(&mut self, irq: isize, func: FnCallback) {
+    fn add_isr_cb(&mut self, irq: isize, callback: Callback) {
         let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
-        let mut invoker = CbInvoker::new();
-        invoker.register_fn(func);
-        self.isr_tabs[irq_idx].push(invoker);
-    }
-
-    // Add ISR method callback
-    fn add_isr_meth_cb(&mut self, irq: isize, method: MethodCb) {
-        let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
-        let mut invoker = CbInvoker::new();
-        invoker.register_method(method);
-        self.isr_tabs[irq_idx].push(invoker);
-    }
-
-    // Add ISR function callback with data
-    fn add_isr_fn_cb_with_data(&mut self, irq: isize, func: FnCallback, args: *mut()) {
-        let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
-        let mut invoker = CbInvoker::new();
-        invoker.register_fn_with_data(func, args);
-        self.isr_tabs[irq_idx].push(invoker);
-    }
-
-    // Add ISR method callback with data
-    fn add_isr_meth_cb_with_data(&mut self, irq: isize, method: MethodCb, args: *mut ()) {
-        let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
-        let mut invoker = CbInvoker::new();
-        invoker.register_method_with_data(method, args);
-        self.isr_tabs[irq_idx].push(invoker);
+        self.isr_tabs[irq_idx].push(callback);
     }
 
     // Del ISR function callback
-    fn del_isr_fn_cb(&mut self, irq: isize, func: FnCallback) {
-        let _ = irq;
-        let _ = func;
+    fn del_isr_cb(&mut self, irq: isize, callback: Callback) {
+        let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
+        let isrs = &mut self.isr_tabs[irq_idx];
+        isrs.retain(|isr| { 
+            !(core::ptr::fn_addr_eq(isr.callback, callback.callback) && 
+            isr.instance == callback.instance && 
+            isr.userdata == callback.userdata)
+        });
     }
 
-    // Del ISR method callback
-    fn del_isr_meth_cb(&mut self, irq: isize, method: MethodCb) {
-        let _ = irq;
-        let _ = method;
-    }
-    
     // Clear ISR callbacks
     fn clear_isr_cb(&mut self, irq: isize) {
         let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
@@ -174,8 +117,8 @@ impl Interrupt for ConcreteInterrupt {
             self.warnings[irq_idx] = 0;
         }
         
-        for invoker in isrs.iter_mut() {
-            invoker.invoke();
+        for callback in isrs.iter_mut() {
+            callback.call();
         }
     }
 }

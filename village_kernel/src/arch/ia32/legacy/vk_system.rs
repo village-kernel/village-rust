@@ -7,7 +7,7 @@
 use core::arch::asm;
 use crate::village::kernel;
 use crate::traits::vk_kernel::System;
-use crate::traits::vk_callback::{Callback, MethodCb};
+use crate::traits::vk_callback::Callback;
 use crate::vendor::ia32legacy::core::i686::*;
 
 // Struct concrete system
@@ -22,21 +22,14 @@ impl ConcreteSystem {
     }
 }
 
-// Impl callback for concrete system
-impl Callback for ConcreteSystem {
-    fn to_cb(&mut self, method: fn(&mut Self, *mut ())) -> MethodCb {
-        MethodCb::new(self, method)
-    }
-}
-
 // Impl concrete system
 impl ConcreteSystem {
     // Setup
     pub fn setup(&mut self) {
         // Set interrupt handler
-        kernel().interrupt().set_isr_meth_cb(
+        kernel().interrupt().set_isr_cb(
             SYSTICK_IRQN,
-            self.to_cb(Self::systick_handler)
+            Callback::new(Self::systick_handler as u32).with_instance(self)
         );
 
         // Configure clock
@@ -45,9 +38,9 @@ impl ConcreteSystem {
 
     // Exit
     pub fn exit(&mut self) {
-        kernel().interrupt().del_isr_meth_cb(
+        kernel().interrupt().del_isr_cb(
             SYSTICK_IRQN,
-            self.to_cb(Self::systick_handler)
+            Callback::new(Self::systick_handler as u32).with_instance(self)
         );
     }
 
@@ -59,8 +52,8 @@ impl ConcreteSystem {
         // Get the PIT value: hardware clock at 1193182 Hz
         let freq = 1000; //1000hz, 1ms
         let divider = 1193182 / freq;
-        let low  = (divider & 0xFF) as u8;
-        let high = (divider >> 8) as u8;
+        let low  = ((divider >> 0) & 0xFF) as u8;
+        let high = ((divider >> 8) & 0xFF) as u8;
 
         // Send the command
         port_byte_out(TIMER_CMD, 0x36); //Command port
@@ -69,7 +62,7 @@ impl ConcreteSystem {
     }
 
     // System clock handler
-    fn systick_handler(&mut self, _data: *mut ()) {
+    fn systick_handler(&mut self) {
         self.systicks = self.systicks + 1;
     }
 }

@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use super::vk_callback::{FnCallback, MethodCb};
+use super::vk_callback::Callback;
 
 // System
 pub trait System {
@@ -46,20 +46,13 @@ pub trait Debug {
 // Interrupt
 pub trait Interrupt  {
     // Set ISR Methods
-    fn set_isr_fn_cb(&mut self, irq: isize, func: FnCallback);
-    fn set_isr_meth_cb(&mut self, irq: isize, method: MethodCb);
-    fn set_isr_fn_cb_with_data(&mut self, irq: isize, func: FnCallback, args: *mut());
-    fn set_isr_meth_cb_with_data(&mut self, irq: isize, method: MethodCb, args: *mut ());
-    
+    fn set_isr_cb(&mut self, irq: isize, callback: Callback);
+
     // Add ISR Methods
-    fn add_isr_fn_cb(&mut self, irq: isize, func: FnCallback);
-    fn add_isr_meth_cb(&mut self, irq: isize, method: MethodCb);
-    fn add_isr_fn_cb_with_data(&mut self, irq: isize, func: FnCallback, args: *mut());
-    fn add_isr_meth_cb_with_data(&mut self, irq: isize, method: MethodCb, args: *mut ());
-    
+    fn add_isr_cb(&mut self, irq: isize, callback: Callback);
+
     // Del ISR Methods
-    fn del_isr_fn_cb(&mut self, irq: isize, func: FnCallback);
-    fn del_isr_meth_cb(&mut self, irq: isize, method: MethodCb);
+    fn del_isr_cb(&mut self, irq: isize, callback: Callback);
     
     // Clear ISR Methods
     fn clear_isr_cb(&mut self, irq: isize);
