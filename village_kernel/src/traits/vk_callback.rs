@@ -1,6 +1,6 @@
 //###########################################################################
-// vk_class.rs
-// The specific implementation of functions related to kernel
+// vk_callback.rs
+// The specific implementation of functions related to callback
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
@@ -44,5 +44,14 @@ impl Callback {
     // Call the registered callback
     pub fn call(&mut self) {
         (self.callback)(self.instance, self.userdata);
+    }
+}
+
+// Impl partialeq for callback
+impl PartialEq for Callback {
+    fn eq(&self, other: &Self) -> bool {
+        core::ptr::fn_addr_eq(self.callback, other.callback) &&
+        self.instance == other.instance &&
+        self.userdata == other.userdata
     }
 }

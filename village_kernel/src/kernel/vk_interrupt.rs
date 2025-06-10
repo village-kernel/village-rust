@@ -6,17 +6,17 @@
 //###########################################################################
 extern crate alloc;
 use alloc::format;
-use alloc::vec::Vec;
 use crate::village::kernel;
 use crate::traits::vk_kernel::Interrupt;
 use crate::traits::vk_callback::Callback;
+use crate::traits::vk_linkedlist::LinkedList;
 use crate::arch::ia32::legacy::vk_exception::{ConcreteException, ISR_NUM, RSVD_ISR_SIZE};
 
 // Struct concrete interrupt
 pub struct ConcreteInterrupt {
     exception: ConcreteException,
     warnings: [u8; ISR_NUM],
-    isr_tabs: [Vec<Callback>; ISR_NUM],
+    isr_tabs: [LinkedList<Callback>; ISR_NUM],
     is_ready: bool,
 }
 
@@ -26,7 +26,7 @@ impl ConcreteInterrupt {
         Self {
             exception: ConcreteException::new(),
             warnings: [0; ISR_NUM],
-            isr_tabs: [const { Vec::new() }; ISR_NUM],
+            isr_tabs: [const { LinkedList::new() }; ISR_NUM],
             is_ready: false,
         }
     }
@@ -79,11 +79,7 @@ impl Interrupt for ConcreteInterrupt {
     fn del_isr_cb(&mut self, irq: isize, callback: Callback) {
         let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
         let isrs = &mut self.isr_tabs[irq_idx];
-        isrs.retain(|isr| { 
-            !(core::ptr::fn_addr_eq(isr.callback, callback.callback) && 
-            isr.instance == callback.instance && 
-            isr.userdata == callback.userdata)
-        });
+        isrs.delete(&callback);
     }
 
     // Clear ISR callbacks
