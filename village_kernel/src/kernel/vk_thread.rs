@@ -4,128 +4,252 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+extern crate alloc;
+use core::ptr;
+use core::arch::asm;
 use crate::village::kernel;
-use crate::traits::vk_kernel::Thread;
+use crate::traits::vk_kernel::{ThreadState, ThreadTask, Thread};
+use crate::traits::vk_callback::{FnCallback, Callback};
+use crate::traits::vk_linkedlist::LinkedList;
+use crate::arch::ia32::legacy::vk_registers::TaskContext;
 
-// struct concrete thread
-pub struct ConcreteThread;
+// Static constants
+const TASK_STACK_SIZE: u32 = 4096;
+const PSP_FRAME_SIZE: u32 = core::mem::size_of::<TaskContext>() as u32;
 
-// impl concrete thread
-impl ConcreteThread {
-    pub const fn new() -> Self {
-        Self { }
-    }
+// ConcreteThread implementation
+pub struct ConcreteThread {
+    tasks: LinkedList<ThreadTask>,
+    tid_cnt: i32,
 }
 
-// impl concrete thread
 impl ConcreteThread {
-    // setup
+    // New
+    pub const fn new() -> Self {
+        ConcreteThread {
+            tasks: LinkedList::new(),
+            tid_cnt: 0,
+        }
+    }
+
+    // Setup
     pub fn setup(&mut self) {
-        //output debug info
+        // First task should be idle task and the tid is 0
+        let idle_task_cb = Callback::new(Self::idle_task as u32).with_instance(self);
+        self.create_task("Thread::IdleTask", idle_task_cb);
+
+        // Output debug info
         kernel().debug().info("Thread setup done!");
     }
 
-    // start
+    // Start
     pub fn start(&mut self) {
-
+        for task in &mut self.tasks.iter_mut() {
+            task.state = ThreadState::Running;
+        }
+        self.tasks.begin();
     }
 
-    // exit
+    // Exit
     pub fn exit(&mut self) {
+        for task in &mut self.tasks.iter_mut() {
+            if task.stack != 0 {
+                kernel().memory().free(task.stack, 0);
+            }
+        }
+        self.tasks.clear();
+    }
 
+    // Task function handler 
+    fn task_handler(&mut self, callback: FnCallback, instance: *mut(), userdata: *mut()) {
+        callback(instance, userdata);
+        self.terminated();
+        loop {}
     }
 }
 
-// impl thread for concrete thread
+// Impl thread for concrete thread
 impl Thread for ConcreteThread {
-    // create task
-    fn create_task(&mut self) -> i32 {
-        0
+    // Create task fn
+    fn create_task(&mut self, name: &str, callback: Callback) -> i32 {
+       // Create a new task and allocate stack space
+        let stack = kernel().memory().stack_alloc(TASK_STACK_SIZE);
+        let psp = stack - PSP_FRAME_SIZE;
+
+        // Fill the stack content
+        let context = TaskContext::new(
+            Self::task_handler as u32,
+            self as *mut _ as u32,
+            callback.callback as u32,
+            callback.instance as u32,
+            callback.userdata as u32,
+        );
+        unsafe { ptr::write(psp as *mut TaskContext, context); }
+
+        // Create an new task with unique TID
+        let tid = self.tid_cnt;
+        self.tid_cnt += 1;
+
+        let task = ThreadTask {
+            name,
+            tid,
+            psp,
+            ticks: 0,
+            stack,
+            state: ThreadState::New,
+        };
+
+        // Add task into tasks list
+        self.tasks.push(task);
+        tid
     }
     
-    // get task id
-    fn get_task_id(&mut self) -> i32 {
-        0
+    // Start task
+    fn start_task(&mut self, tid: i32) {
+        if let Some(task) = self.tasks.iter_mut().find(|t| t.tid == tid) {
+            task.state = ThreadState::Ready;
+        }
     }
 
-    // start task
-    fn start_task(&mut self, tid: i32) -> bool {
-        let _ = tid;
-        false
+    // Stop task
+    fn stop_task(&mut self, tid: i32) {
+        if let Some(task) = self.tasks.iter_mut().find(|t| t.tid == tid) {
+            task.state = ThreadState::Terminated;
+        }
     }
 
-    // stop task
-    fn stop_task(&mut self, tid: i32) -> bool {
-        let _ = tid;
-        false
+    // Thread wait for task
+    fn wait_for_task(&mut self, tid: i32) {
+        if let Some(task) = self.tasks.iter_mut().find(|t| t.tid == tid) {
+            while task.state != ThreadState::Terminated {}
+        }
     }
 
-    // wait for task
-    fn wait_for_task(&mut self, tid: i32) -> bool {
-        let _ = tid;
-        false
+    // Exit task blocked state
+    fn exit_blocked(&mut self, tid: i32) {
+        if let Some(task) = self.tasks.iter_mut().find(|t| t.tid == tid) {
+            if task.state == ThreadState::Blocked {
+                task.state = ThreadState::Ready;
+            }
+        }
     }
 
-    // exit blocked
-    fn exit_blocked(&mut self, tid: i32) -> bool {
-        let _ = tid;
-        false
+    // Thread delete task
+    fn delete_task(&mut self, tid: i32) {
+        if let Some(task) = self.tasks.iter_mut().find(|t| t.tid == tid) {
+            kernel().memory().free(task.stack, 0);
+            //self.tasks.delete(task);
+        }
     }
 
-    // delete task
-    fn delete_task(&mut self, tid: i32) -> bool {
-        let _ = tid;
-        false
-    }
-
-    // is task alive
+    // Thread check task is alive
     fn is_task_alive(&mut self, tid: i32) -> bool {
-        let _ = tid;
-        false
+        self.tasks.iter_mut()
+            .find(|t| t.tid == tid)
+            .map(|t| t.state != ThreadState::Terminated)
+            .unwrap_or(false)
     }
 
-    // get tasks
-    fn get_tasks(&mut self) {
-
+    // Get tasks
+    fn get_tasks(&mut self) -> &LinkedList<ThreadTask> {
+        &self.tasks
     }
 
-    // change state
-    fn change_state(&mut self) {
-
+    // Get current task id
+    fn get_task_id(&mut self) -> i32 {
+        if let Some(task) = self.tasks.item() {
+            return task.tid;
+        }
+        -1
     }
 
-    // sleep
-    fn sleep(&mut self) {
-
+    // Set State
+    fn set_state(&mut self, state: ThreadState) {
+        if let Some(task) = self.tasks.item() {
+            task.state = state;
+            kernel().scheduler().sched();
+        }
     }
 
-    // blocked
+    // Thread sleep
+    fn sleep(&mut self, ticks: u32) {
+        if let Some(task) = self.tasks.item() {
+            if task.tid > 0 {
+                task.state = ThreadState::Ready;
+                task.ticks = kernel().system().get_sysclk_counts() + ticks;
+                kernel().scheduler().sched();
+                while task.state == ThreadState::Ready {}
+            }
+        }
+    }
+
+    // Thread Blocked
     fn blocked(&mut self) {
-
+        if let Some(task) = self.tasks.item() {
+            if task.tid > 0 {
+                task.state = ThreadState::Blocked;
+                kernel().scheduler().sched();
+                while task.state == ThreadState::Blocked {}
+            }
+        }
     }
-    
-    // task exit
-    fn task_exit(&mut self) {
 
+    // Thread Terminated
+    fn terminated(&mut self) {
+        if let Some(task) = self.tasks.item() {
+            if task.tid > 0 {
+                task.state = ThreadState::Terminated;
+                self.delete_task(task.tid);
+                kernel().scheduler().sched();
+            }
+        }
     }
 
-    // save task psp
+    // Save task PSP
     fn save_task_psp(&mut self, psp: u32) {
-        let _ = psp;
+        if let Some(task) = self.tasks.item() {
+            task.psp = psp;
+        }
     }
 
-    // get task psp
+    // Get current task psp
     fn get_task_psp(&mut self) -> u32 {
-        0
+        if let Some(task) = self.tasks.item() {
+            task.psp
+        } else {
+            0
+        }
     }
-    
-    // select next task
+
+    // Select next task, round-Robin scheduler
     fn select_next_task(&mut self) {
+        loop {
+            // Set next task as current task
+            self.tasks.next(); if self.tasks.is_end() { self.tasks.begin(); }
 
+            // Get current task
+            if let Some(task) = self.tasks.item() {
+
+                //Check current task state
+                if task.state == ThreadState::Ready {
+                    if kernel().system().get_sysclk_counts() >= task.ticks {
+                        task.state = ThreadState::Running;
+                        task.ticks = 0;
+                    }
+                }
+
+                // If no ready task is found, switch to the idle task (assuming the ID is 0)
+                if task.state == ThreadState::Running {
+                    break;
+                }
+            }
+        }
     }
 
-    // idle task
+    // Idle task
     fn idle_task(&mut self) {
-
+        loop {
+            unsafe { asm!("nop");}
+        }
     }
 }

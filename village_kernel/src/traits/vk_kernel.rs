@@ -5,6 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use super::vk_callback::Callback;
+use crate::traits::vk_linkedlist::LinkedList;
 
 // System
 pub trait System {
@@ -70,24 +71,70 @@ pub trait Scheduler {
     fn sched(&mut self);
 }
 
+// Thread state
+#[derive(PartialEq)]
+pub enum ThreadState {
+    New = 0,
+    Ready,
+    Running,
+    Blocked,
+    Terminated,
+}
+
+// Thread task
+pub struct ThreadTask {
+    pub name: * const str,
+    pub tid: i32,
+    pub psp: u32,
+    pub ticks: u32,
+    pub stack: u32,
+    pub state: ThreadState,
+}
+
+impl ThreadTask {
+    // default
+    pub fn default() -> Self {
+        ThreadTask {
+            name: "None",
+            tid:  -1,
+            psp:   0,
+            ticks: 0,
+            stack: 0,
+            state: ThreadState::New,
+        }
+    }
+}
+
+impl PartialEq for ThreadTask {
+    fn eq(&self, other: &Self) -> bool {
+        core::ptr::eq(self.name, other.name) &&
+        self.tid   == other.tid  &&
+        self.stack == other.stack
+    }
+}
+
 // Thread
 pub trait Thread {
-    fn create_task(&mut self) -> i32;
+    // Create Methods
+    fn create_task(&mut self, name: &str, callback: Callback) -> i32;
     
-    fn get_task_id(&mut self) -> i32;
-    fn start_task(&mut self, tid: i32) -> bool;
-    fn stop_task(&mut self, tid: i32) -> bool;
-    fn wait_for_task(&mut self, tid: i32) -> bool;
-    fn exit_blocked(&mut self, tid: i32) -> bool;
-    fn delete_task(&mut self, tid: i32) -> bool;
+    // Task Methods
+    fn start_task(&mut self, tid: i32);
+    fn stop_task(&mut self, tid: i32);
+    fn wait_for_task(&mut self, tid: i32);
+    fn exit_blocked(&mut self, tid: i32);
+    fn delete_task(&mut self, tid: i32);
     fn is_task_alive(&mut self, tid: i32) -> bool;
-    fn get_tasks(&mut self);
+    fn get_tasks(&mut self) -> &LinkedList<ThreadTask>;
 
-    fn change_state(&mut self);
-    fn sleep(&mut self);
+    // State Methods
+    fn get_task_id(&mut self) -> i32;
+    fn set_state(&mut self, state: ThreadState);
+    fn sleep(&mut self, ticks: u32);
     fn blocked(&mut self);
-    fn task_exit(&mut self);
+    fn terminated(&mut self);
 
+    // Scheduler Methods
     fn save_task_psp(&mut self, psp: u32);
     fn get_task_psp(&mut self) -> u32;
     fn select_next_task(&mut self);
