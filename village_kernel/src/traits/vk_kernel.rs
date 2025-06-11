@@ -142,8 +142,8 @@ pub trait Thread {
 // Symbol
 pub trait Symbol {
     fn export(&mut self, sym_addr: u32, name: &str);
-    fn unexport(&mut self, name: &str);
-    fn search(&mut self, name: &str);
+    fn unexport(&mut self, sym_addr: u32, name: &str);
+    fn search(&mut self, name: &str) -> u32;
 }
 
 // Device
