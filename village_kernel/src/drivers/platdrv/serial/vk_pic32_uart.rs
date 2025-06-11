@@ -68,22 +68,26 @@ impl Pic32Uart {
     pub fn write(&self, data: &[u8], size: usize) -> usize {
         let mut count = 0;
         
-        for i in 0..size {
+        for byte in data {
             while !self.is_tx_register_empty() {}
             
-            port_byte_out(COMX[self.port as usize],data[i]);
+            port_byte_out(COMX[self.port as usize],*byte);
 
             count += 1;
+
+            if count >= size {
+                break;
+            }
         }
         
         count
     }
 
     // Read data
-    pub fn read(&self, buffer: &mut [u8], size: usize) -> usize {
+    pub fn read(&self, data: &mut [u8], size: usize) -> usize {
         let mut count = 0;
         
-        for byte in buffer.iter_mut() {
+        for byte in data.iter_mut() {
             if !self.is_read_data_reg_not_empty() {
                 break;
             }

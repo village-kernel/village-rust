@@ -64,13 +64,13 @@ impl ConcreteDebug {
     // Write
     fn write(&mut self, data: &str) {
         // Calculate the string length
-        let size = data.as_bytes().len();
+        let len = data.as_bytes().len();
 
         // When the device is not ready and the buffer is full, 
         // the previous part of the data is discarded.
-        if !self.is_ready && ((BUF_SIZE - self.tx_pos) < size) {
+        if !self.is_ready && ((BUF_SIZE - self.tx_pos) < len) {
             // Calculate how much data needs to be discarded
-            let delta = size - (BUF_SIZE - self.tx_pos);
+            let delta = len - (BUF_SIZE - self.tx_pos);
 
             // Discard specified amount of data
             for i in 0..(BUF_SIZE - delta) {
@@ -81,11 +81,8 @@ impl ConcreteDebug {
             self.tx_pos -= delta;
         }
 
-        // Change str to bytes
-        let data = data.as_bytes();
-
         // Copy msg data into txBuffer
-        for i in 0..size {
+        for byte in data.as_bytes() {
             // The txBuffer is full, block here until the data is sent
             if self.tx_pos >= BUF_SIZE {
                 self.sending();
@@ -94,7 +91,7 @@ impl ConcreteDebug {
             // Copy data
             let tx_pos = self.tx_pos;
             self.tx_pos += 1;
-            self.tx_buf[tx_pos] = data[i];
+            self.tx_buf[tx_pos] = *byte;
         }
 
         // Sending msg
@@ -144,7 +141,7 @@ impl Debug for ConcreteDebug {
         if level >= DebugLevel::Lv0 && level <= DebugLevel::Lv5 {
             self.debug_level = level;
         } else {
-            self.error(&format!("The level {:?} out of debug level", level));
+            self.error(&format!("The level {:?} out of range", level));
         }
     }
 }
