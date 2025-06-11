@@ -170,12 +170,47 @@ pub trait FileSystem {
     fn get_volume(&mut self, name: &str);
 }
 
+// Work state
+#[derive(PartialEq)]
+pub enum WorkState {
+    New = 0,
+    Ready,
+    Running,
+    Terminated,
+}
+
+// Struct work
+pub struct Work {
+    pub id: u32,
+    pub ticks: u32,
+    pub state: WorkState,
+    pub callback: Callback,
+}
+
+// Impl work
+impl Work {
+    pub const fn new(id: u32, ticks: u32, callback: Callback) -> Self {
+        Self {
+            id,
+            ticks,
+            state: WorkState::New,
+            callback,
+        }
+    }
+}
+
+// Impl partia eq for work
+impl PartialEq for Work {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
 // WorkQueue
 pub trait WorkQueue {
-    fn create(&mut self);
-
-    fn delete(&mut self);
-    fn sched(&mut self);
+    fn create(&mut self, callback: Callback, ticks: u32) -> Option<&mut Work>;
+    fn delete(&mut self, work: &mut Work) -> bool;
+    fn sched(&mut self, work: &mut Work) -> bool;
 }
 
 // Event
@@ -196,11 +231,50 @@ pub trait Process {
     fn unregister_executor(&mut self);
 }
 
+// Timer state
+#[derive(PartialEq)]
+pub enum JobState {
+    New,
+    Ready,
+    Terminated,
+}
+
+// Struct timer job
+pub struct Job {
+    pub id: u32,
+    pub ticks: u32,
+    pub state: JobState,
+    pub callback: Callback,
+}
+
+// Impl timer job
+impl Job {
+    // New
+    pub const fn new(id: u32, callback: Callback) -> Self {
+        Job {
+            id,
+            ticks: 0,
+            state: JobState::New,
+            callback,
+        }
+    }
+}
+
+// Impl partia eq for timer job
+impl PartialEq for Job {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
 // Timer
 pub trait Timer {
-    fn create(&mut self);
-    fn modify(&mut self);
-    fn delete(&mut self);
+    // Create Methods
+    fn create(&mut self, callback: Callback) -> Option<&mut Job>;
+
+    // Feature Methods
+    fn modify(&mut self, job: &mut Job, ticks: u32);
+    fn delete(&mut self, job: &mut Job);
 }
 
 // Terminal
