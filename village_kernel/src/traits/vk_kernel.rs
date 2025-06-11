@@ -84,7 +84,7 @@ pub enum ThreadState {
 // Thread task
 pub struct ThreadTask {
     pub name: * const str,
-    pub tid: i32,
+    pub id:  i32,
     pub psp: u32,
     pub ticks: u32,
     pub stack: u32,
@@ -96,7 +96,7 @@ impl ThreadTask {
     pub fn default() -> Self {
         ThreadTask {
             name: "None",
-            tid:  -1,
+            id:   -1,
             psp:   0,
             ticks: 0,
             stack: 0,
@@ -107,9 +107,7 @@ impl ThreadTask {
 
 impl PartialEq for ThreadTask {
     fn eq(&self, other: &Self) -> bool {
-        core::ptr::eq(self.name, other.name) &&
-        self.tid   == other.tid  &&
-        self.stack == other.stack
+        self.id == other.id
     }
 }
 

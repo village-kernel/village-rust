@@ -20,7 +20,7 @@ const PSP_FRAME_SIZE: u32 = core::mem::size_of::<TaskContext>() as u32;
 // ConcreteThread implementation
 pub struct ConcreteThread {
     tasks: LinkedList<ThreadTask>,
-    tid_cnt: i32,
+    id_cnt: i32,
 }
 
 impl ConcreteThread {
@@ -28,7 +28,7 @@ impl ConcreteThread {
     pub const fn new() -> Self {
         ConcreteThread {
             tasks: LinkedList::new(),
-            tid_cnt: 0,
+            id_cnt: 0,
         }
     }
 
@@ -87,12 +87,12 @@ impl Thread for ConcreteThread {
         unsafe { ptr::write(psp as *mut TaskContext, context); }
 
         // Create an new task with unique TID
-        let tid = self.tid_cnt;
-        self.tid_cnt += 1;
+        let tid = self.id_cnt;
+        self.id_cnt += 1;
 
         let task = ThreadTask {
             name,
-            tid,
+            id: tid,
             psp,
             ticks: 0,
             stack,
@@ -106,28 +106,28 @@ impl Thread for ConcreteThread {
     
     // Start task
     fn start_task(&mut self, tid: i32) {
-        if let Some(task) = self.tasks.iter_mut().find(|t| t.tid == tid) {
+        if let Some(task) = self.tasks.iter_mut().find(|t| t.id == tid) {
             task.state = ThreadState::Ready;
         }
     }
 
     // Stop task
     fn stop_task(&mut self, tid: i32) {
-        if let Some(task) = self.tasks.iter_mut().find(|t| t.tid == tid) {
+        if let Some(task) = self.tasks.iter_mut().find(|t| t.id == tid) {
             task.state = ThreadState::Terminated;
         }
     }
 
     // Thread wait for task
     fn wait_for_task(&mut self, tid: i32) {
-        if let Some(task) = self.tasks.iter_mut().find(|t| t.tid == tid) {
+        if let Some(task) = self.tasks.iter_mut().find(|t| t.id == tid) {
             while task.state != ThreadState::Terminated {}
         }
     }
 
     // Exit task blocked state
     fn exit_blocked(&mut self, tid: i32) {
-        if let Some(task) = self.tasks.iter_mut().find(|t| t.tid == tid) {
+        if let Some(task) = self.tasks.iter_mut().find(|t| t.id == tid) {
             if task.state == ThreadState::Blocked {
                 task.state = ThreadState::Ready;
             }
@@ -136,7 +136,7 @@ impl Thread for ConcreteThread {
 
     // Thread delete task
     fn delete_task(&mut self, tid: i32) {
-        if let Some(task) = self.tasks.iter_mut().find(|t| t.tid == tid) {
+        if let Some(task) = self.tasks.iter_mut().find(|t| t.id == tid) {
             kernel().memory().free(task.stack, 0);
             //self.tasks.delete(task);
         }
@@ -145,7 +145,7 @@ impl Thread for ConcreteThread {
     // Thread check task is alive
     fn is_task_alive(&mut self, tid: i32) -> bool {
         self.tasks.iter_mut()
-            .find(|t| t.tid == tid)
+            .find(|t| t.id == tid)
             .map(|t| t.state != ThreadState::Terminated)
             .unwrap_or(false)
     }
@@ -158,7 +158,7 @@ impl Thread for ConcreteThread {
     // Get current task id
     fn get_task_id(&mut self) -> i32 {
         if let Some(task) = self.tasks.item() {
-            return task.tid;
+            return task.id;
         }
         -1
     }
@@ -174,7 +174,7 @@ impl Thread for ConcreteThread {
     // Thread sleep
     fn sleep(&mut self, ticks: u32) {
         if let Some(task) = self.tasks.item() {
-            if task.tid > 0 {
+            if task.id > 0 {
                 task.state = ThreadState::Ready;
                 task.ticks = kernel().system().get_sysclk_counts() + ticks;
                 kernel().scheduler().sched();
@@ -186,7 +186,7 @@ impl Thread for ConcreteThread {
     // Thread Blocked
     fn blocked(&mut self) {
         if let Some(task) = self.tasks.item() {
-            if task.tid > 0 {
+            if task.id > 0 {
                 task.state = ThreadState::Blocked;
                 kernel().scheduler().sched();
                 while task.state == ThreadState::Blocked {}
@@ -197,9 +197,9 @@ impl Thread for ConcreteThread {
     // Thread Terminated
     fn terminated(&mut self) {
         if let Some(task) = self.tasks.item() {
-            if task.tid > 0 {
+            if task.id > 0 {
                 task.state = ThreadState::Terminated;
-                self.delete_task(task.tid);
+                self.delete_task(task.id);
                 kernel().scheduler().sched();
             }
         }
