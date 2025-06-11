@@ -4,77 +4,147 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+extern crate alloc;
+use alloc::format;
 use crate::village::kernel;
-use crate::traits::vk_kernel::Debug;
+use crate::traits::vk_kernel::{Debug, DebugLevel};
 use crate::drivers::platdrv::serial::vk_pic32_uart::Pic32Uart;
 
-// struct concrete debug
+// Static const
+static BUF_SIZE: usize = 256;
+
+// Struct concrete debug
 pub struct ConcreteDebug {
-    uart: Pic32Uart,
+    transceiver: Pic32Uart,
+    debug_level: DebugLevel,
+    is_ready: bool,
+    tx_pos: usize,
+    tx_buf: [u8; BUF_SIZE],
 }
 
-// impl concrete debug
+// Impl concrete debug
 impl ConcreteDebug {
     pub const fn new() -> Self {
         Self { 
-            uart: Pic32Uart::new(0),
+            transceiver: Pic32Uart::new(0),
+            debug_level: DebugLevel::Lv2,
+            is_ready: false,
+            tx_pos: 0,
+            tx_buf: [0; BUF_SIZE],
         }
     }
 }
 
-// impl concrete debug
+// Impl concrete debug
 impl ConcreteDebug {
-    // setup
+    // Setup
     pub fn setup(&mut self) {
-        //open uart
-        self.uart.open();
+        // Open transceiver
+        self.transceiver.open();
 
-        //output debug info
+        // Set ready flag
+        self.is_ready = true;
+
+        // Output debug info
         kernel().debug().info("Debug setup done!");
     }
 
-    // exit
+    // Exit
     pub fn exit(&mut self) {
+        // Close transceiver
+        self.transceiver.close();
 
+        // Clear ready flag
+        self.is_ready = false;
     }
 }
 
-// impl debug for concrete debug
+// Impl concrete debug
+impl ConcreteDebug {
+    // Write
+    fn write(&mut self, data: &str) {
+        // Calculate the string length
+        let size = data.as_bytes().len();
+
+        // When the device is not ready and the buffer is full, 
+        // the previous part of the data is discarded.
+        if !self.is_ready && ((BUF_SIZE - self.tx_pos) < size) {
+            // Calculate how much data needs to be discarded
+            let delta = size - (BUF_SIZE - self.tx_pos);
+
+            // Discard specified amount of data
+            for i in 0..(BUF_SIZE - delta) {
+                self.tx_buf[i] = self.tx_buf[i + delta];
+            }
+
+            // Update txBufPos
+            self.tx_pos -= delta;
+        }
+
+        // Change str to bytes
+        let data = data.as_bytes();
+
+        // Copy msg data into txBuffer
+        for i in 0..size {
+            // The txBuffer is full, block here until the data is sent
+            if self.tx_pos >= BUF_SIZE {
+                self.sending();
+            }
+
+            // Copy data
+            let tx_pos = self.tx_pos;
+            self.tx_pos += 1;
+            self.tx_buf[tx_pos] = data[i];
+        }
+
+        // Sending msg
+        self.sending();
+    }
+
+    // Sending
+    fn sending(&mut self) {
+        if self.is_ready && self.tx_pos > 0 {
+            while self.transceiver.write(&self.tx_buf, self.tx_pos) != self.tx_pos {}
+            self.tx_pos = 0;
+        }
+    }
+}
+
+// Impl debug for concrete debug
 impl Debug for ConcreteDebug {
-    // log
+    // Log
     fn log(&mut self, log: &str) {
-        self.uart.write("Log: ".as_bytes());
-        self.uart.write(log.as_bytes());
-        self.uart.write("\r\n".as_bytes());
+        self.write(&format!("Log: {} \r\n", log));
     }
 
-    // info
+    // Info
     fn info(&mut self, info: &str) {
-        self.uart.write("\x1b[36m[Info] ".as_bytes());
-        self.uart.write(info.as_bytes());
-        self.uart.write("\r\n\x1b[39m".as_bytes());
+        self.write(&format!("\x1b[36m[Info] {} \r\n\x1b[39m", info));
     }
 
-    // error
+    // Error
     fn error(&mut self, error: &str) {
-        self.uart.write("\x1b[31m[Error] ".as_bytes());
-        self.uart.write(error.as_bytes());
-        self.uart.write("\r\n\x1b[39m".as_bytes());
+        self.write(&format!("\x1b[31m[Error] {} \r\n\x1b[39m", error));
     }
 
-    // warn
+    // Warn
     fn warn(&mut self, warn: &str) {
-        self.uart.write("\x1b[33m[Warning] ".as_bytes());
-        self.uart.write(warn.as_bytes());
-        self.uart.write("\r\n\x1b[39m".as_bytes());
+        self.write(&format!("\x1b[33m[Warning] {} \r\n\x1b[39m", warn));
     }
 
-    // output
-    fn output(&mut self, level: i32, msg: &str) {
-        if level >= 0 && level <= 5 {
-            self.uart.write("\x1b[36m[Debug] ".as_bytes());
-            self.uart.write(msg.as_bytes());
-            self.uart.write("\r\n\x1b[39m".as_bytes());
+    // Output
+    fn output(&mut self, level: DebugLevel, msg: &str) {
+        if level >= self.debug_level {
+            self.write(&format!("\x1b[36m[Warning] {} \r\n\x1b[39m", msg));
+        }
+    }
+
+    // Set debug level
+    fn set_debug_level(&mut self, level: DebugLevel){
+        if level >= DebugLevel::Lv0 && level <= DebugLevel::Lv5 {
+            self.debug_level = level;
+        } else {
+            self.error(&format!("The level {:?} out of debug level", level));
         }
     }
 }

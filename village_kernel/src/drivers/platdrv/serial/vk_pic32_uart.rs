@@ -47,6 +47,11 @@ impl Pic32Uart {
         true
     }
 
+    // Close
+    pub fn close(&self) {
+
+    }
+
     // Check if the send register is empty
     pub fn is_tx_register_empty(&self) -> bool {
         let status = port_byte_in(COMX[self.port as usize] + COM_LINE_STATUS_POS);
@@ -60,13 +65,13 @@ impl Pic32Uart {
     }
 
     // Write data
-    pub fn write(&self, data: &[u8]) -> usize {
+    pub fn write(&self, data: &[u8], size: usize) -> usize {
         let mut count = 0;
         
-        for byte in data {
+        for i in 0..size {
             while !self.is_tx_register_empty() {}
             
-            port_byte_out(COMX[self.port as usize],*byte);
+            port_byte_out(COMX[self.port as usize],data[i]);
 
             count += 1;
         }
@@ -75,7 +80,7 @@ impl Pic32Uart {
     }
 
     // Read data
-    pub fn read(&self, buffer: &mut [u8]) -> usize {
+    pub fn read(&self, buffer: &mut [u8], size: usize) -> usize {
         let mut count = 0;
         
         for byte in buffer.iter_mut() {
@@ -86,6 +91,10 @@ impl Pic32Uart {
             *byte = port_byte_in(COMX[self.port as usize]);
                     
             count += 1;
+
+            if count >= size {
+                break;
+            }
         }
         
         count

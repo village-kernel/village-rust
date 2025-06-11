@@ -35,13 +35,25 @@ pub trait Memory {
     fn get_curr_addr(&mut self) -> u32;
 }
 
+// Debug level
+#[derive(PartialEq, PartialOrd, Debug)]
+pub enum DebugLevel {
+    Lv0 = 0,
+    Lv1,
+    Lv2,
+    Lv3,
+    Lv4,
+    Lv5
+}
+
 // Debug
 pub trait Debug {
     fn log(&mut self, log: &str);
     fn info(&mut self, log: &str);
     fn error(&mut self, error: &str);
     fn warn(&mut self, warn: &str);
-    fn output(&mut self, level: i32, msg: &str);
+    fn output(&mut self, level: DebugLevel, msg: &str);
+    fn set_debug_level(&mut self, level: DebugLevel);
 }
 
 // Interrupt
