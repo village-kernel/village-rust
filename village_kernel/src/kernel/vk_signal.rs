@@ -5,36 +5,47 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::village::kernel;
-use crate::traits::vk_kernel::Signal;
+use crate::traits::vk_kernel::{Signal, Signals};
 
-// struct concrete signal
+// Struct concrete signal
 pub struct ConcreteSignal;
 
-// impl concrete signal
+// Impl concrete signal
 impl ConcreteSignal {
     pub const fn new() -> Self {
         Self { }
     }
 }
 
-// impl concrete signal
+// Impl concrete signal
 impl ConcreteSignal {
-    // setup
+    // Setup
     pub fn setup(&mut self) {
-        //output debug info
+        // output debug info
         kernel().debug().info("Signal setup done!");
     }
 
-    // exit
+    // Exit
     pub fn exit(&mut self) {
 
     }
 }
 
-// impl signal for concrete signal
+// Impl signal for concrete signal
 impl Signal for ConcreteSignal {
-    // raising
-    fn raising(&mut self, signal: i32) {
-        let _ = signal;
+    // Raising
+    fn raising(&mut self, signal: Signals) {
+        kernel().system().disable_irq();
+
+        match signal {
+            Signals::None => todo!(),
+            Signals::Sleep => kernel().sleep(),
+            Signals::Standby => kernel().standby(),
+            Signals::Shutdown => kernel().shutdown(),
+            Signals::Reboot => kernel().reboot(),
+            Signals::Kill => todo!(),
+        }
+
+        kernel().system().enable_irq();
     }
 }

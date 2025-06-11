@@ -283,9 +283,24 @@ pub trait Terminal {
     fn unregister_cmd(&mut self);
 }
 
+
+// Signals
+#[derive(PartialEq)]
+pub enum Signals {
+    None = 0,
+    
+    Sleep,
+    Standby,
+    Shutdown,
+    Reboot,
+
+    Kill,
+}
+
 // Signal
 pub trait Signal {
-    fn raising(&mut self, signal: i32);
+    // Feature methods
+    fn raising(&mut self, signal: Signals);
 }
 
 // Protocol
