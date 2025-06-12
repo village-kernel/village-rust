@@ -22,7 +22,7 @@ impl ConcreteDevice {
     // setup
     pub fn setup(&mut self) {
         //output debug info
-        kernel().debug().info("Device setup done!");
+        kernel().debug().info("Device setup completed!");
     }
 
     // exit

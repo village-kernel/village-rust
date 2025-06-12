@@ -39,7 +39,7 @@ impl ConcreteThread {
         self.create_task("Thread::IdleTask", idle_task_cb);
 
         // Output debug info
-        kernel().debug().info("Thread setup done!");
+        kernel().debug().info("Thread setup completed!");
     }
 
     // Start

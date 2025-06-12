@@ -22,7 +22,7 @@ impl ConcreteSignal {
     // Setup
     pub fn setup(&mut self) {
         // output debug info
-        kernel().debug().info("Signal setup done!");
+        kernel().debug().info("Signal setup completed!");
     }
 
     // Exit

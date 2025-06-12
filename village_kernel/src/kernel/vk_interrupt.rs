@@ -43,7 +43,7 @@ impl ConcreteInterrupt {
         self.is_ready = true;
 
         // Output debug info
-        kernel().debug().info("Interrupt setup done!");
+        kernel().debug().info("Interrupt setup completed!");
     }
 
     // Exit

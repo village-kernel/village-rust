@@ -34,7 +34,7 @@ impl ConcreteWorkQueue {
         kernel().thread().create_task("WorkQueue::Execute", execute_cb);
 
         //output debug info
-        kernel().debug().info("Work queue setup done!");
+        kernel().debug().info("Work queue setup completed!");
     }
 
     // Exit

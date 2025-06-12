@@ -35,7 +35,7 @@ impl ConcreteTimer {
         kernel().interrupt().add_isr_cb(SYSTICK_IRQN, exec_cb);
 
         //output debug info
-        kernel().debug().info("Timer setup done!");
+        kernel().debug().info("Timer setup completed!");
     }
 
     // Exit

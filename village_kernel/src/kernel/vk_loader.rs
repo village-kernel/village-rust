@@ -23,7 +23,7 @@ impl ConcreteLoader {
     // setup
     pub fn setup(&mut self) {
         //output debug info
-        kernel().debug().info("Loader setup done!");
+        kernel().debug().info("Loader setup completed!");
     }
 
     // exit

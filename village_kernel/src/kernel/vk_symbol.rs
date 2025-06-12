@@ -52,7 +52,7 @@ impl ConcreteSymbol {
     // Setup
     pub fn setup(&mut self) {
         // Output debug info
-        kernel().debug().info("Symbol setup done!");
+        kernel().debug().info("Symbol setup completed!");
     }
 
     // Exit

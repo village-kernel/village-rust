@@ -159,7 +159,7 @@ impl ConcreteMemory {
         self.initialized.store(true, Ordering::Release);
         
         // Output debug info
-        kernel().debug().info("Memory setup done!");
+        kernel().debug().info("Memory setup completed!");
     }
 
     // Exit

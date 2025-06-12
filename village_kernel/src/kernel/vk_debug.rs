@@ -46,7 +46,7 @@ impl ConcreteDebug {
         self.is_ready = true;
 
         // Output debug info
-        kernel().debug().info("Debug setup done!");
+        kernel().debug().info("Debug setup completed!");
     }
 
     // Exit

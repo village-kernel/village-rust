@@ -22,7 +22,7 @@ impl ConcreteEvent {
     // setup
     pub fn setup(&mut self) {
         //output debug info
-        kernel().debug().info("Input event setup done!");
+        kernel().debug().info("Input event setup completed!");
     }
 
     // exit

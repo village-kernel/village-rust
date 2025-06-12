@@ -22,7 +22,7 @@ impl ConcreteProcess {
     // setup
     pub fn setup(&mut self) {
         //output debug info
-        kernel().debug().info("Process setup done!");
+        kernel().debug().info("Process setup completed!");
     }
 
     // exit
