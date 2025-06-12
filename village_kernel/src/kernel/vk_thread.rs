@@ -100,7 +100,7 @@ impl Thread for ConcreteThread {
         };
 
         // Add task into tasks list
-        self.tasks.push(task);
+        self.tasks.add(task);
         tid
     }
     

@@ -45,7 +45,7 @@ impl<T> LinkedList<T> {
 
 impl<T> LinkedList<T> {
     // Push node to list
-    pub fn push(&mut self, obj: T){
+    pub fn add(&mut self, obj: T){
         let node = ListNode {
             obj,
             prev: ptr::null_mut(),
@@ -69,7 +69,7 @@ impl<T> LinkedList<T> {
     }
 
     // Delete node from list
-    pub fn delete(&mut self, obj: &T)
+    pub fn del(&mut self, obj: &T)
     where
         T: PartialEq,
     {

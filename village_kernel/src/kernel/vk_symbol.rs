@@ -66,13 +66,13 @@ impl Symbol for ConcreteSymbol {
     // Export
     fn export(&mut self, sym_addr: u32, name: &str) {
         let entry = Entry::new(sym_addr, name);
-        self.entrys.push(entry);
+        self.entrys.add(entry);
     }
 
     // Unexport
     fn unexport(&mut self, sym_addr: u32, name: &str) {
         let entry = Entry::new(sym_addr, name);
-        self.entrys.delete(&entry);
+        self.entrys.del(&entry);
     }
     
     // Search

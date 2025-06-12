@@ -72,14 +72,14 @@ impl Interrupt for ConcreteInterrupt {
     // Add ISR function callback
     fn add_isr_cb(&mut self, irq: isize, callback: Callback) {
         let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
-        self.isr_tabs[irq_idx].push(callback);
+        self.isr_tabs[irq_idx].add(callback);
     }
 
     // Del ISR function callback
     fn del_isr_cb(&mut self, irq: isize, callback: Callback) {
         let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
         let isrs = &mut self.isr_tabs[irq_idx];
-        isrs.delete(&callback);
+        isrs.del(&callback);
     }
 
     // Clear ISR callbacks

@@ -73,7 +73,7 @@ impl WorkQueue for ConcreteWorkQueue {
         let id = self.id_cnt;
         self.id_cnt += 1;
         let work = Work::new(id, ticks, callback);
-        self.works.push(work);
+        self.works.add(work);
         self.works.end();
         self.works.item()
     }
@@ -81,7 +81,7 @@ impl WorkQueue for ConcreteWorkQueue {
     // Delete
     fn delete(&mut self, work: &mut Work) -> bool{
         if work.state == WorkState::Terminated {
-            self.works.delete(work);
+            self.works.del(work);
             return true;
         }
         false
