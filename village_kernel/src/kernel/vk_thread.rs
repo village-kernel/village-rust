@@ -136,10 +136,14 @@ impl Thread for ConcreteThread {
 
     // Thread delete task
     fn delete_task(&mut self, tid: i32) {
-        if let Some(task) = self.tasks.iter_mut().find(|t| t.id == tid) {
-            kernel().memory().free(task.stack, 0);
-            //self.tasks.delete(task);
-        }
+        self.tasks.retain(|task| {
+            if task.id == tid {
+                kernel().memory().free(task.stack, 0);
+                false
+            } else {
+                true
+            }
+        });
     }
 
     // Thread check task is alive
