@@ -253,3 +253,89 @@ impl<T> LinkedList<T> {
         }
     }
 }
+
+// Impl linked list
+impl<T> LinkedList<T> {
+    /// Retains only the elements specified by the predicate.
+    /// In other words, remove all elements `e` for which `f(&e)` returns false.
+    /// This method operates in place, visiting each element exactly once in the
+    /// original order, and preserves the order of the retained elements.
+    pub fn retain<F>(&mut self, mut f: F)
+    where
+        F: FnMut(&T) -> bool,
+    {
+        let mut current = self.head;
+        let mut new_len = 0;
+
+        while !current.is_null() {
+            unsafe {
+                let next = (*current).next;
+                let should_retain = f(&(*current).obj);
+
+                if !should_retain {
+                    // Remove the node from the list
+                    let prev = (*current).prev;
+                    let next = (*current).next;
+
+                    if !prev.is_null() {
+                        (*prev).next = next;
+                    } else {
+                        self.head = next;
+                    }
+
+                    if !next.is_null() {
+                        (*next).prev = prev;
+                    } else {
+                        self.tail = prev;
+                    }
+
+                    // Free the node
+                    drop(Box::from_raw(current));
+                } else {
+                    new_len += 1;
+                }
+
+                current = next;
+            }
+        }
+
+        self.len = new_len;
+    }
+
+    pub fn retain_mut<F>(&mut self, mut f: F)
+    where
+        F: FnMut(&mut T) -> bool,
+    {
+        let mut current = self.head;
+        let mut prev: *mut ListNode<T> = ptr::null_mut();
+        let mut new_len = 0;
+
+        while !current.is_null() {
+            unsafe {
+                let next = (*current).next;
+                let should_retain = f(&mut (*current).obj);
+
+                if should_retain {
+                    (*current).prev = prev;
+                    if prev.is_null() {
+                        self.head = current;
+                    } else {
+                        (*prev).next = current;
+                    }
+                    prev = current;
+                    new_len += 1;
+                } else {
+                    drop(Box::from_raw(current));
+                }
+
+                current = next;
+            }
+        }
+
+        self.tail = prev;
+        if !prev.is_null() {
+            unsafe { (*prev).next = ptr::null_mut(); }
+        }
+        self.len = new_len;
+    }
+}
