@@ -67,27 +67,7 @@ impl ModuleData {
 
 // Module
 pub trait Module {
-    // Set id
-    fn set_id(&mut self, id: ModuleID) {
-        self.module_data().set_id(id);
-    }
-
-    // Get id
-    fn get_id(&mut self) -> ModuleID {
-        self.module_data().get_id()
-    }
-
-    // Set name
-    fn set_name(&mut self, name: &str) {
-        self.module_data().set_name(name);
-    }
-
-    // Get name
-    fn get_name(&mut self) -> &str {
-        self.module_data().get_name()
-    }
-
-    fn module_data(&mut self) -> &mut ModuleData;
+    fn data(&mut self) -> &mut ModuleData;
     fn setup(&mut self);
     fn exit(&mut self);
 }
@@ -107,8 +87,8 @@ macro_rules! register_module {
 
             fn [<$name _init>]() {
                 let mut module = Box::new($mod);
-                module.set_name(stringify!($name));
-                module.set_id($id);
+                module.data().set_name(stringify!($name));
+                module.data().set_id($id);
                 kernel().feature().register_module(module);
             }
 
