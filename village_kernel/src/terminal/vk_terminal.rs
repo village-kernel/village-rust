@@ -22,7 +22,7 @@ impl ConcreteTerminal {
     // setup
     pub fn setup(&mut self) {
         //output debug info
-        kernel().debug().info("Terminal setup done!");
+        kernel().debug().info("Terminal setup completed!");
     }
 
     // exit

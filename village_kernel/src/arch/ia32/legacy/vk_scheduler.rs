@@ -41,7 +41,7 @@ impl ConcreteScheduler {
         kernel().interrupt().add_isr_cb(SYSTICK_IRQN, sched_cb);
 
         // Output debug info
-        kernel().debug().info("Scheduler setup done!");
+        kernel().debug().info("Scheduler setup completed!");
     }
 
     // Exit

@@ -22,7 +22,7 @@ impl ConcreteProtocol {
     // setup
     pub fn setup(&mut self) {
         //output debug info
-        kernel().debug().info("Protocol setup done!");
+        kernel().debug().info("Protocol setup completed!");
     }
 
     // exit
