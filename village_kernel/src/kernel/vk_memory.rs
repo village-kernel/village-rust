@@ -173,6 +173,11 @@ impl ConcreteMemory {
 impl Memory for ConcreteMemory {
     // Heap alloc
     fn heap_alloc(&mut self, size: u32) -> u32 {
+        // Check is initialized
+        if !self.initialized.load(Ordering::Acquire) {
+            self.setup();
+        }
+
         self.lock.lock();
 
         let size_of_node = core::mem::size_of::<MapNode>() as u32;
@@ -246,6 +251,11 @@ impl Memory for ConcreteMemory {
     
     // Stack alloc
     fn stack_alloc(&mut self, size: u32) -> u32 {
+        // Check is initialized
+        if !self.initialized.load(Ordering::Acquire) {
+            self.setup();
+        }
+
         // Create an new node by heap alloc
         let size_of_node = core::mem::size_of::<MapNode>() as u32;
         let new_node = self.heap_alloc(size_of_node) as *mut MapNode;
