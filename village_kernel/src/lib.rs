@@ -74,9 +74,10 @@ pub mod terminal {
 
 // import traits modules
 pub mod traits {
-    pub mod vk_linkedlist;
     pub mod vk_callback;
     pub mod vk_kernel;
+    pub mod vk_linkedlist;
+    pub mod vk_module;
 }
 
 // import vendor modules

@@ -4,8 +4,11 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+extern crate alloc;
+use alloc::boxed::Box;
 use super::vk_callback::Callback;
-use crate::traits::vk_linkedlist::LinkedList;
+use super::vk_linkedlist::LinkedList;
+use super::vk_module::Module;
 
 // System
 pub trait System {
@@ -103,6 +106,7 @@ pub struct ThreadTask {
     pub state: ThreadState,
 }
 
+// ThreadTask
 impl ThreadTask {
     // default
     pub fn default() -> Self {
@@ -117,6 +121,7 @@ impl ThreadTask {
     }
 }
 
+// Impl partial eq for thread task
 impl PartialEq for ThreadTask {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
@@ -166,9 +171,12 @@ pub trait Device {
 
 // Feature
 pub trait Feature {
-    fn register_module(&mut self);
-    fn unregister_module(&mut self);
-    fn get_module(&mut self, name: &str);
+    // Register methods
+    fn register_module(&mut self, module: Box<dyn Module>);
+    fn unregister_module(&mut self, name: &str);
+
+    // Data methods
+    fn get_module(&mut self, name: &str) -> Option<&mut Box<dyn Module>>;
 }
 
 // FileSystem
