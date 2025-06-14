@@ -186,6 +186,17 @@ impl<T> Drop for LinkedList<T> {
     }
 }
 
+// Impl form iterator for linkedlist
+impl<T> FromIterator<T> for LinkedList<T> {
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        let mut list = LinkedList::new();
+        for item in iter {
+            list.add(item);
+        }
+        list
+    }
+}
+
 // List iterator
 pub struct ListIterator<'a, T> {
     _list: &'a LinkedList<T>,
@@ -302,6 +313,7 @@ impl<T> LinkedList<T> {
         self.len = new_len;
     }
 
+    // Retain mut
     pub fn retain_mut<F>(&mut self, mut f: F)
     where
         F: FnMut(&mut T) -> bool,
