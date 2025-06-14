@@ -34,12 +34,12 @@ impl ConcreteEvent {
 // impl event for concrete event
 impl Event for ConcreteEvent {
     // init input device
-    fn init_input_device(&mut self) {
-
+    fn init_input_device(&mut self, input: &str) {
+        let _ = input;
     }
 
     // exit input device
-    fn exit_input_device(&mut self) {
-
+    fn exit_input_device(&mut self, input: &str) {
+        let _ = input;
     }
 }

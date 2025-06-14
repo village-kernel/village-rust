@@ -9,6 +9,12 @@ use alloc::boxed::Box;
 use super::vk_callback::Callback;
 use super::vk_linkedlist::LinkedList;
 use super::vk_module::Module;
+use super::vk_driver::Driver;
+use super::vk_driver::DriverID;
+use super::vk_driver::DrvInfo;
+use super::vk_driver::DriverOpts;
+use super::vk_driver::PlatDriver;
+use super::vk_driver::PlatDevice;
 
 // System
 pub trait System {
@@ -165,8 +171,21 @@ pub trait Symbol {
 
 // Device
 pub trait Device {
-    fn register_block_device(&mut self);
-    fn unregister_block_device(&mut self);
+    // Register driver methods
+    fn register_driver(&mut self, driver: Box<dyn Driver>);
+    fn unregister_driver(&mut self, name: &str);
+
+    // Platform driver methods
+    fn register_plat_driver(&mut self, driver: Box<dyn PlatDriver>);
+    fn unregister_plat_driver(&mut self, name: &str);
+
+    // Platform device methods
+    fn register_plat_device(&mut self, device: Box<dyn PlatDevice>);
+    fn unregister_plat_device(&mut self, name: &str);
+
+    // Data methods
+    fn get_driver_fopts(&mut self, name: &str) -> Option<&mut dyn DriverOpts>;
+    fn get_drivers(&mut self, id: DriverID) -> LinkedList<&mut DrvInfo>;
 }
 
 // Feature
@@ -235,8 +254,8 @@ pub trait WorkQueue {
 
 // Event
 pub trait Event {
-    fn init_input_device(&mut self);
-    fn exit_input_device(&mut self);
+    fn init_input_device(&mut self, input: &str);
+    fn exit_input_device(&mut self, input: &str);
 }
 
 // Loader
