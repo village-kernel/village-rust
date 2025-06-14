@@ -46,9 +46,8 @@ impl ConcreteDevice {
         // Platform probe
         self.platform_probe_all();
 
-        for device in self.base_devs.iter_mut() {
-            device.setup();
-        }
+        // Setup all devices
+        self.setup_device_all();
 
         // Set the flag
         self.is_runtime = true;
@@ -59,6 +58,9 @@ impl ConcreteDevice {
 
     // Exit
     pub fn exit(&mut self) {
+        // Exit all devices
+        self.exit_device_all();
+
         // Platform remove
         self.platform_remove_all();
 
@@ -149,7 +151,24 @@ impl ConcreteDevice {
     }
 }
 
-// impl deivce for concrete device
+// Impl concrete device
+impl ConcreteDevice {
+    // Setup device all
+    fn setup_device_all(&mut self) {
+        for device in self.base_devs.iter_mut() {
+            device.setup();
+        }
+    }
+
+    // Exit device all
+    fn exit_device_all(&mut self) {
+       for device in self.base_devs.rev_iter_mut() {
+            device.setup();
+        }
+    }
+}
+
+// Impl deivce for concrete device
 impl Device for ConcreteDevice {
     // Register driver
     fn register_driver(&mut self, mut driver: Box<dyn Driver>) {
