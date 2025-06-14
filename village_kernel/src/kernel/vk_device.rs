@@ -6,7 +6,6 @@
 //###########################################################################
 extern crate alloc;
 use alloc::boxed::Box;
-use alloc::string::ToString;
 use crate::village::kernel;
 use crate::traits::vk_kernel::Device;
 use crate::traits::vk_driver::Driver;
