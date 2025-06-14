@@ -28,14 +28,14 @@ impl ModuleID {
     }
 }
 
-// Struct module data
-pub struct ModuleData {
+// Struct module info
+pub struct ModuleInfo {
     id: ModuleID,
     name: String,
 }
 
 // Impl module data
-impl ModuleData {
+impl ModuleInfo {
     // New
     pub const fn new() -> Self {
         Self {
@@ -67,7 +67,7 @@ impl ModuleData {
 
 // Module
 pub trait Module {
-    fn data(&mut self) -> &mut ModuleData;
+    fn info(&mut self) -> &mut ModuleInfo;
     fn setup(&mut self);
     fn exit(&mut self);
 }
@@ -87,8 +87,8 @@ macro_rules! register_module {
 
             fn [<$name _init>]() {
                 let mut module = Box::new($mod);
-                module.data().set_name(stringify!($name));
-                module.data().set_id($id);
+                module.info().set_name(stringify!($name));
+                module.info().set_id($id);
                 kernel().feature().register_module(module);
             }
 
