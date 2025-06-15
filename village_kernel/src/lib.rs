@@ -74,6 +74,7 @@ pub mod terminal {
         pub mod vk_cmd_help;
         pub mod vk_cmd_memory;
         pub mod vk_cmd_null;
+        pub mod vk_cmd_power;
         pub mod vk_cmd_tasker;
     }
     pub mod vk_cmdmsg;
