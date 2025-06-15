@@ -60,7 +60,7 @@ impl Scheduler for ConcreteScheduler {
     // Start scheduler
     fn start(&mut self) {
         // Output debug info
-        kernel().debug().info("Scheduler start sched!");
+        kernel().debug().info("Scheduler starts scheduling!");
 
         // Set interrupt flag
         kernel().system().enable_irq();
