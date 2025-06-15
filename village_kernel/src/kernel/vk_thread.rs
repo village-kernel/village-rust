@@ -7,6 +7,7 @@
 extern crate alloc;
 use core::ptr;
 use core::arch::asm;
+use alloc::string::ToString;
 use crate::village::kernel;
 use crate::traits::vk_kernel::{ThreadState, ThreadTask, Thread};
 use crate::traits::vk_callback::{FnCallback, Callback};
@@ -91,7 +92,7 @@ impl Thread for ConcreteThread {
         self.id_cnt += 1;
 
         let task = ThreadTask {
-            name,
+            name: name.to_string(),
             id: tid,
             psp,
             ticks: 0,
@@ -155,8 +156,8 @@ impl Thread for ConcreteThread {
     }
 
     // Get tasks
-    fn get_tasks(&mut self) -> &LinkedList<ThreadTask> {
-        &self.tasks
+    fn get_tasks(&mut self) -> &mut LinkedList<ThreadTask> {
+        &mut self.tasks
     }
 
     // Get current task id

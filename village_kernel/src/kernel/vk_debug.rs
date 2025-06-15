@@ -140,7 +140,7 @@ impl Debug for ConcreteDebug {
         if level >= DebugLevel::Lv0 && level <= DebugLevel::Lv5 {
             self.debug_level = level;
         } else {
-            self.error(&format!("The level {:?} out of range", level));
+            self.error(&format!("The level {} out of range", level.as_str()));
         }
     }
 }

@@ -6,6 +6,7 @@
 //###########################################################################
 extern crate alloc;
 use alloc::boxed::Box;
+use alloc::string::{String, ToString};
 use super::vk_commad::Cmd;
 use super::vk_callback::Callback;
 use super::vk_linkedlist::LinkedList;
@@ -46,7 +47,7 @@ pub trait Memory {
 }
 
 // Debug level
-#[derive(PartialEq, PartialOrd, Debug)]
+#[derive(PartialEq, PartialOrd)]
 pub enum DebugLevel {
     Lv0 = 0,
     Lv1,
@@ -54,6 +55,20 @@ pub enum DebugLevel {
     Lv3,
     Lv4,
     Lv5
+}
+
+impl DebugLevel {
+    // 将状态转换为大写字符串表示
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            DebugLevel::Lv0 => "Lv0",
+            DebugLevel::Lv1 => "Lv1",
+            DebugLevel::Lv2 => "Lv2",
+            DebugLevel::Lv3 => "Lv3",
+            DebugLevel::Lv4 => "Lv4",
+            DebugLevel::Lv5 => "Lv5",
+        }
+    }
 }
 
 // Debug
@@ -103,9 +118,22 @@ pub enum ThreadState {
     Terminated,
 }
 
+// Impl thread state
+impl ThreadState {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            ThreadState::New => "NEW",
+            ThreadState::Ready => "READY",
+            ThreadState::Running => "RUNNING",
+            ThreadState::Blocked => "BLOCKED",
+            ThreadState::Terminated => "TERMINATED",
+        }
+    }
+}
+
 // Thread task
 pub struct ThreadTask {
-    pub name: * const str,
+    pub name: String,
     pub id:  i32,
     pub psp: u32,
     pub ticks: u32,
@@ -118,7 +146,7 @@ impl ThreadTask {
     // default
     pub fn default() -> Self {
         ThreadTask {
-            name: "None",
+            name: "None".to_string(),
             id:   -1,
             psp:   0,
             ticks: 0,
@@ -147,7 +175,7 @@ pub trait Thread {
     fn exit_blocked(&mut self, tid: i32);
     fn delete_task(&mut self, tid: i32);
     fn is_task_alive(&mut self, tid: i32) -> bool;
-    fn get_tasks(&mut self) -> &LinkedList<ThreadTask>;
+    fn get_tasks(&mut self) -> &mut LinkedList<ThreadTask>;
 
     // State Methods
     fn get_task_id(&mut self) -> i32;
