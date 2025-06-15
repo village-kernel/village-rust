@@ -323,6 +323,7 @@ pub trait Terminal {
     fn register_cmd(&mut self, cmd: Box<dyn Cmd>);
     fn unregister_cmd(&mut self, name: &str);
     fn get_cmd(&mut self, name: &str) -> Option<&mut Box<dyn Cmd>>;
+    fn get_cmds(&mut self) -> &mut LinkedList<Box<dyn Cmd>>;
 
     // Console Methods
     fn create_console(&mut self, driver: &str) -> i32;

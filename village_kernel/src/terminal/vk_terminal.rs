@@ -134,6 +134,11 @@ impl Terminal for ConcreteTerminal {
         None
     }
 
+    // Get cmds
+    fn get_cmds(&mut self) -> &mut LinkedList<Box<dyn Cmd>> {
+        &mut self.commands
+    }
+
     // Create console
     fn create_console(&mut self, driver: &str) -> i32 {
         // Create sandbox object
