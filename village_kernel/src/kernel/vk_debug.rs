@@ -89,9 +89,8 @@ impl ConcreteDebug {
             }
 
             // Copy data
-            let tx_pos = self.tx_pos;
+            self.tx_buf[self.tx_pos] = *byte;
             self.tx_pos += 1;
-            self.tx_buf[tx_pos] = *byte;
         }
 
         // Sending msg
