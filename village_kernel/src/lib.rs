@@ -69,12 +69,19 @@ pub mod protocol {
 
 // import terminal modules
 pub mod terminal {
+    pub mod cmds {
+        pub mod vk_cmd_about;
+        pub mod vk_cmd_null;
+    }
+    pub mod vk_cmdmsg;
+    pub mod vk_console;
     pub mod vk_terminal;
 }
 
 // import traits modules
 pub mod traits {
     pub mod vk_callback;
+    pub mod vk_commad;
     pub mod vk_driver;
     pub mod vk_kernel;
     pub mod vk_linkedlist;

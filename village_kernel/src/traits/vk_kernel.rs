@@ -6,6 +6,7 @@
 //###########################################################################
 extern crate alloc;
 use alloc::boxed::Box;
+use super::vk_commad::Cmd;
 use super::vk_callback::Callback;
 use super::vk_linkedlist::LinkedList;
 use super::vk_module::Module;
@@ -318,10 +319,15 @@ pub trait Timer {
 
 // Terminal
 pub trait Terminal {
-    fn register_cmd(&mut self);
-    fn unregister_cmd(&mut self);
-}
+    // Cmd Methods
+    fn register_cmd(&mut self, cmd: Box<dyn Cmd>);
+    fn unregister_cmd(&mut self, name: &str);
+    fn get_cmd(&mut self, name: &str) -> Option<&mut Box<dyn Cmd>>;
 
+    // Console Methods
+    fn create_console(&mut self, driver: &str) -> i32;
+    fn destroy_console(&mut self, driver: &str);
+}
 
 // Signals
 #[derive(PartialEq)]
