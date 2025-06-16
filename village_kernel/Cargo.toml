@@ -2,6 +2,7 @@
 name = "village_kernel"
 version = "0.1.0"
 edition = "2021"
+build = "build.rs"
 
 [lib]
 crate-type = ["rlib", "staticlib"]
@@ -9,3 +10,6 @@ crate-type = ["rlib", "staticlib"]
 [dependencies]
 spin = "0.9"
 paste = "1.0"
+
+[build-dependencies]
+time = { version = "0.3", features = ["macros", "formatting", "local-offset"] }

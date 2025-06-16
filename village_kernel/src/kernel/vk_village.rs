@@ -237,24 +237,29 @@ impl Kernel for Village {
         self.system.reboot();
     }
 
+    // Get build year
+    fn get_build_year(&mut self) -> &'static str {
+        env!("BUILD_YEAR")
+    }
+
     // Get build date
-    fn get_build_date(&mut self) {
-        
+    fn get_build_date(&mut self) -> &'static str {
+        env!("BUILD_DATE")
     }
 
     // Get build time
-    fn get_build_time(&mut self) {
-        
+    fn get_build_time(&mut self) -> &'static str {
+        env!("BUILD_TIME")
     }
 
     // Get build version
-    fn get_build_version(&mut self) {
-        
+    fn get_build_version(&mut self) -> &'static str {
+        env!("BUILD_VER")
     }
 
     // Get build git sha
-    fn get_build_git_sha(&mut self) {
-        
+    fn get_build_git_sha(&mut self) -> &'static str {
+        env!("GIT_COMMIT")
     }
 
     // System

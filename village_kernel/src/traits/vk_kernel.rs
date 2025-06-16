@@ -394,10 +394,11 @@ pub trait Kernel {
     fn shutdown(&mut self);
     fn reboot(&mut self);
 
-    fn get_build_date(&mut self);
-    fn get_build_time(&mut self);
-    fn get_build_version(&mut self);
-    fn get_build_git_sha(&mut self);
+    fn get_build_year(&mut self) -> &'static str;
+    fn get_build_date(&mut self) -> &'static str;
+    fn get_build_time(&mut self) -> &'static str;
+    fn get_build_version(&mut self) -> &'static str;
+    fn get_build_git_sha(&mut self) -> &'static str;
 
     fn system(&mut self) -> &mut dyn System;
     fn memory(&mut self) -> &mut dyn Memory;

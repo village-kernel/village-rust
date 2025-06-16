@@ -6,6 +6,7 @@
 //###########################################################################
 use alloc::boxed::Box;
 use alloc::vec::Vec;
+use alloc::format;
 use crate::register_cmd;
 use crate::village::kernel;
 use crate::traits::vk_commad::{Cmd, CmdBase};
@@ -35,8 +36,13 @@ impl Cmd for CmdAbout {
     // Execute
     fn execute(&mut self, _argv: Vec<&str>) {
         if let Some(console) = self.base.get_console() {
-            console.println("village kernel base on rust.");
-            console.println("village kernel Copyright (C) village.");
+            console.println(&format!("build date      : {}", kernel().get_build_date()));
+            console.println(&format!("build time      : {}", kernel().get_build_time()));
+            console.println(&format!("build version   : {}", kernel().get_build_version()));
+            console.println(&format!("build gitcommit : {}", kernel().get_build_git_sha()));
+            console.println("village kernel is based on Rust.");
+            console.println("A fast, safe and efficient operating system kernel.");
+            console.println(&format!("License: GPL-3.0, Copyright (C) {} village.", kernel().get_build_year()));
         }
     }
     
