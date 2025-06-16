@@ -9,8 +9,8 @@ use alloc::string::{String, ToString};
 use crate::drivers::platdrv::serial::vk_pic32_uart::Pic32Uart;
 
 // Static const
-static CMD_HISTORY_SIZE: usize = 10;
-static ARG_BUFFER_SIZE: usize = 256;
+const CMD_HISTORY_SIZE: usize = 10;
+const ARG_BUFFER_SIZE: usize = 256;
 
 // Enum input mode
 enum InputMode {
@@ -44,7 +44,6 @@ pub struct CmdMsgMgr {
     input_mode: InputMode,
     has_message: bool,
     rx_msg: CmdMsg,
-    tx_pos: usize,
     rx_pos: usize,
     history: usize,
     tx_buf: String,
@@ -61,7 +60,6 @@ impl CmdMsgMgr {
             input_mode: InputMode::Edit,
             has_message: false,
             rx_msg: CmdMsg::new(),
-            tx_pos: 0,
             rx_pos: 0,
             history: 0,
             tx_buf: String::new(),
@@ -110,7 +108,6 @@ impl CmdMsgMgr {
             let bytes = self.tx_buf.as_bytes();
             while self.transceiver.write(bytes, bytes.len()) != bytes.len() {}
             self.tx_buf.clear();
-            self.tx_pos = 0;
         }
     }
 }
@@ -139,8 +136,8 @@ impl CmdMsgMgr {
 
                 match self.input_mode {
                     InputMode::Insert => {
-                        if self.insert_mode(byte) {
-                            continue;
+                        if !self.insert_mode(byte) {
+                            self.edit_mode(byte);
                         }
                     }
                     InputMode::Edit => self.edit_mode(byte),
@@ -164,30 +161,26 @@ impl CmdMsgMgr {
     fn insert_mode(&mut self, byte: u8) -> bool {
         // ASCII 32(space) ~ 126(~)
         if byte >= 0x20 && byte <= 0x7e {
-            // Move char[rxBufPos] to char[rxBufPos+1] and insert new char in char[rxBufPos]
             if self.rx_pos <= self.rx_buf.len() {
+                // Insert new char in rx_pos
                 let char_to_insert = byte as char;
                 self.rx_buf.insert(self.rx_pos, char_to_insert);
                 self.rx_pos += 1;
 
                 // Sent new string
+                let mut back = 0;
                 self.tx_buf.push(char_to_insert);
-                
-                let mut i = self.rx_pos;
-                while i < self.rx_buf.len() {
+                for i in self.rx_pos..self.rx_buf.len() {
                     self.tx_buf.push(self.rx_buf.chars().nth(i).unwrap());
-                    i += 1;
+                    back += 1;
                 }
-
+                
                 // Move cursor back
-                let backspaces_needed = self.tx_buf.len() - self.rx_pos;
-                for _ in 0..backspaces_needed {
+                for _ in 0..back {
                     self.tx_buf.push('\x08');
                 }
-
-                self.sending();
-                return true;
             }
+            return true;
         }
 
         // ASCII DEL
@@ -199,24 +192,22 @@ impl CmdMsgMgr {
                     self.rx_pos -= 1;
                 }
 
-                // Backspace character on terminal
-                self.tx_buf.push_str("\x08 \x08");
-                
                 // Sent new string
-                let mut i = self.rx_pos;
-                while i < self.rx_buf.len() {
+                let mut back = 0;
+                self.tx_buf.push('\x08');
+                for i in self.rx_pos..self.rx_buf.len() {
                     self.tx_buf.push(self.rx_buf.chars().nth(i).unwrap());
-                    i += 1;
+                    back += 1;
                 }
-
-                let backspaces_needed = self.tx_buf.len() - self.rx_pos;
-                for _ in 0..backspaces_needed {
+                self.tx_buf.push(' ');
+                back += 1;
+                
+                // Move cursor back
+                for _ in 0..back {
                     self.tx_buf.push('\x08');
                 }
-
-                self.sending();
-                return true;
             }
+            return true;
         }
 
         self.input_mode = InputMode::Edit;
@@ -345,20 +336,18 @@ impl CmdMsgMgr {
                 b'C' => { // right
                     if self.rx_pos < self.rx_buf.len() {
                         self.tx_buf.push(self.rx_buf.chars().nth(self.rx_pos).unwrap());
-                        self.tx_pos += 1;
                         self.rx_pos += 1;
-                        self.input_mode = InputMode::Insert;
-                        return;
                     }
+                    self.input_mode = InputMode::Insert;
+                    return;
                 }
                 b'D' => { // left
                     if self.rx_pos > 0 {
                         self.rx_pos -= 1;
                         self.tx_buf.push('\x08');
-                        self.tx_pos += 1;
-                        self.input_mode = InputMode::Insert;
-                        return;
                     }
+                    self.input_mode = InputMode::Insert;
+                    return;
                 }
                 b'm' => {} // SGR
                 _ => {}
