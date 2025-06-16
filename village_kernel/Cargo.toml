@@ -6,6 +6,13 @@ build = "build.rs"
 
 [lib]
 crate-type = ["rlib", "staticlib"]
+test = false
+bench = false
+
+[[bin]]
+name = "village_kernel"
+test = false
+bench = false
 
 [dependencies]
 spin = "0.9"
