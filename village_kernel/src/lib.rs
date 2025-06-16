@@ -58,6 +58,7 @@ pub mod kernel {
 // import misc modules
 pub mod misc {
     pub mod lock {
+        pub mod vk_mutex;
         pub mod vk_spinlock;
     }
 }
