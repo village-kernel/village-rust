@@ -21,6 +21,36 @@ pub enum DriverID {
     PlatDrv,
 }
 
+// Impl driver id
+impl DriverID {
+    // Iterator
+    pub fn iter() -> impl Iterator<Item = DriverID> {
+        [DriverID::Block, DriverID::Char, DriverID::Display, 
+         DriverID::Input, DriverID::Network, DriverID::Misc].into_iter()
+    }
+
+    // Rev iterator
+    pub fn rev_iter() -> impl Iterator<Item = DriverID> {
+        [DriverID::Misc, DriverID::Network, DriverID::Input,
+         DriverID::Display, DriverID::Char, DriverID::Block].into_iter()
+    }
+}
+
+// Impl driver id
+impl DriverID {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            DriverID::Block => "block driver",
+            DriverID::Char => "char driver",
+            DriverID::Display => "display driver",
+            DriverID::Input => "input driver",
+            DriverID::Network => "network driver",
+            DriverID::Misc => "misc driver",
+            _ => "",
+        }
+    }
+}
+
 // Struct driver info
 pub struct DrvInfo {
     id: DriverID,
