@@ -72,6 +72,7 @@ pub mod protocol {
 pub mod terminal {
     pub mod cmds {
         pub mod vk_cmd_about;
+        pub mod vk_cmd_debug;
         pub mod vk_cmd_help;
         pub mod vk_cmd_memory;
         pub mod vk_cmd_null;

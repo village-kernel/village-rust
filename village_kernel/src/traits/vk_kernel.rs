@@ -58,7 +58,7 @@ pub enum DebugLevel {
 }
 
 impl DebugLevel {
-    // 将状态转换为大写字符串表示
+    // as_str
     pub fn as_str(&self) -> &'static str {
         match self {
             DebugLevel::Lv0 => "Lv0",
@@ -67,6 +67,19 @@ impl DebugLevel {
             DebugLevel::Lv3 => "Lv3",
             DebugLevel::Lv4 => "Lv4",
             DebugLevel::Lv5 => "Lv5",
+        }
+    }
+
+    // from_str
+    pub fn from_str(s: &str) -> Option<DebugLevel> {
+        match s {
+            "lv0" => Some(DebugLevel::Lv0),
+            "lv1" => Some(DebugLevel::Lv1),
+            "lv2" => Some(DebugLevel::Lv2),
+            "lv3" => Some(DebugLevel::Lv3),
+            "lv4" => Some(DebugLevel::Lv4),
+            "lv5" => Some(DebugLevel::Lv5),
+            _ => None,
         }
     }
 }
