@@ -4,18 +4,17 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-extern crate alloc;
 use alloc::format;
 use crate::village::kernel;
 use crate::traits::vk_kernel::{Debug, DebugLevel};
-use crate::drivers::platdrv::serial::vk_pic32_uart::Pic32Uart;
+use crate::misc::fopts::vk_dev_fopt::DevFopt;
 
 // Static const
 static BUF_SIZE: usize = 256;
 
 // Struct concrete debug
 pub struct ConcreteDebug {
-    transceiver: Pic32Uart,
+    transceiver: DevFopt,
     debug_level: DebugLevel,
     is_ready: bool,
     tx_pos: usize,
@@ -26,7 +25,7 @@ pub struct ConcreteDebug {
 impl ConcreteDebug {
     pub const fn new() -> Self {
         Self { 
-            transceiver: Pic32Uart::new(0),
+            transceiver: DevFopt::new(),
             debug_level: DebugLevel::Lv2,
             is_ready: false,
             tx_pos: 0,
@@ -40,7 +39,7 @@ impl ConcreteDebug {
     // Setup
     pub fn setup(&mut self) {
         // Open transceiver
-        self.transceiver.open();
+        self.transceiver.open("serial0");
 
         // Set ready flag
         self.is_ready = true;

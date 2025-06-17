@@ -23,6 +23,11 @@ pub mod arch {
     }
 }
 
+// import board modules
+pub mod board {
+    pub mod vk_ia32legacy_board;
+}
+
 // import drivers modules
 pub mod drivers {
     pub mod platdrv {
@@ -57,6 +62,9 @@ pub mod kernel {
 
 // import misc modules
 pub mod misc {
+    pub mod fopts {
+        pub mod vk_dev_fopt;
+    }
     pub mod lock {
         pub mod vk_mutex;
         pub mod vk_spinlock;

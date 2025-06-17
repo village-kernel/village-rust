@@ -13,9 +13,6 @@ use super::vk_callback::Callback;
 use super::vk_linkedlist::LinkedList;
 use super::vk_module::Module;
 use super::vk_driver::Driver;
-use super::vk_driver::DriverID;
-use super::vk_driver::DrvInfo;
-use super::vk_driver::DriverOpts;
 use super::vk_driver::PlatDriver;
 use super::vk_driver::PlatDevice;
 use super::vk_executor::Executor;
@@ -229,8 +226,8 @@ pub trait Device {
     fn unregister_plat_device(&mut self, name: &str);
 
     // Data methods
-    fn get_driver_fopts(&mut self, name: &str) -> Option<&mut dyn DriverOpts>;
-    fn get_drivers(&mut self, id: DriverID) -> LinkedList<&mut DrvInfo>;
+    fn get_driver(&mut self, name: &str) -> Option<&mut Box<dyn Driver>>;
+    fn get_drivers(&mut self) -> &mut LinkedList<Box<dyn Driver>>;
 }
 
 // Feature

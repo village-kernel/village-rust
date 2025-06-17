@@ -4,14 +4,11 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-extern crate alloc;
 use alloc::boxed::Box;
 use crate::village::kernel;
 use crate::traits::vk_kernel::Device;
 use crate::traits::vk_driver::Driver;
 use crate::traits::vk_driver::DriverID;
-use crate::traits::vk_driver::DriverOpts;
-use crate::traits::vk_driver::DrvInfo;
 use crate::traits::vk_driver::PlatDriver;
 use crate::traits::vk_driver::PlatDevice;
 use crate::traits::vk_linkedlist::LinkedList;
@@ -46,9 +43,6 @@ impl ConcreteDevice {
         // Platform probe
         self.platform_probe_all();
 
-        // Setup all devices
-        self.setup_device_all();
-
         // Set the flag
         self.is_runtime = true;
 
@@ -58,9 +52,6 @@ impl ConcreteDevice {
 
     // Exit
     pub fn exit(&mut self) {
-        // Exit all devices
-        self.exit_device_all();
-
         // Platform remove
         self.platform_remove_all();
 
@@ -151,23 +142,6 @@ impl ConcreteDevice {
     }
 }
 
-// Impl concrete device
-impl ConcreteDevice {
-    // Setup device all
-    fn setup_device_all(&mut self) {
-        for device in self.base_devs.iter_mut() {
-            device.setup();
-        }
-    }
-
-    // Exit device all
-    fn exit_device_all(&mut self) {
-       for device in self.base_devs.rev_iter_mut() {
-            device.setup();
-        }
-    }
-}
-
 // Impl deivce for concrete device
 impl Device for ConcreteDevice {
     // Register driver
@@ -245,25 +219,17 @@ impl Device for ConcreteDevice {
     }
 
     // Get driver fopts
-    fn get_driver_fopts(&mut self, name: &str) -> Option<&mut dyn DriverOpts> {
+    fn get_driver(&mut self, name: &str) -> Option<&mut Box<dyn Driver>> {
         for driver in self.base_devs.iter_mut() {
             if driver.info().get_name() == name {
-                return driver.opts();
+                return Some(driver);
             }
         }
         None
     }
     
     // Get drivers
-    fn get_drivers(&mut self, id: DriverID) -> LinkedList<&mut DrvInfo> {
-        let mut result = LinkedList::new();
-        
-        for driver in self.base_devs.iter_mut() {
-            if driver.info().get_id() == id {
-                result.add(driver.info());
-            }
-        }
-        
-        result
+    fn get_drivers(&mut self) -> &mut LinkedList<Box<dyn Driver>> {
+        &mut self.base_devs
     }
 }

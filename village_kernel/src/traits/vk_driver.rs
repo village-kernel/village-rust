@@ -40,12 +40,12 @@ impl DriverID {
 impl DriverID {
     pub fn as_str(&self) -> &'static str {
         match self {
-            DriverID::Block => "block driver",
-            DriverID::Char => "char driver",
+            DriverID::Block   => "block driver",
+            DriverID::Char    => "char driver",
             DriverID::Display => "display driver",
-            DriverID::Input => "input driver",
+            DriverID::Input   => "input driver",
             DriverID::Network => "network driver",
-            DriverID::Misc => "misc driver",
+            DriverID::Misc    => "misc driver",
             _ => "",
         }
     }
@@ -95,27 +95,22 @@ impl DrvInfo {
     }
 
     // Get data
-    pub fn get_data(&self) -> *mut() {
-        self.data
+    pub fn get_data<T>(&mut self) -> Option<&mut T> {
+        if self.data.is_null() {
+            return None;
+        }
+        unsafe { Some(&mut *(self.data as *mut T)) }
     }
-}
-
-// DriverOpts
-pub trait DriverOpts {
-    fn open(&mut self) -> bool;
-    fn write(&mut self, data: &[u8], size: u32, offset: u32) -> isize;
-    fn read(&mut self, data: &mut [u8], size: u32, offset: u32) -> isize;
-    fn ioctrl(&mut self, cmd: u8, data: &[u8]) -> isize;
-    fn close(&mut self);
 }
 
 // Driver
 pub trait Driver {
     fn info(&mut self) -> &mut DrvInfo;
-    fn opts(&mut self) -> Option<&mut dyn DriverOpts> { None }
-
-    fn setup(&mut self);
-    fn exit(&mut self);
+    fn open(&mut self) -> bool;
+    fn write(&mut self, _data: &[u8], _size: usize) -> usize { 0 }
+    fn read(&mut self, _data: &mut [u8], _size: usize) -> usize { 0 }
+    fn ioctrl(&mut self, _cmd: u8, _data: &[u8]) -> usize { 0 }
+    fn close(&mut self);
 }
 
 // Plat data
@@ -155,6 +150,21 @@ impl PlatData {
     // Is attach
     pub fn is_attach(&self) -> bool {
         self.is_attach
+    }
+
+    // Set id
+    pub fn set_id(&mut self, id: DriverID) {
+        self.drvid = id;
+    }
+
+    // Set name
+    pub fn set_name(&mut self, name: &str) {
+        self.drvname = name.to_string();
+    }
+
+    // Set data
+    pub fn set_data<T>(&mut self, data: &T) {
+        self.drvdata = data as *const T as *mut ();
     }
 }
 

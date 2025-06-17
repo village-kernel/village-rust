@@ -38,8 +38,11 @@ impl Cmd for CmdDevice {
     fn execute(&mut self, _argv: Vec<&str>) {
         if let Some(console) = self.base.get_console() {
             for driver_id in DriverID::iter() {
-                for device in kernel().device().get_drivers(driver_id).iter_mut() {
-                    console.println(&format!("id: {}, name: {}", device.get_id().as_str(), device.get_name()));
+                for device in kernel().device().get_drivers().iter_mut() {
+                    let info = device.info();
+                    if driver_id == info.get_id() {
+                        console.println(&format!("id: {}, name: {}", info.get_id().as_str(), info.get_name()));
+                    }
                 }
             }
         }

@@ -4,7 +4,6 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-extern crate alloc;
 use core::ptr;
 use core::alloc::{GlobalAlloc, Layout};
 use core::sync::atomic::{AtomicBool, AtomicPtr, AtomicU32, Ordering};
@@ -14,7 +13,7 @@ use crate::misc::lock::vk_spinlock::SpinLock;
 
 const ALIGN: u32 = 4;
 const KERNEL_RSVD_HEAP: u32 = 1024;
-const KERNEL_RSVD_STACK: u32 = 1024;
+const KERNEL_RSVD_STACK: u32 = 4096;
 
 // Struct map
 #[repr(C, align(4))]
@@ -238,13 +237,13 @@ impl Memory for ConcreteMemory {
             }
         }
 
+        self.lock.unlock();
+
         // Out of memory
         if alloc_addr == 0 {
             kernel().debug().error("out of memory.");
             loop {}
         }
-
-        self.lock.unlock();
 
         alloc_addr
     }
@@ -324,13 +323,13 @@ impl Memory for ConcreteMemory {
             }
         }
 
+        self.lock.unlock();
+
         // Out of memory
         if alloc_addr == 0 {
             kernel().debug().error("out of memory.");
             loop {}
         }
-
-        self.lock.unlock();
 
         alloc_addr
     }

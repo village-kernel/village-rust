@@ -6,7 +6,7 @@
 //###########################################################################
 extern crate alloc;
 use alloc::string::{String, ToString};
-use crate::drivers::platdrv::serial::vk_pic32_uart::Pic32Uart;
+use crate::misc::fopts::vk_dev_fopt::DevFopt;
 
 // Static const
 const CMD_HISTORY_SIZE: usize = 10;
@@ -40,7 +40,7 @@ impl CmdMsg {
 
 // Struct cmd msg mgr
 pub struct CmdMsgMgr {
-    transceiver: Pic32Uart,
+    transceiver: DevFopt,
     input_mode: InputMode,
     has_message: bool,
     rx_msg: CmdMsg,
@@ -56,7 +56,7 @@ impl CmdMsgMgr {
     // New
     pub const fn new() -> Self {
         Self {
-            transceiver: Pic32Uart::new(0),
+            transceiver: DevFopt::new(),
             input_mode: InputMode::Edit,
             has_message: false,
             rx_msg: CmdMsg::new(),
@@ -69,9 +69,9 @@ impl CmdMsgMgr {
     }
 
     // Setup
-    pub fn setup(&mut self, _driver: &str) {
+    pub fn setup(&mut self, driver: &str) {
         // Open transceiver
-        self.transceiver.open();
+        self.transceiver.open(driver);
     }
 
     // Execute

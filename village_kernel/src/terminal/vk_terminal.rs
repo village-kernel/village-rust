@@ -8,13 +8,13 @@ extern crate alloc;
 use alloc::boxed::Box;
 use alloc::format;
 use alloc::string::{String, ToString};
-use crate::drivers::platdrv::serial::vk_pic32_uart::Pic32Uart;
 use crate::village::kernel;
 use crate::traits::vk_kernel::Terminal;
 use crate::traits::vk_commad::Cmd;
 use crate::traits::vk_callback::Callback;
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::terminal::vk_console::Console;
+use crate::misc::fopts::vk_dev_fopt::DevFopt;
 
 // Struct sandbox
 pub struct Sandbox {
@@ -70,10 +70,10 @@ impl ConcreteTerminal {
 
     // Execute
     fn execute(&mut self) {
-        let serial = Pic32Uart::new(0);
+        let mut serial = DevFopt::new();
 
         // Open serial
-        if serial.open() {
+        if serial.open("serial0") {
             let msg = "\r\nPlease press Enter to activate this console.\r\n";
             let msglen = msg.len();
 
