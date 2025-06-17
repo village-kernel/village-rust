@@ -5,6 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 extern crate alloc;
+use alloc::vec::Vec;
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
 use super::vk_commad::Cmd;
@@ -17,6 +18,8 @@ use super::vk_driver::DrvInfo;
 use super::vk_driver::DriverOpts;
 use super::vk_driver::PlatDriver;
 use super::vk_driver::PlatDevice;
+use super::vk_executor::Executor;
+use super::vk_executor::ExecutorFty;
 
 // System
 pub trait System {
@@ -306,10 +309,63 @@ pub trait Loader {
     fn unload(&mut self);
 }
 
+
+// Process behavior
+#[derive(PartialEq)]
+pub enum ProcessBehavior {
+    Foreground = 0,
+    Background,
+}
+
+// Process data
+pub struct ProcessData {
+    pub path: String,
+    pub pid: i32,
+    pub tid: i32,
+    pub exec: Option<Box<dyn Executor>>,
+}
+
+// Process data
+impl ProcessData {
+    // New
+    pub fn new() -> Self {
+        ProcessData {
+            path: "None".to_string(),
+            pid: -1,
+            tid: -1,
+            exec: None,
+        }
+    }
+}
+
+// Impl partial eq for process data
+impl PartialEq for ProcessData {
+    fn eq(&self, other: &Self) -> bool {
+        self.pid == other.pid && 
+        self.tid == other.tid
+    }
+}
+
 // Process
 pub trait Process {
-    fn register_executor(&mut self);
-    fn unregister_executor(&mut self);
+    // Register Methods
+    fn register_exec_factory(&mut self, factory: Box<dyn ExecutorFty>);
+    fn unregister_exec_factory(&mut self, name: &str);
+    
+    // Run Methods
+    fn run_with_args(&mut self, behavior: ProcessBehavior, args: &str) -> i32;
+    fn run_with_argv(&mut self, behavior: ProcessBehavior, path: &str, argv: Vec<&str>) -> i32;
+
+    // Kill Methods
+    fn kill_by_path(&mut self, path: &str);
+    fn kill_by_pid(&mut self, pid: i32);
+
+    // Check Methods
+    fn is_exist_by_path(&mut self, path: &str) -> bool;
+    fn is_exist_by_pid(&mut self, pid: i32) -> bool;
+
+    // Data Methods
+    fn get_processes(&mut self) -> &mut LinkedList<Box<ProcessData>> ;
 }
 
 // Timer state

@@ -75,9 +75,12 @@ pub mod terminal {
         pub mod vk_cmd_debug;
         pub mod vk_cmd_device;
         pub mod vk_cmd_help;
+        pub mod vk_cmd_kill;
         pub mod vk_cmd_memory;
         pub mod vk_cmd_null;
         pub mod vk_cmd_power;
+        pub mod vk_cmd_process;
+        pub mod vk_cmd_run;
         pub mod vk_cmd_tasker;
     }
     pub mod vk_cmdmsg;
@@ -90,6 +93,7 @@ pub mod traits {
     pub mod vk_callback;
     pub mod vk_commad;
     pub mod vk_driver;
+    pub mod vk_executor;
     pub mod vk_kernel;
     pub mod vk_linkedlist;
     pub mod vk_module;
