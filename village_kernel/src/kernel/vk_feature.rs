@@ -4,7 +4,6 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-extern crate alloc;
 use alloc::boxed::Box;
 use crate::village::kernel;
 use crate::traits::vk_kernel::Feature;

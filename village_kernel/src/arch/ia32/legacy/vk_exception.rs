@@ -4,7 +4,6 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-extern crate alloc;
 use alloc::format;
 use core::arch::asm;
 use crate::village::kernel;

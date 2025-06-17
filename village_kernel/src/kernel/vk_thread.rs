@@ -4,7 +4,6 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-extern crate alloc;
 use core::ptr;
 use core::arch::asm;
 use alloc::string::ToString;

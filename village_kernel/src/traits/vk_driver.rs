@@ -4,7 +4,6 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-extern crate alloc;
 use alloc::{boxed::Box, string::{String, ToString}};
 use crate::village::kernel;
 

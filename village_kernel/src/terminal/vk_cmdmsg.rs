@@ -4,7 +4,6 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-extern crate alloc;
 use alloc::string::{String, ToString};
 use crate::misc::fopts::vk_dev_fopt::DevFopt;
 

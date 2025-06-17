@@ -4,7 +4,6 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-extern crate alloc;
 use alloc::boxed::Box;
 use core::ptr;
 use core::iter::Iterator;

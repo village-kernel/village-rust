@@ -1,4 +1,3 @@
-
 //###########################################################################
 // vk_loader.rs
 // The specific implementation of functions related to loader

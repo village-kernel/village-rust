@@ -4,7 +4,6 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-extern crate alloc;
 use alloc::{string::{String, ToString}, vec::Vec};
 use crate::terminal::vk_console::Console;
 

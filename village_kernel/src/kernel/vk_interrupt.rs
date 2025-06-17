@@ -4,7 +4,6 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-extern crate alloc;
 use alloc::format;
 use crate::village::kernel;
 use crate::traits::vk_kernel::Interrupt;

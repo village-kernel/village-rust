@@ -1,13 +1,12 @@
-use crate::traits::vk_linkedlist::LinkedList;
 //###########################################################################
 // vk_symbol.rs
 // The specific implementation of functions related to symbol
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-extern crate alloc;
 use crate::village::kernel;
 use crate::traits::vk_kernel::Symbol;
+use crate::traits::vk_linkedlist::LinkedList;
 
 // Struct entry
 struct Entry {

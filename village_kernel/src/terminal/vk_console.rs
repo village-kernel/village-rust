@@ -4,7 +4,6 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-extern crate alloc;
 use alloc::format;
 use alloc::string::String;
 use alloc::string::ToString;
