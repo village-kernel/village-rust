@@ -69,6 +69,9 @@ pub mod misc {
         pub mod vk_mutex;
         pub mod vk_spinlock;
     }
+    pub mod model {
+        pub mod vk_observer;
+    }
 }
 
 // import protocol modules
@@ -101,6 +104,7 @@ pub mod traits {
     pub mod vk_callback;
     pub mod vk_commad;
     pub mod vk_driver;
+    pub mod vk_event_codes;
     pub mod vk_executor;
     pub mod vk_kernel;
     pub mod vk_linkedlist;

@@ -288,15 +288,116 @@ impl PartialEq for Work {
 
 // WorkQueue
 pub trait WorkQueue {
+    // Create Methods
     fn create(&mut self, callback: Callback, ticks: u32) -> Option<&mut Work>;
+
+    // Feature Methods
     fn delete(&mut self, work: &mut Work) -> bool;
     fn sched(&mut self, work: &mut Work) -> bool;
 }
 
+// Enum EventType
+pub enum EventType {
+    InputKey = 0,
+    InputAxis,
+    OutputText,
+    OutputAxis,
+    AllSizes
+}
+
+// Enum EventOutFormat
+#[derive(Clone)]
+pub enum EventOutFormat {
+    Noraml = 0,
+    Terminal,
+}
+
+// Struct EventInputKey
+pub struct EventInputKey {
+    pub code: isize,
+    pub status: isize,
+}
+
+// Impl EventInputKey
+impl EventInputKey {
+    pub const fn new() -> Self {
+        Self {
+            code: 0,
+            status: 0,
+        }
+    }
+}
+
+// Struct EventInputAxis
+pub struct EventInputAxis {
+    pub axis_x: isize,
+    pub axis_y: isize,
+    pub axis_z: isize,
+}
+
+// Impl EventInputAxis
+impl EventInputAxis {
+    pub const fn new() -> Self {
+        Self {
+            axis_x: 0,
+            axis_y: 0,
+            axis_z: 0,
+        }
+    }
+}
+
+// Struct EventOutputText
+pub struct EventOutputText {
+    pub data: String,
+}
+
+// Impl EventOutputText
+impl EventOutputText {
+    pub const fn new() -> Self {
+        Self {
+            data: String::new(),
+        }
+    }
+}
+
+// Struct EventOutputAxis
+pub struct EventOutputAxis {
+    pub axis_x: isize,
+    pub axis_y: isize,
+    pub axis_z: isize,
+}
+
+// Impl EventOutputAxis
+impl EventOutputAxis {
+    pub const fn new() -> Self {
+        Self {
+            axis_x: 0,
+            axis_y: 0,
+            axis_z: 0,
+        }
+    }
+}
+
 // Event
 pub trait Event {
+    // Device Methods
     fn init_input_device(&mut self, input: &str);
     fn exit_input_device(&mut self, input: &str);
+
+    // Attach Methods
+    fn attach(&mut self, etype: EventType, callback: Callback);
+    fn detach(&mut self, etype: EventType, callback: Callback);
+
+    // Input Methods
+    fn report_key(&mut self, code: isize, status: isize);
+    fn report_axis(&mut self, axis_x: isize, axis_y: isize, axis_z: isize);
+
+    // Output Methods
+    fn push_char(&mut self, ch: char);
+    fn push_str(&mut self, str: &str);
+    fn push_axis(&mut self, axis_x: isize, axis_y: isize, axis_z: isize);
+    fn set_out_format(&mut self, format: EventOutFormat);
+    fn get_out_format(&mut self) -> EventOutFormat;
 }
 
 // Loader

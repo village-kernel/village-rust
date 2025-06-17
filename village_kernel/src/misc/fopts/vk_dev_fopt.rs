@@ -63,4 +63,9 @@ impl DevFopt  {
             return driver.close();
         }
     }
+
+    // Get_name
+    pub fn get_name(&mut self) -> &str {
+        &self.name
+    }
 }
