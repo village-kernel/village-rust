@@ -70,7 +70,25 @@ impl CmdMsgMgr {
     // Setup
     pub fn setup(&mut self, driver: &str) {
         // Open transceiver
-        self.transceiver.open(driver);
+        if self.transceiver.open(driver) {
+            let msg = "\r\nPlease press Enter to activate this console.\r\n";
+            let msglen = msg.len();
+
+            //Output msg
+            let mut sent = 0;
+            while sent != msglen {
+                sent = self.transceiver.write(msg.as_bytes(), msglen);
+            }
+
+            //Wait for Enter
+            let mut key = [0u8;1];
+            loop {
+                let size = self.transceiver.read(&mut key, 1);
+                if size > 0 && key[0] == 0x0d {
+                    break;
+                }
+            }
+        }
     }
 
     // Execute

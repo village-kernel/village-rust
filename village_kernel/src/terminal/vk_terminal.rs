@@ -13,7 +13,6 @@ use crate::traits::vk_commad::Cmd;
 use crate::traits::vk_callback::Callback;
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::terminal::vk_console::Console;
-use crate::misc::fopts::vk_dev_fopt::DevFopt;
 
 // Struct sandbox
 pub struct Sandbox {
@@ -69,34 +68,8 @@ impl ConcreteTerminal {
 
     // Execute
     fn execute(&mut self) {
-        let mut serial = DevFopt::new();
-
-        // Open serial
-        if serial.open("serial0") {
-            let msg = "\r\nPlease press Enter to activate this console.\r\n";
-            let msglen = msg.len();
-
-            //Output msg
-            let mut sent = 0;
-            while sent != msglen {
-                sent = serial.write(msg.as_bytes(), msglen);
-            }
-
-            //Wait for Enter
-            let mut key = [0u8;1];
-            loop {
-                let size = serial.read(&mut key, 1);
-                if size > 0 && key[0] == 0x0d {
-                    break;
-                }
-            }
-
-            // Close serial
-            serial.close();
-
-            // Create the default console
-            self.create_console("serial0");
-        }
+        // Create the default console
+        self.create_console("serial0");
     }
 
     // Exit
