@@ -8,7 +8,50 @@ use alloc::boxed::Box;
 use crate::village::kernel;
 use crate::register_plat_device;
 use crate::traits::vk_driver::{DriverID, DrvInfo, PlatData, PlatDevice};
+use crate::drivers::platdrv::block::vk_ata_lba_disk::AtaLbaDiskConfig;
 use crate::drivers::platdrv::serial::vk_pic32_uart::Pic32UartConfig;
+
+// Struct ata lba disk dev
+struct AtaLbaDiskDev {
+    info: DrvInfo,
+    plat: PlatData,
+    config: AtaLbaDiskConfig,
+}
+
+// Impl ata lba disk dev
+impl AtaLbaDiskDev {
+    pub const fn new() -> Self {
+        Self {
+            info: DrvInfo::new(),
+            plat: PlatData::new(),
+            config: AtaLbaDiskConfig::new(),
+        }
+    }
+}
+
+// Impl plat device for ata lba disk dev
+impl PlatDevice for AtaLbaDiskDev {
+    fn info(&mut self) -> &mut DrvInfo {
+        &mut self.info
+    }
+
+    fn plat(&mut self) -> &mut PlatData {
+        &mut self.plat
+    }
+
+    fn config(&mut self) {
+        self.config = AtaLbaDiskConfig {
+            drv: 1
+        };
+        self.plat.set_data(&self.config);
+        self.plat.set_id(DriverID::Block);
+        self.plat.set_name("disk0");
+    }
+}
+
+// Register plat device
+register_plat_device!(AtaLbaDiskDev::new(), ataLbaDisk, ata_lba_disk_dev);
+
 
 // Struct pic32 uart dev
 struct Pic32UartDev {

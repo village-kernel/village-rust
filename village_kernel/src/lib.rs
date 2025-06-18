@@ -43,6 +43,9 @@ pub mod board {
 // import drivers modules
 pub mod drivers {
     pub mod platdrv {
+        pub mod block {
+            pub mod vk_ata_lba_disk;
+        }
         pub mod serial {
             pub mod vk_pic32_uart;
         }
