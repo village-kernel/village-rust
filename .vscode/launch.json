@@ -7,30 +7,45 @@
     "configurations": [
         {
             "name": "QEMU Debug x86 bios boot",
-            "type": "cppdbg",
+            "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/village_boot.elf",
-            "cwd": "${workspaceFolder}",
-            "miDebuggerPath": "i386-elf-gdb",
-            "miDebuggerServerAddress": "localhost:1234",
-            "stopAtEntry": true,
-            "preLaunchTask": "Run QEMU x86 bios"
+            "console": "internalConsole",
+            "internalConsoleOptions": "openOnSessionStart",
+            "targetCreateCommands": [
+                "file ${workspaceFolder}/build/village_boot.elf",
+            ],
+            "processCreateCommands": [
+                "gdb-remote localhost:1234"
+            ],
+            "initCommands": [
+                "settings set target.load-script-from-symbol-file true",
+                "settings set target.inline-breakpoint-strategy always",
+                "breakpoint set --name _start",
+                "process handle SIGTRAP -n true -p true -s false",
+            ],
+            "sourceLanguages": ["rust"],
+            "preLaunchTask": "Run QEMU x86 bios",
         },
         {
             "name": "QEMU Debug x86 bios kernel",
-            "type": "cppdbg",
+            "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/village_kernel.elf",
-            "cwd": "${workspaceFolder}",
-            "miDebuggerPath": "i386-elf-gdb",
-            "miDebuggerServerAddress": "localhost:1234",
-            "stopAtEntry": true,
+            "console": "internalConsole",
+            "internalConsoleOptions": "openOnSessionStart",
+            "targetCreateCommands": [
+                "file ${workspaceFolder}/build/village_kernel.elf",
+            ],
+            "processCreateCommands": [
+                "gdb-remote localhost:1234"
+            ],
+            "initCommands": [
+                "settings set target.load-script-from-symbol-file true",
+                "settings set target.inline-breakpoint-strategy always",
+                "breakpoint set --name main",
+                "process handle SIGTRAP -n true -p true -s false",
+            ],
+            "sourceLanguages": ["rust"],
             "preLaunchTask": "Run QEMU x86 bios",
-            "setupCommands": [ {
-                "description": "Enable pretty-printing and set hex output",
-                "text": "-enable-pretty-printing\nset output-radix 16",
-                "ignoreFailures": false
-            } ]
-        },
+        }
     ]
 }
