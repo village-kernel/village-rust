@@ -38,11 +38,11 @@ impl ConcreteProcess {
     pub fn setup(&mut self) {
         // Create a running taichi application task
         let taichi_cb = Callback::new(Self::taichi as u32).with_instance(self);
-        kernel().thread().create_task("Process::Taichi", taichi_cb);
+        kernel().thread().create_task("Process::taichi", taichi_cb);
 
         // Create a listening thread alive task
         let listen_cb = Callback::new(Self::listen as u32).with_instance(self);
-        kernel().thread().create_task("Process::Listen", listen_cb);
+        kernel().thread().create_task("Process::listen", listen_cb);
 
         // Output debug info
         kernel().debug().info("Process setup completed!");

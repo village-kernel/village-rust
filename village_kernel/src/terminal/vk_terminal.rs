@@ -60,7 +60,7 @@ impl ConcreteTerminal {
     pub fn setup(&mut self) {
         // Create terminal execute
         let execute_cb = Callback::new(Self::execute as u32).with_instance(self);
-        kernel().thread().create_task("Terminal::Execute", execute_cb);
+        kernel().thread().create_task("Terminal::execute", execute_cb);
 
         // Output debug info
         kernel().debug().info("Terminal setup completed!");

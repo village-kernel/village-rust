@@ -31,7 +31,7 @@ impl ConcreteWorkQueue {
     pub fn setup(&mut self) {
         // Create work queue task
         let execute_cb = Callback::new(Self::execute as u32).with_instance(self);
-        kernel().thread().create_task("WorkQueue::Execute", execute_cb);
+        kernel().thread().create_task("WorkQueue::execute", execute_cb);
 
         //output debug info
         kernel().debug().info("Work queue setup completed!");

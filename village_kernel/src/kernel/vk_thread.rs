@@ -36,7 +36,7 @@ impl ConcreteThread {
     pub fn setup(&mut self) {
         // First task should be idle task and the tid is 0
         let idle_task_cb = Callback::new(Self::idle_task as u32).with_instance(self);
-        self.create_task("Thread::IdleTask", idle_task_cb);
+        self.create_task("Thread::idletask", idle_task_cb);
 
         // Output debug info
         kernel().debug().info("Thread setup completed!");
