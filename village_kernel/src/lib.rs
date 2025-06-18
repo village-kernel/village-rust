@@ -23,6 +23,16 @@ pub mod arch {
     }
 }
 
+// import binutils modules
+pub mod binutils {
+    pub mod vk_bin_executor;
+    pub mod vk_bin_loader;
+    pub mod vk_elf_executor;
+    pub mod vk_elf_loader;
+    pub mod vk_hex_executor;
+    pub mod vk_hex_loader;
+}
+
 // import board modules
 pub mod board {
     pub mod vk_ia32legacy_board;
