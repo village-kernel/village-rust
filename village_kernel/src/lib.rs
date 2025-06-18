@@ -31,6 +31,8 @@ pub mod binutils {
     pub mod vk_elf_loader;
     pub mod vk_hex_executor;
     pub mod vk_hex_loader;
+    pub mod vk_library_tool;
+    pub mod vk_module_tool;
 }
 
 // import board modules
@@ -74,6 +76,9 @@ pub mod kernel {
 pub mod misc {
     pub mod fopts {
         pub mod vk_dev_fopt;
+        pub mod vk_dir_fopt;
+        pub mod vk_file_fopt;
+        pub mod vk_filesys_fopt;
     }
     pub mod lock {
         pub mod vk_mutex;
@@ -81,6 +86,9 @@ pub mod misc {
     }
     pub mod model {
         pub mod vk_observer;
+    }
+    pub mod parser {
+        pub mod vk_rc_parser;
     }
 }
 

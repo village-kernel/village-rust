@@ -402,10 +402,15 @@ pub trait Event {
 
 // Loader
 pub trait Loader {
-    fn load(&mut self);
-    fn unload(&mut self);
-}
+    // Library Methods
+    fn install_lib(&mut self, name: &str) -> bool;
+    fn uninstall_lib(&mut self, name: &str) -> bool;
+    fn search_symbol(&mut self, symbol: &str) -> usize;
 
+    // Module Methods
+    fn install_mod(&mut self, name: &str) -> bool;
+    fn uninstall_mod(&mut self, name: &str) -> bool;
+}
 
 // Process behavior
 #[derive(PartialEq)]
