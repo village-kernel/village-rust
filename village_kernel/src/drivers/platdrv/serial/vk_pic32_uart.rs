@@ -100,7 +100,7 @@ impl Driver for Pic32Uart {
     }
 
     // Write data
-    fn write(&mut self, data: &[u8], size: usize) -> usize {
+    fn write(&mut self, data: &[u8], size: usize, _offset: usize) -> usize {
         let mut count = 0;
         
         for byte in data {
@@ -119,7 +119,7 @@ impl Driver for Pic32Uart {
     }
 
     // Read data
-    fn read(&mut self, data: &mut [u8], size: usize) -> usize {
+    fn read(&mut self, data: &mut [u8], size: usize, _offset: usize) -> usize {
         let mut count = 0;
         
         for byte in data.iter_mut() {

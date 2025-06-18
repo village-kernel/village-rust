@@ -34,17 +34,17 @@ impl DevFopt  {
     }
 
     // Write
-    pub fn write(&mut self, data: &[u8], size: usize) -> usize {
+    pub fn write(&mut self, data: &[u8], size: usize, offset: usize) -> usize {
         if let Some(driver) = kernel().device().get_driver(&self.name) {
-            return driver.write(data, size);
+            return driver.write(data, size, offset);
         }
         0
     }
     
     // Read
-    pub fn read(&mut self, data: &mut [u8], size: usize) -> usize {
+    pub fn read(&mut self, data: &mut [u8], size: usize, offset: usize) -> usize {
         if let Some(driver) = kernel().device().get_driver(&self.name) {
-            return driver.read(data, size);
+            return driver.read(data, size, offset);
         }
         0
     }

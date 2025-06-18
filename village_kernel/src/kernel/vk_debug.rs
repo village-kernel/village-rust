@@ -99,7 +99,7 @@ impl ConcreteDebug {
     // Sending
     fn sending(&mut self) {
         if self.is_ready && self.tx_pos > 0 {
-            while self.transceiver.write(&self.tx_buf, self.tx_pos) != self.tx_pos {}
+            while self.transceiver.write(&self.tx_buf, self.tx_pos, 0) != self.tx_pos {}
             self.tx_pos = 0;
         }
     }

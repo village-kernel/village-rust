@@ -77,13 +77,13 @@ impl CmdMsgMgr {
             //Output msg
             let mut sent = 0;
             while sent != msglen {
-                sent = self.transceiver.write(msg.as_bytes(), msglen);
+                sent = self.transceiver.write(msg.as_bytes(), msglen, 0);
             }
 
             //Wait for Enter
             let mut key = [0u8;1];
             loop {
-                let size = self.transceiver.read(&mut key, 1);
+                let size = self.transceiver.read(&mut key, 1, 0);
                 if size > 0 && key[0] == 0x0d {
                     break;
                 }
@@ -123,7 +123,7 @@ impl CmdMsgMgr {
     fn sending(&mut self) {
         if !self.tx_buf.is_empty() {
             let bytes = self.tx_buf.as_bytes();
-            while self.transceiver.write(bytes, bytes.len()) != bytes.len() {}
+            while self.transceiver.write(bytes, bytes.len(), 0) != bytes.len() {}
             self.tx_buf.clear();
         }
     }
@@ -138,7 +138,7 @@ impl CmdMsgMgr {
         let mut br_size: u8;
 
         while {
-            br_size = self.transceiver.read(&mut br_buff, BR_BUF_SIZE as usize) as u8;
+            br_size = self.transceiver.read(&mut br_buff, BR_BUF_SIZE as usize, 0) as u8;
             br_size > 0 
         } {
             for i in 0..br_size {

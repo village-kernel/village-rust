@@ -106,8 +106,8 @@ impl DrvInfo {
 pub trait Driver {
     fn info(&mut self) -> &mut DrvInfo;
     fn open(&mut self) -> bool;
-    fn write(&mut self, _data: &[u8], _size: usize) -> usize { 0 }
-    fn read(&mut self, _data: &mut [u8], _size: usize) -> usize { 0 }
+    fn write(&mut self, _data: &[u8], _size: usize, _offset: usize) -> usize { 0 }
+    fn read(&mut self, _data: &mut [u8], _size: usize, _offset: usize) -> usize { 0 }
     fn ioctrl(&mut self, _cmd: u8, _data: &[u8]) -> usize { 0 }
     fn close(&mut self);
 }
