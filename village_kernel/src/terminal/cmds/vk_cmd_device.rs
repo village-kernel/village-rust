@@ -41,7 +41,7 @@ impl Cmd for CmdDevice {
                 for device in kernel().device().get_drivers().iter_mut() {
                     let info = device.info();
                     if driver_id == info.get_id() {
-                        console.println(&format!("id: {}, name: {}", info.get_id().as_str(), info.get_name()));
+                        console.println(&format!("name: {}, type: {}", info.get_name(), info.get_id().as_str()));
                     }
                 }
             }
