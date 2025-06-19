@@ -37,12 +37,11 @@ impl Cmd for CmdTasker {
     fn execute(&mut self, _argv: Vec<&str>) {
         if let Some(console) = self.base.get_console() {
             for task in kernel().thread().get_tasks().iter_mut() {
-                console.println(&format!("tid {:<2}, stack 0x{:08X}, psp 0x{:08X}, state {:<12} ticks {:>8}, name {}",
+                console.println(&format!("tid {:<2}, stack 0x{:08X}, psp 0x{:08X}, state {:<12} name {}",
                     task.id, 
                     task.stack, 
                     task.psp, 
                     format!("{},", task.state.as_str()),
-                    task.ticks, 
                     task.name
                 ));
             }
