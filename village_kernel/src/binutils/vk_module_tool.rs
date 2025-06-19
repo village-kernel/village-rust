@@ -73,4 +73,9 @@ impl ModuleTool {
         }
         true
     }
+
+    // Get modules
+    pub fn get_modules(&mut self) -> &mut LinkedList<Box<ElfLoader>> {
+        &mut self.mods
+    }
 }

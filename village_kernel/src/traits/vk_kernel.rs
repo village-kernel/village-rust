@@ -11,11 +11,9 @@ use super::vk_commad::Cmd;
 use super::vk_callback::Callback;
 use super::vk_linkedlist::LinkedList;
 use super::vk_module::Module;
-use super::vk_driver::Driver;
-use super::vk_driver::PlatDriver;
-use super::vk_driver::PlatDevice;
-use super::vk_executor::Executor;
-use super::vk_executor::ExecutorFty;
+use super::vk_driver::{Driver, PlatDriver, PlatDevice};
+use super::vk_executor::{Executor, ExecutorFty};
+use crate::binutils::vk_elf_loader::ElfLoader;
 
 // System
 pub trait System {
@@ -410,6 +408,10 @@ pub trait Loader {
     // Module Methods
     fn install_mod(&mut self, name: &str) -> bool;
     fn uninstall_mod(&mut self, name: &str) -> bool;
+
+    // Data Methods
+    fn get_libraries(&mut self) -> &mut LinkedList<Box<ElfLoader>>;
+    fn get_modules(&mut self) -> &mut LinkedList<Box<ElfLoader>>;
 }
 
 // Process behavior

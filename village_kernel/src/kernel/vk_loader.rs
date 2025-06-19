@@ -1,14 +1,17 @@
-use crate::misc::parser::vk_rc_parser::RcParser;
 //###########################################################################
 // vk_loader.rs
 // The specific implementation of functions related to loader
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use alloc::boxed::Box;
 use crate::village::kernel;
 use crate::traits::vk_kernel::Loader;
+use crate::traits::vk_linkedlist::LinkedList;
+use crate::binutils::vk_elf_loader::ElfLoader;
 use crate::binutils::vk_library_tool::LibraryTool;
 use crate::binutils::vk_module_tool::ModuleTool;
+use crate::misc::parser::vk_rc_parser::RcParser;
 
 // Struct concrete loader
 pub struct ConcreteLoader {
@@ -134,5 +137,15 @@ impl Loader for ConcreteLoader {
     // Uninstall mod
     fn uninstall_mod(&mut self, name: &str) -> bool {
         self.modtool.uninstall(name)
+    }
+
+    // Get libraries
+    fn get_libraries(&mut self) -> &mut LinkedList<Box<ElfLoader>> {
+        self.libtool.get_libraries()
+    }
+
+    // Get modules
+    fn get_modules(&mut self) -> &mut LinkedList<Box<ElfLoader>> {
+        self.modtool.get_modules()
     }
 }

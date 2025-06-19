@@ -87,4 +87,9 @@ impl LibraryTool {
         }
         0
     }
+
+    // Get libraries
+    pub fn get_libraries(&mut self) -> &mut LinkedList<Box<ElfLoader>> {
+        &mut self.libs
+    }
 }
