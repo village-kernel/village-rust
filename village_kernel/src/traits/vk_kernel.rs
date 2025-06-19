@@ -13,6 +13,7 @@ use super::vk_linkedlist::LinkedList;
 use super::vk_module::Module;
 use super::vk_driver::{Driver, PlatDriver, PlatDevice};
 use super::vk_executor::{Executor, ExecutorFty};
+use super::vk_filesys::{FileVol, FileSys};
 use crate::binutils::vk_elf_loader::ElfLoader;
 
 // System
@@ -239,13 +240,16 @@ pub trait Feature {
 
 // FileSystem
 pub trait FileSystem {
+    // Hard drive methods
     fn mount_hard_drive(&mut self, disk: &str) -> bool;
     fn unmount_hard_drive(&mut self, disk: &str) -> bool;
 
-    fn register_fs(&mut self, name: &str);
+    // Register methods
+    fn register_fs(&mut self, fs: Box<dyn FileSys>);
     fn unregister_fs(&mut self, name: &str);
 
-    fn get_volume(&mut self, name: &str);
+    // Volume methods
+    fn get_volume(&mut self, name: &str) -> Option<&mut Box<dyn FileVol>>;
 }
 
 // Work state

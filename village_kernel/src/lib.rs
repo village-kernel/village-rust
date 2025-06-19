@@ -128,6 +128,7 @@ pub mod traits {
     pub mod vk_driver;
     pub mod vk_event_codes;
     pub mod vk_executor;
+    pub mod vk_filesys;
     pub mod vk_kernel;
     pub mod vk_linkedlist;
     pub mod vk_module;
