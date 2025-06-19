@@ -104,6 +104,7 @@ pub mod protocol {
 pub mod terminal {
     pub mod cmds {
         pub mod vk_cmd_about;
+        pub mod vk_cmd_cat;
         pub mod vk_cmd_debug;
         pub mod vk_cmd_device;
         pub mod vk_cmd_help;
