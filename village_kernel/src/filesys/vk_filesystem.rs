@@ -595,9 +595,12 @@ impl FileSystem for ConcreteFileSystem {
 
     // Get volume
     fn get_volume(&mut self, name: &str) -> Option<&mut Box<dyn FileVol>> {
-        if let Some(mount) = self.mounts.iter_mut().find(|mount|mount.target == name) {
+        if let Some(mount) = self.mounts.iter_mut().find(|mount| name.starts_with(&mount.target)) {
             for media in self.medias.iter_mut() {
-                return media.get_volume(&mount.source);
+                let volume = media.get_volume(&mount.source);
+                if volume.is_some() {
+                    return volume;
+                }
             }
         }
         None

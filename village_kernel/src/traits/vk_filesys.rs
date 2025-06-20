@@ -19,7 +19,24 @@ pub enum FileMode
     OpenAppend    = 0x30,
 }
 
+// Impl FileMode
+impl FileMode {
+    pub fn from(value: u8) -> Self {
+        match value {
+            0x00 => Self::OpenExisting,
+            0x01 => Self::Read,
+            0x02 => Self::Write,
+            0x03 => Self::ReadWrite,
+            0x04 => Self::CreateNew,
+            0x10 => Self::CreateAlways,
+            0x30 => Self::OpenAppend,
+            _ => Self::Read,
+        }
+    }
+}
+
 // Enum FileType
+#[derive(PartialEq, Clone)]
 pub enum FileType
 {
     Unknown  = 0x00,
@@ -29,6 +46,7 @@ pub enum FileType
 }
 
 // Enum FileAttr
+#[derive(PartialEq, Clone)]
 pub enum FileAttr
 {
     Visible = 0x04,
@@ -37,11 +55,24 @@ pub enum FileAttr
 }
 
 // Struct FileDir
+#[derive(Clone)]
 pub struct FileDir {
     pub path: String,
     pub name: String,
     pub attr: FileAttr,
-     pub typeid: FileType,
+    pub typeid: FileType,
+}
+
+// Impl FileDir
+impl FileDir {
+    pub const fn new() -> Self {
+        Self {
+            path: String::new(),
+            name: String::new(),
+            attr: FileAttr::Hidden,
+            typeid: FileType::Unknown,
+        }
+    }
 }
 
 // Trait FileVol
@@ -57,17 +88,17 @@ pub trait FileVol {
     fn get_name(&mut self) -> &str;
 
     // File methods
-    fn open(&mut self, name: &str) -> usize;
+    fn open(&mut self, name: &str, mode: FileMode) -> usize;
     fn write(&mut self, fd: usize, data: &[u8], size: usize, offset: usize) -> usize;
     fn read(&mut self, fd: usize, data: &mut [u8], size: usize, offset: usize) -> usize;
-    fn size(&mut self, fd: usize);
+    fn size(&mut self, fd: usize) -> usize;
     fn flush(&mut self, fd: usize);
     fn close(&mut self, fd: usize);
 
     // Dir methods
-    fn opendir(&mut self, name: &str);
-    fn readdir(&mut self, fd: usize, dirs: &mut [FileDir], size: usize, offset: usize);
-    fn sizedir(&mut self, fd: usize);
+    fn opendir(&mut self, name: &str, mode: FileMode) -> usize;
+    fn readdir(&mut self, fd: usize, dirs: &mut [FileDir], size: usize, offset: usize) -> usize;
+    fn sizedir(&mut self, fd: usize) -> usize;
     fn closedir(&mut self, fd: usize);
 
     // Opt methods

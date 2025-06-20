@@ -107,6 +107,8 @@ pub mod terminal {
         pub mod vk_cmd_cat;
         pub mod vk_cmd_debug;
         pub mod vk_cmd_device;
+        pub mod vk_cmd_echo;
+        pub mod vk_cmd_filesys;
         pub mod vk_cmd_help;
         pub mod vk_cmd_kill;
         pub mod vk_cmd_memory;

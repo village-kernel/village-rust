@@ -23,19 +23,22 @@ impl FilesysFopt  {
 
 // Impl FilesysFopt
 impl FilesysFopt  {
-    // Move
-    pub fn mov(&mut self, source: &str, target: &str) {
+    // Moving
+    pub fn moving(&mut self, source: &str, target: &str) -> bool {
         let _ = source;
         let _ = target;
+        false
     }
 
-    pub fn copy(&mut self, source: &str, target: &str) {
+    pub fn copy(&mut self, source: &str, target: &str) -> bool {
         let _ = source;
         let _ = target;
+        false
     }
 
-    pub fn remove(&mut self, source: &str) {
+    pub fn remove(&mut self, source: &str) -> bool {
         let _ = source;
+        false
     }
 
     // Get_name

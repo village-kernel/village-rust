@@ -5,10 +5,13 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use alloc::string::{String, ToString};
+use crate::village::kernel;
+use crate::traits::vk_filesys::{FileDir, FileMode, FileType};
 
 // Struct DirFopt
 pub struct DirFopt {
-    name: String,
+    path: String,
+    fd: usize,
 }
 
 // Imp DirFopt
@@ -16,40 +19,57 @@ impl DirFopt  {
     // New
     pub const fn new() -> Self {
         Self {
-            name: String::new(),
+            path: String::new(),
+            fd: 0,
         }
     }
 }
 
 // Impl DirFopt
 impl DirFopt  {
-    // Open
-    pub fn open(&mut self, name: &str) -> bool {
-        self.name = name.to_string();
+    // Is exist
+    pub fn is_exist(&mut self, path: &str) -> bool {
+        if let Some(volume) = kernel().filesys().get_volume(path) {
+            return volume.is_exist(path, FileType::Diretory);
+        }
         false
     }
 
-    // Write
-    pub fn write(&mut self, data: &[u8], size: usize) -> usize {
-        let _ = data;
-        let _ = size;
-        0
+    // Open
+    pub fn open(&mut self, path: &str, mode: FileMode) -> bool {
+        self.path = path.to_string();
+        if let Some(volume) = kernel().filesys().get_volume(&self.path) {
+            self.fd = volume.opendir(path, mode);
+            return self.fd != 0;
+        }
+        false
     }
     
     // Read
-    pub fn read(&mut self, data: &mut [u8], size: usize) -> usize {
-        let _ = data;
-        let _ = size;
+    pub fn read(&mut self, dirs: &mut [FileDir], size: usize) -> usize {
+        if let Some(volume) = kernel().filesys().get_volume(&self.path) {
+            return volume.readdir(self.fd, dirs, size, 0);
+        }
+        0
+    }
+
+    // Size
+    pub fn size(&mut self) -> usize {
+        if let Some(volume) = kernel().filesys().get_volume(&self.path) {
+            return volume.sizedir(self.fd);
+        }
         0
     }
 
     // Close
     pub fn close(&mut self) {
-
+        if let Some(volume) = kernel().filesys().get_volume(&self.path) {
+            volume.closedir(self.fd);
+        }
     }
 
-    // Get_name
+    // Get name
     pub fn get_name(&mut self) -> &str {
-        &self.name
+        &self.path
     }
 }

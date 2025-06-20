@@ -6,6 +6,7 @@
 //###########################################################################
 use alloc::string::String;
 use crate::traits::vk_linkedlist::LinkedList;
+use crate::traits::vk_filesys::FileMode;
 use crate::misc::fopts::vk_file_fopt::FileFopt;
 
 // Struct RcParser
@@ -26,7 +27,7 @@ impl RcParser {
     pub fn load(&mut self, filename: &str) -> bool {
         let mut file = FileFopt::new();
         
-        if file.open(filename) {
+        if file.open(filename, FileMode::Read) {
         
             self.decode("shabi");
         }
