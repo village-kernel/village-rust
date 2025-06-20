@@ -9,7 +9,7 @@ use alloc::vec::Vec;
 use alloc::format;
 use crate::register_cmd;
 use crate::village::kernel;
-use crate::traits::vk_commad::{Cmd, CmdBase};
+use crate::traits::vk_command::{Cmd, CmdBase};
 
 // Struct cmd about
 struct CmdAbout {

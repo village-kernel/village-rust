@@ -127,7 +127,7 @@ pub mod terminal {
 // import traits modules
 pub mod traits {
     pub mod vk_callback;
-    pub mod vk_commad;
+    pub mod vk_command;
     pub mod vk_driver;
     pub mod vk_event_codes;
     pub mod vk_executor;

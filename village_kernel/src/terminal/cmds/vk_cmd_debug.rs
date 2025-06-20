@@ -9,7 +9,7 @@ use alloc::vec::Vec;
 use crate::register_cmd;
 use crate::traits::vk_kernel::DebugLevel;
 use crate::village::kernel;
-use crate::traits::vk_commad::{Cmd, CmdBase};
+use crate::traits::vk_command::{Cmd, CmdBase};
 
 // Struct cmd debug
 struct CmdDebug {

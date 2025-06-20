@@ -9,7 +9,7 @@ use alloc::format;
 use alloc::string::{String, ToString};
 use crate::village::kernel;
 use crate::traits::vk_kernel::Terminal;
-use crate::traits::vk_commad::Cmd;
+use crate::traits::vk_command::Cmd;
 use crate::traits::vk_callback::Callback;
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::terminal::vk_console::Console;

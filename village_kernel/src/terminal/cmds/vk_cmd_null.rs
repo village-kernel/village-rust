@@ -8,7 +8,7 @@ use alloc::boxed::Box;
 use alloc::vec::Vec;
 use crate::register_cmd;
 use crate::village::kernel;
-use crate::traits::vk_commad::{Cmd, CmdBase};
+use crate::traits::vk_command::{Cmd, CmdBase};
 
 // Struct cmd null
 struct CmdNull {
