@@ -27,7 +27,7 @@ impl RcParser {
     pub fn load(&mut self, filename: &str) -> bool {
         let mut file = FileFopt::new();
         
-        if file.open(filename, FileMode::Read) {
+        if file.open(filename, FileMode::READ) {
         
             self.decode("shabi");
         }

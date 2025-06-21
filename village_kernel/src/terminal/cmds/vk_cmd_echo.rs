@@ -34,12 +34,12 @@ impl CmdEcho {
         if let Some(console) = self.base.get_console() {
             if path != "" {
                 // Set mode
-                let mut filemode = FileMode::CreateNew as u8;
+                let mut filemode = FileMode::CREATE_NEW;
 
                 if mode == ">" {
-                    filemode |= FileMode::Write as u8;
+                    filemode.insert(FileMode::WRITE);
                 } else if mode == ">>" {
-                    filemode |= FileMode::OpenAppend as u8;
+                    filemode.insert(FileMode::OPEN_APPEND);
                 } else {
                     console.error("parse error near \'\n\'");
                     return;
@@ -51,7 +51,7 @@ impl CmdEcho {
                 // Write data
                 let mut file = FileFopt::new();
 
-                if file.open(&filepath, FileMode::from(filemode)) {
+                if file.open(&filepath, filemode) {
 
                     if file.size() != 0 && mode == ">>" {
                         file.write("\r\n".as_bytes(), 3, 0);

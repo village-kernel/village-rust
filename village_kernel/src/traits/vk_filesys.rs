@@ -7,31 +7,28 @@
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
 
-// Enum FileMode
-pub enum FileMode
-{
-    OpenExisting  = 0x00,
-    Read          = 0x01,
-    Write         = 0x02,
-    ReadWrite     = 0x03,
-    CreateNew     = 0x04,
-    CreateAlways  = 0x10,
-    OpenAppend    = 0x30,
-}
+// struct FileMode
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub struct FileMode(u32);
 
 // Impl FileMode
 impl FileMode {
-    pub fn from(value: u8) -> Self {
-        match value {
-            0x00 => Self::OpenExisting,
-            0x01 => Self::Read,
-            0x02 => Self::Write,
-            0x03 => Self::ReadWrite,
-            0x04 => Self::CreateNew,
-            0x10 => Self::CreateAlways,
-            0x30 => Self::OpenAppend,
-            _ => Self::Read,
-        }
+    pub const OPEN_EXISTING: Self  = FileMode(0x00);
+    pub const READ: Self           = FileMode(0x01);
+    pub const WRITE: Self          = FileMode(0x02);
+    pub const READ_WRITE: Self     = FileMode(0x03);
+    pub const CREATE_NEW: Self     = FileMode(0x04);
+    pub const CREATE_ALWAYS: Self  = FileMode(0x10);
+    pub const OPEN_APPEND: Self    = FileMode(0x30);
+
+    // Contains
+    pub fn contains(self, flag: Self) -> bool {
+        (self.0 & flag.0) != 0
+    }
+
+    // Insert
+    pub fn insert(&mut self, flag: Self) {
+        self.0 |= flag.0
     }
 }
 
@@ -102,7 +99,6 @@ pub trait FileVol {
     fn closedir(&mut self, fd: usize);
 
     // Opt methods
-    fn get_file_type(&mut self, name: &str) -> FileType;
     fn is_exist(&mut self, name: &str, typeid: FileType) -> bool;
     fn remove(&mut self, name: &str);
 }

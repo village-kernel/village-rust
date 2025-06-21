@@ -37,7 +37,7 @@ impl CmdCat {
         if let Some(console) = self.base.get_console() {
             let mut file = FileFopt::new();
 
-            if file.open(path, FileMode::Read) {
+            if file.open(path, FileMode::READ) {
                 let size = file.size();
                 let mut data = vec![0u8; size];
 

@@ -122,7 +122,7 @@ impl CmdList {
         if let Some(console) = self.base.get_console() {
             let mut dir = DirFopt::new();
 
-            if dir.open(path, FileMode::Read) {
+            if dir.open(path, FileMode::READ) {
                 let size = dir.size();
                 let mut dirs = vec![FileDir::new(); size];
 
@@ -196,7 +196,7 @@ impl CmdTouch {
             let mut file = FileFopt::new();
 
             if !file.is_exist(path) {
-                if !file.open(path, FileMode::CreateNew) {
+                if !file.open(path, FileMode::CREATE_NEW) {
                     console.error(&format!("Create file {} failed", path));
                 }
             } else {
@@ -257,7 +257,7 @@ impl CmdMkdir {
             let mut dir = DirFopt::new();
 
             if !dir.is_exist(path) {
-                if !dir.open(path, FileMode::CreateNew) {
+                if !dir.open(path, FileMode::CREATE_NEW) {
                     console.error(&format!("Create directory {} failed", path));
                 }
             } else {
