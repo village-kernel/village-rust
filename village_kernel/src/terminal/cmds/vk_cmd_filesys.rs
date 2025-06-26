@@ -12,6 +12,7 @@ use alloc::string::{String, ToString};
 use crate::register_cmd;
 use crate::village::kernel;
 use crate::traits::vk_command::{Cmd, CmdBase};
+use crate::traits::vk_filesys::FileType;
 use crate::traits::vk_filesys::FileAttr;
 use crate::traits::vk_filesys::FileMode;
 use crate::traits::vk_filesys::FileDir;
@@ -42,8 +43,9 @@ impl CmdCd {
             let mut dir = DirFopt::new();
 
             if dir.is_exist(path) {
+                let mut new_path = path.to_string();
+
                 if let Some(last_slash_pos) = path.rfind('/') {
-                    let mut new_path = String::new();
                     let dir_part = &path[last_slash_pos..];
                     
                     // Handle "." dir
@@ -53,18 +55,18 @@ impl CmdCd {
                     // Handle ".." dir
                     else if dir_part == "/.." {
                         new_path.truncate(last_slash_pos);
-                        
-                        if let Some(prev_slash_pos) = path.rfind('/') {
-                            // Remove the previous directory
-                            new_path.truncate(prev_slash_pos + 1);
-                        } else {
-                            // If no previous slash, set to root
-                            new_path = "/".to_string();
+                        if let Some(prev_slash) = new_path.rfind('/') {
+                            // If we're at root, keep the slash, otherwise truncate
+                            if prev_slash == 0 {
+                                new_path.truncate(1);
+                            } else {
+                                new_path.truncate(prev_slash);
+                            }
                         }
                     }
-
-                    console.set_path(&new_path);
                 }
+
+                console.set_path(&new_path);
             } else {
                 console.error(&format!("{} is not a valid path, please confirm whether the path is correct", path));
             }
@@ -129,13 +131,16 @@ impl CmdList {
                 if dir.read(&mut dirs, size) == size {
                     for i in 0..size {
                         if dirs[i].attr == FileAttr::Visible {
-                            console.print(&format!("{}  ", dirs[i].name));
+                            if FileType::Directory == dirs[i].typid || FileType::File == dirs[i].typid {
+                                console.print(&format!("{}  ", dirs[i].name));
+                            }
                         }
                     }
                     console.print("\r\n");
                 }
+            } else {
+                console.error(&format!("{} is not a valid path, please confirm whether the path is correct", path));
             }
-
         }
     }
 }

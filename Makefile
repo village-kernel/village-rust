@@ -24,6 +24,7 @@ all:
 	$(Q)$(MAKE) boot
 	$(Q)$(MAKE) kernel
 	$(Q)$(MAKE) osImage
+	$(Q)$(MAKE) rootfs
 
 
 #######################################
@@ -51,6 +52,13 @@ osImage:
 	$(Q)dd if=/dev/zero                       of=$(BUILD_DIR)/village_os.img bs=512 count=2880
 	$(Q)dd if=$(BUILD_DIR)/village_boot.bin   of=$(BUILD_DIR)/village_os.img bs=512 seek=0 conv=notrunc
 	$(Q)dd if=$(BUILD_DIR)/village_kernel.bin of=$(BUILD_DIR)/village_os.img bs=512 seek=1 conv=notrunc
+
+
+#######################################
+# copy to rootfs
+#######################################
+rootfs:
+	$(Q)cp -rf rootfs.img               $(BUILD_DIR)/village_fs.img
 
 
 #######################################

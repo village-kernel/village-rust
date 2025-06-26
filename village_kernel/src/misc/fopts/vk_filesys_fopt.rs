@@ -5,6 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use alloc::string::String;
+use crate::village::kernel;
 
 // Struct FilesysFopt
 pub struct FilesysFopt {
@@ -30,14 +31,18 @@ impl FilesysFopt  {
         false
     }
 
+    // Copy
     pub fn copy(&mut self, source: &str, target: &str) -> bool {
         let _ = source;
         let _ = target;
         false
     }
 
+    // Remove
     pub fn remove(&mut self, source: &str) -> bool {
-        let _ = source;
+        if let Some(volume) = kernel().filesys().get_volume(source) {
+            return volume.remove(source);
+        }
         false
     }
 

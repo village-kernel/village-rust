@@ -54,6 +54,15 @@ pub mod drivers {
 
 // import filesys modules
 pub mod filesys {
+    pub mod fs {
+        pub mod fat {
+            pub mod vk_fat_diskio;
+            pub mod vk_fat_filedir;
+            pub mod vk_fat_folder;
+            pub mod vk_fat_object;
+            pub mod vk_fat_system;
+        }
+    }
     pub mod vk_filesystem;
 }
 

@@ -36,16 +36,17 @@ impl FileMode {
 #[derive(PartialEq, Clone)]
 pub enum FileType
 {
-    Unknown  = 0x00,
-    File     = 0x01,
-    Diretory = 0x02,
-    Volume   = 0x04,
+    Unknown   = 0x00,
+    File      = 0x01,
+    Directory = 0x02,
+    Volume    = 0x04,
 }
 
 // Enum FileAttr
 #[derive(PartialEq, Clone)]
 pub enum FileAttr
 {
+    None    = 0x00,
     Visible = 0x04,
     Hidden  = 0x08,
     System  = 0x10,
@@ -57,7 +58,7 @@ pub struct FileDir {
     pub path: String,
     pub name: String,
     pub attr: FileAttr,
-    pub typeid: FileType,
+    pub typid: FileType,
 }
 
 // Impl FileDir
@@ -67,7 +68,7 @@ impl FileDir {
             path: String::new(),
             name: String::new(),
             attr: FileAttr::Hidden,
-            typeid: FileType::Unknown,
+            typid: FileType::Unknown,
         }
     }
 }
@@ -81,8 +82,8 @@ pub trait FileVol {
     // Volume methods
     fn set_mount_path(&mut self, path: &str);
     fn get_mount_path(&mut self) -> &str;
-    fn set_name(&mut self, name: &str);
-    fn get_name(&mut self) -> &str;
+    fn set_name(&mut self, name: &str) -> bool;
+    fn get_name(&mut self) -> String;
 
     // File methods
     fn open(&mut self, name: &str, mode: FileMode) -> usize;
@@ -100,7 +101,7 @@ pub trait FileVol {
 
     // Opt methods
     fn is_exist(&mut self, name: &str, typeid: FileType) -> bool;
-    fn remove(&mut self, name: &str);
+    fn remove(&mut self, name: &str) -> bool;
 }
 
 // Struct filesys info
