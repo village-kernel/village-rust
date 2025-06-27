@@ -21,7 +21,7 @@ pub struct LinkedList<T> {
     head: *mut ListNode<T>,
     tail: *mut ListNode<T>,
     iter: *mut ListNode<T>,
-    len: i32,
+    len: usize,
 }
 
 // Impl list
@@ -37,7 +37,7 @@ impl<T> LinkedList<T> {
     }
 
     // List get len
-    pub fn len(&self) -> i32 {
+    pub fn len(&self) -> usize {
         self.len
     }
 }
