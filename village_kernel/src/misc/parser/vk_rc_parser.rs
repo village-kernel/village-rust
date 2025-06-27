@@ -4,10 +4,18 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::string::String;
+use alloc::vec;
+use alloc::string::{String, ToString};
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::traits::vk_filesys::FileMode;
 use crate::misc::fopts::vk_file_fopt::FileFopt;
+
+// Enum ParserStatus
+enum ParserStatus {
+    RecordCmd,
+    SaveCmd,
+    NotRecord,
+}
 
 // Struct RcParser
 pub struct RcParser {
@@ -26,18 +34,76 @@ impl RcParser {
     // Load
     pub fn load(&mut self, filename: &str) -> bool {
         let mut file = FileFopt::new();
+        let mut result = false;
         
         if file.open(filename, FileMode::READ) {
-        
-            self.decode("shabi");
+            let size = file.size();
+            let mut data = vec![0u8; size];
+
+            if file.read(&mut data, size, 0) == size {
+                self.decode(&String::from_utf8_lossy(&data));
+                result = true;
+            }
+            
+            file.close();
         }
 
-        false
+        result
     }
 
     // Decode
-    fn decode(&mut self, rcstring: &str) {
-        let _ = rcstring;
+    fn decode(&mut self, rc_string: &str) {
+        const START_DELIMITER: isize = -1;
+
+        let mut status = ParserStatus::RecordCmd;
+        let mut start_index = START_DELIMITER;
+        let mut record_bytes = 0;
+        
+        for (i, byte) in rc_string.chars().enumerate() {
+            match byte {
+                '#' => {
+                    status = ParserStatus::NotRecord;
+                }
+                ' ' => {
+                    if let ParserStatus::RecordCmd = status {
+                        status = ParserStatus::SaveCmd;
+                    }
+                }
+                '\r' => continue,
+                '\n' => {
+                    match status {
+                        ParserStatus::RecordCmd => status = ParserStatus::SaveCmd,
+                        ParserStatus::NotRecord => status = ParserStatus::RecordCmd,
+                        _ => {}
+                    }
+                }
+                _ => {
+                    if let ParserStatus::RecordCmd = status {
+                        if byte > ' ' && byte <= '~' {
+                            if START_DELIMITER == start_index {
+                                start_index = i as isize;
+                            }
+                            record_bytes += 1;
+                        }
+                    }
+                }
+            }
+
+            // Save cmd
+            if matches!(status, ParserStatus::SaveCmd) && START_DELIMITER != start_index {
+                if let Some(start) = usize::try_from(start_index).ok() {
+                    let cmd = rc_string[start..start + record_bytes].to_string();
+                    
+                    // Reset state
+                    status = ParserStatus::RecordCmd;
+                    start_index = START_DELIMITER;
+                    record_bytes = 0;
+                    
+                    // Add cmd to run cmd list
+                    self.runcmds.add(cmd);
+                }
+            }
+        }
     }
 
     // Get run cmds
