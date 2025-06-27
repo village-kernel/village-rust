@@ -63,9 +63,7 @@ impl ConcreteLoader {
             let mut run_cmds = parser.get_run_cmds();
 
             for lib_name in run_cmds.rev_iter_mut() {
-                if !self.install_lib(lib_name) {
-                    break;
-                }
+                self.install_lib(lib_name);
             }
         }
     }
@@ -78,9 +76,7 @@ impl ConcreteLoader {
             let mut run_cmds = parser.get_run_cmds();
 
             for lib_name in run_cmds.iter_mut() {
-                if !self.uninstall_lib(lib_name) {
-                    break;
-                }
+                self.uninstall_lib(lib_name);
             }
         }
     }
