@@ -89,6 +89,10 @@ impl ExecutorFty for HexExecutorFty {
     fn get_suffixes(&mut self) -> Vec<&str> {
         let mut suffixes = Vec::<&str>::new();
         suffixes.push(".hex");
+
+        #[cfg(feature = "binding_exec_hex")]
+        suffixes.push(".exec");
+
         suffixes
     }
 

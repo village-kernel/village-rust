@@ -89,6 +89,10 @@ impl ExecutorFty for BinExecutorFty {
     fn get_suffixes(&mut self) -> Vec<&str> {
         let mut suffixes = Vec::<&str>::new();
         suffixes.push(".bin");
+
+        #[cfg(feature = "binding_exec_bin")]
+        suffixes.push(".exec");
+
         suffixes
     }
 

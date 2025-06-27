@@ -4,6 +4,12 @@ version = "0.1.0"
 edition = "2021"
 build = "build.rs"
 
+[features]
+default = ["binding_exec_bin"]
+binding_exec_elf = []
+binding_exec_hex = []
+binding_exec_bin = []
+
 [lib]
 crate-type = ["rlib", "staticlib"]
 test = false

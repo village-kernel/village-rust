@@ -89,6 +89,10 @@ impl ExecutorFty for ElfExecutorFty {
     fn get_suffixes(&mut self) -> Vec<&str> {
         let mut suffixes = Vec::<&str>::new();
         suffixes.push(".elf");
+
+        #[cfg(feature = "binding_exec_elf")]
+        suffixes.push(".exec");
+
         suffixes
     }
 
