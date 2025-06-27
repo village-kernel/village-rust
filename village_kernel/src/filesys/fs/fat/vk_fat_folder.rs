@@ -65,11 +65,9 @@ impl FatFolder {
 
     // Next 
     fn next(&mut self, diskio: &mut FatDiskio, wrt_mode: bool) -> bool {
-        let entries_per_sec = diskio.get_info().entries_per_sec;
-
         self.entidx.index += 1;
 
-        if self.entidx.index >= entries_per_sec as u32 {
+        if self.entidx.index >= diskio.get_info().entries_per_sec {
             if wrt_mode {
                 diskio.write_sector(&self.buffer, self.entidx.sector, 1);
             }
@@ -105,28 +103,28 @@ impl FatFolder {
     }
 }
 
+// Impl FatFolder
 impl FatFolder {
-    // find space
-    fn find_space(&mut self, diskio: &mut FatDiskio, size: u8) -> bool {
-        let mut is_start = true;
+    // Find space
+    fn find_space(&mut self, diskio: &mut FatDiskio, req_size: usize) -> bool {
+        let mut start_idx = DiskIndex::new();
         let mut free_cnt = 0;
-        let mut backup = DiskIndex::new();
         
         self.begin(diskio);
 
         while !self.is_end() {
             if self.get_item().is_none() {
-                if is_start {
-                    is_start = false;
-                    backup = self.entidx.clone();
-                }
                 free_cnt += 1;
-                if free_cnt >= size {
-                    self.entidx = backup;
+
+                if free_cnt == 1 {
+                    start_idx = self.entidx.clone();
+                }
+                
+                if free_cnt >= req_size {
+                    self.entidx = start_idx;
                     return true;
                 }
             } else {
-                is_start = true;
                 free_cnt = 0;
             }
             
@@ -166,19 +164,17 @@ impl FatFolder{
         self.buffer = vec![0u8; bytes_per_sec];
 
         if self.myself.get_object_type() == FileType::Directory {
-            self.begin(diskio);
-
-            let mut new_entry = true;
             let mut index = DiskIndex::new();
             let mut entries = Vec::new();
+
+            self.begin(diskio);
             
             while !self.is_end() {
 
                 if let Some(entry) = self.get_item() {
                     // Record entry index
-                    if new_entry {
+                    if entries.len() == 0 {
                         index = self.entidx.clone();
-                        new_entry = false;
                     }
 
                     // Add entry into entries
@@ -189,8 +185,6 @@ impl FatFolder{
                         let mut fatobj = FatObject::from_entries(&mut entries);
                         fatobj.set_index(index.clone());
                         self.fatobjs.add(Box::new(fatobj));
-                        
-                        new_entry = true;
                         entries.clear();
                     }
                 }
@@ -202,29 +196,27 @@ impl FatFolder{
 
     // Write
     pub fn write(&mut self, diskio: &mut FatDiskio, sub_objs: &mut [FatObject]) -> bool {
-        for i in 0..sub_objs.len() {
-            let entries = sub_objs[i].get_all_entries();
+        for obj in sub_objs {
+            let entries = obj.get_all_entries();
             let size = entries.len();
 
-            if self.find_space(diskio, size as u8) {
-                sub_objs[i].set_index(self.entidx.clone());
-                if self.write_entries(diskio, &entries) == size {
-                    self.fatobjs.add(Box::new(sub_objs[i].clone()));
-                }
-            } else {
+            if !self.find_space(diskio, size) {
                 return false;
             }
+
+            obj.set_index(self.entidx.clone());
+            if self.write_entries(diskio, &entries) != size {
+                return false;
+            }
+
+            self.fatobjs.add(Box::new(obj.clone()));
         }
         true
     }
 
     // Read
     pub fn read(&mut self, sub_objs: &mut [FatObject]) -> usize {
-        let read_size = if sub_objs.len() > self.fatobjs.len() as usize {
-            self.fatobjs.len() as usize
-        } else {
-            sub_objs.len()
-        };
+        let read_size = self.fatobjs.len().min(sub_objs.len());
 
         for (i, fatobj) in self.fatobjs.iter_mut().enumerate() {
             sub_objs[i] = *fatobj.clone();
@@ -235,7 +227,7 @@ impl FatFolder{
 
     // Size
     pub fn size(&mut self) -> usize {
-        self.fatobjs.len() as usize
+        self.fatobjs.len()
     }
 
     // Close

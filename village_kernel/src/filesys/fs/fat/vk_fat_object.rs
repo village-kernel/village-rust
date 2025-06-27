@@ -13,7 +13,7 @@ use crate::traits::vk_filesys::{FileAttr, FileType};
 
 // Const members
 const DIR_ENTRY_SIZE: u8 = 32;
-const LONG_NAME_SIZE: usize = 13;
+const LONG_NAME_SIZE: u8 = 13;
 const DIR_SEQ_FLAG: u8 = 0x40;
 const DIR_FREE_FLAG: u8 = 0xe5;
 const DIR_VALID_FLAG: u8 = 0x0;
@@ -671,7 +671,8 @@ impl FatObject {
     // Calculate lfn entries needed
     fn calculate_lfn_entries_needed(name: &str) -> usize {
         let char_count = name.chars().count();
-        (char_count + LONG_NAME_SIZE - 2) / (LONG_NAME_SIZE - 1)
+        let long_name_size = LONG_NAME_SIZE as usize;
+        (char_count + long_name_size - 2) / (long_name_size - 1)
     }
 }
 
