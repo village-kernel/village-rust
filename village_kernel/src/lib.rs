@@ -27,6 +27,7 @@ pub mod arch {
 pub mod binutils {
     pub mod vk_bin_executor;
     pub mod vk_bin_loader;
+    pub mod vk_elf_defines;
     pub mod vk_elf_executor;
     pub mod vk_elf_loader;
     pub mod vk_hex_executor;

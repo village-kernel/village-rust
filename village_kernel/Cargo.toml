@@ -5,7 +5,9 @@ edition = "2021"
 build = "build.rs"
 
 [features]
-default = ["binding_exec_bin"]
+default = ["arch_i386", "binding_exec_bin"]
+arch_arm = []
+arch_i386 = []
 binding_exec_elf = []
 binding_exec_hex = []
 binding_exec_bin = []
