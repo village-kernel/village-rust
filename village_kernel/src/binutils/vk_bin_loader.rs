@@ -15,8 +15,7 @@ use crate::misc::fopts::vk_file_fopt::FileFopt;
 use super::vk_elf_defines::{DynamicType, DynamicHeader, RelocationCode, RelocationEntry, to_function};
 
 // Struct Bin 
-struct Bin
-{
+struct Bin {
     data: Vec<u8>,
 
     load: u32,
@@ -93,7 +92,7 @@ impl BinLoader {
             file.close();
         }
 
-        kernel().debug().error(&format!("{} bin file load failed", self.filename));
+        kernel().debug().error(&format!("{} no such file!", self.filename));
         false
     }
 
