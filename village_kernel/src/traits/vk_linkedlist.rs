@@ -335,7 +335,6 @@ impl<T> LinkedList<T> {
         F: FnMut(&mut T) -> bool,
     {
         let mut current = self.head.load(Ordering::Acquire);
-        let mut prev: *mut ListNode<T> = ptr::null_mut();
         let mut new_len = 0;
 
         while !current.is_null() {
@@ -343,27 +342,33 @@ impl<T> LinkedList<T> {
                 let next = (*current).next.load(Ordering::Acquire);
                 let should_retain = f(&mut (*current).obj);
 
-                if should_retain {
-                    (*current).prev.store(prev, Ordering::Release);
-                    if prev.is_null() {
-                        self.head.store(current, Ordering::Release);
+                if !should_retain {
+                    // Remove the node from the list
+                    let prev = (*current).prev.load(Ordering::Acquire);
+                    let next_node = next;
+
+                    if !prev.is_null() {
+                        (*prev).next.store(next_node, Ordering::Release);
                     } else {
-                        (*prev).next.store(current, Ordering::Release);
+                        self.head.store(next_node, Ordering::Release);
                     }
-                    prev = current;
-                    new_len += 1;
-                } else {
+
+                    if !next_node.is_null() {
+                        (*next_node).prev.store(prev, Ordering::Release);
+                    } else {
+                        self.tail.store(prev, Ordering::Release);
+                    }
+
+                    // Free the node
                     drop(Box::from_raw(current));
+                } else {
+                    new_len += 1;
                 }
 
                 current = next;
             }
         }
 
-        self.tail.store(prev, Ordering::Release);
-        if !prev.is_null() {
-            unsafe { (*prev).next.store(ptr::null_mut(), Ordering::Release); }
-        }
         self.len = new_len;
     }
 }
