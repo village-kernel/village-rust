@@ -391,7 +391,11 @@ impl HexLoader {
 
     // Exit
     pub fn exit(&mut self) -> bool {
-        false
+        self.hex.text.clear();
+        self.hex.text.shrink_to_fit();
+        self.hex.data.clear();
+        self.hex.data.shrink_to_fit();
+        true
     }
 }
 

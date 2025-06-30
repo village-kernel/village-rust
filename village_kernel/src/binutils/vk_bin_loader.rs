@@ -197,6 +197,7 @@ impl BinLoader {
     // Exit
     pub fn exit(&mut self) -> bool {
         self.bin.data.clear();
+        self.bin.data.shrink_to_fit();
         true
     }
 }
