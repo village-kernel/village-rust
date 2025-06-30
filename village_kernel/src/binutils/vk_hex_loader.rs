@@ -18,32 +18,16 @@ use super::vk_elf_defines::{DynamicType, DynamicHeader, RelocationCode, Relocati
 const SEG_BASE: usize = 16;
 
 // Flag RecordType
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub struct RecordType(u8);
+pub struct RecordType;
 
 // Impl RecordType
 impl RecordType {
-    pub const DATA: Self              = RecordType(0);
-    pub const END_OF_FILE: Self       = RecordType(1);
-    pub const EXT_SEG_ADDR: Self      = RecordType(2);
-    pub const START_SEG_ADDR: Self    = RecordType(3);
-    pub const EXT_LINEAR_ADDR: Self   = RecordType(4);
-    pub const START_LINEAR_ADDR: Self = RecordType(4);
-
-    // Contains
-    pub fn contains(self, flag: Self) -> bool {
-        (self.0 & flag.0) != 0
-    }
-
-    // Insert
-    pub fn insert(&mut self, flag: Self) {
-        self.0 |= flag.0
-    }
-
-    // as u8
-    pub fn as_u8(self) -> u8 {
-        self.0
-    }
+    pub const DATA: u8              = 0;
+    pub const END_OF_FILE: u8       = 1;
+    pub const EXT_SEG_ADDR: u8      = 2;
+    pub const START_SEG_ADDR: u8    = 3;
+    pub const EXT_LINEAR_ADDR: u8   = 4;
+    pub const START_LINEAR_ADDR: u8 = 4;
 }
 
 // Struct record
@@ -225,15 +209,15 @@ impl HexLoader {
             // Decode record
             if let Some(record) = Record::from(&record_str) {
                 // Calculate data size
-                if record.typ == RecordType::DATA.as_u8() {
+                if record.typ == RecordType::DATA {
                     data_size = segment + record.addr as usize + record.len as usize;
                 }
                 // Caclutate segment 
-                else if record.typ == RecordType::EXT_SEG_ADDR.as_u8() {
+                else if record.typ == RecordType::EXT_SEG_ADDR {
                     segment += u16::from_str_radix(&record.data[0..4], 16).unwrap() as usize * SEG_BASE;
                 }
                 // Clear segment and break
-                else if record.typ == RecordType::END_OF_FILE.as_u8() {
+                else if record.typ == RecordType::END_OF_FILE {
                     segment = 0;
                     break;
                 }
@@ -266,14 +250,14 @@ impl HexLoader {
         // Load program
         for record in records.iter_mut() {
             // Load data
-            if record.typ == RecordType::DATA.as_u8() {
+            if record.typ == RecordType::DATA {
                 for pos in 0..record.len as usize {
                     let offset = pos * 2;
                     let value = u8::from_str_radix(&record.data[offset..offset+2], 16).unwrap();
                     let addr = (record.addr as usize + segment + pos) - start_addr;
                     self.hex.prog[addr] = value;
                 }
-            } else if record.typ == RecordType::EXT_SEG_ADDR.as_u8() {
+            } else if record.typ == RecordType::EXT_SEG_ADDR {
                 segment += u16::from_str_radix(&record.data[0..4], 16).unwrap() as usize * SEG_BASE;
             }
         }
@@ -329,11 +313,11 @@ impl HexLoader {
             let dynamic = DynamicHeader::from(&dynamic_bytes[dynamic_offset..dynamic_offset+8]);
             
             // Get relocate section
-            if dynamic.tag == DynamicType::DT_REL.as_u32() {
+            if dynamic.tag == DynamicType::DT_REL {
                 relocate = Some(dynamic.val);
-            } else if dynamic.tag == DynamicType::DT_RELCOUNT.as_u32() {
+            } else if dynamic.tag == DynamicType::DT_RELCOUNT {
                 relcount = dynamic.val;
-            } else if dynamic.tag == DynamicType::DT_NULL.as_u32() {
+            } else if dynamic.tag == DynamicType::DT_NULL {
                  break;
             }
             
@@ -354,7 +338,7 @@ impl HexLoader {
             
             let relocate_entry = RelocationEntry::from(&self.hex.prog[relocate_offset..relocate_offset+8]);
             
-            if relocate_entry.typ == RelocationCode::TYPE_RELATIVE.as_u8() {
+            if relocate_entry.typ == RelocationCode::TYPE_RELATIVE {
                 let rel_addr_offset = (relocate_entry.offset - self.hex.offset) as usize;
                 if rel_addr_offset + 4 > self.hex.prog.len() { continue; }
                 

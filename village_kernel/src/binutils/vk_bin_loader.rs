@@ -137,11 +137,11 @@ impl BinLoader {
             let dynamic = DynamicHeader::from(&dynamic_bytes[dynamic_offset..dynamic_offset+8]);
             
             // Get relocate section
-            if dynamic.tag == DynamicType::DT_REL.as_u32() {
+            if dynamic.tag == DynamicType::DT_REL {
                 relocate = Some(dynamic.val);
-            } else if dynamic.tag == DynamicType::DT_RELCOUNT.as_u32() {
+            } else if dynamic.tag == DynamicType::DT_RELCOUNT {
                 relcount = dynamic.val;
-            } else if dynamic.tag == DynamicType::DT_NULL.as_u32() {
+            } else if dynamic.tag == DynamicType::DT_NULL {
                  break;
             }
             
@@ -162,7 +162,7 @@ impl BinLoader {
             
             let relocate_entry = RelocationEntry::from(&self.bin.prog[relocate_offset..relocate_offset+8]);
             
-            if relocate_entry.typ == RelocationCode::TYPE_RELATIVE.as_u8() {
+            if relocate_entry.typ == RelocationCode::TYPE_RELATIVE {
                 let rel_addr_offset = (relocate_entry.offset - self.bin.offset) as usize;
                 if rel_addr_offset + 4 > self.bin.prog.len() { continue; }
                 
