@@ -45,7 +45,7 @@ impl Cmd for CmdKill {
             if argv[1] == "-p" {
                 kernel().process().kill_by_pid(argv[2].parse().unwrap());
             } else if argv[1] == "-t" {
-                kernel().thread().delete_task(argv[2].parse().unwrap());
+                kernel().thread().stop_task(argv[2].parse().unwrap());
             }
         }
     }

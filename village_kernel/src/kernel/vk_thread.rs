@@ -14,7 +14,7 @@ use crate::traits::vk_linkedlist::LinkedList;
 use crate::arch::ia32::legacy::vk_registers::TaskContext;
 
 // Static constants
-const TASK_STACK_SIZE: u32 = 4096;
+const TASK_STACK_SIZE: u32 = 8192;
 const PSP_FRAME_SIZE: u32 = core::mem::size_of::<TaskContext>() as u32;
 
 // ConcreteThread implementation
@@ -36,7 +36,11 @@ impl ConcreteThread {
     pub fn setup(&mut self) {
         // First task should be idle task and the tid is 0
         let idle_task_cb = Callback::new(Self::idle_task as u32).with_instance(self);
-        self.create_task("Thread::idletask", idle_task_cb);
+        self.create_task("Thread::idle", idle_task_cb);
+
+        // Create a monitor thread alive task
+        let monitor_cb = Callback::new(Self::monitor as u32).with_instance(self);
+        self.create_task("Thread::monitor", monitor_cb);
 
         // Output debug info
         kernel().debug().info("Thread setup completed!");
@@ -65,6 +69,21 @@ impl ConcreteThread {
         callback(instance, userdata);
         self.terminated();
         loop {}
+    }
+
+    // Monitor
+    fn monitor(&mut self) {
+        loop {
+            self.tasks.retain_mut(|task| {
+                if task.state == ThreadState::Terminated {
+                    kernel().memory().free(task.stack, 0);
+                    false
+                } else {
+                    true
+                }
+            });
+            self.sleep(10);
+        }
     }
 }
 
@@ -203,7 +222,6 @@ impl Thread for ConcreteThread {
         if let Some(task) = self.tasks.item() {
             if task.id > 0 {
                 task.state = ThreadState::Terminated;
-                self.delete_task(task.id);
                 kernel().scheduler().sched();
             }
         }

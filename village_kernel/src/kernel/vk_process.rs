@@ -40,9 +40,9 @@ impl ConcreteProcess {
         let taichi_cb = Callback::new(Self::taichi as u32).with_instance(self);
         kernel().thread().create_task("Process::taichi", taichi_cb);
 
-        // Create a listening thread alive task
-        let listen_cb = Callback::new(Self::listen as u32).with_instance(self);
-        kernel().thread().create_task("Process::listen", listen_cb);
+        // Create a monitor thread alive task
+        let monitor_cb = Callback::new(Self::monitor as u32).with_instance(self);
+        kernel().thread().create_task("Process::monitor", monitor_cb);
 
         // Output debug info
         kernel().debug().info("Process setup completed!");
@@ -69,19 +69,13 @@ impl ConcreteProcess {
         }
     }
 
-    // Listen
-    fn listen(&mut self) {
+    // Monitor
+    fn monitor(&mut self) {
         loop {
             self.processes.retain_mut(|data| {
-                if !kernel().thread().is_task_alive(data.tid) {
-                    kernel().thread().delete_task(data.tid);
-                    false
-                }
-                else {
-                    true
-                }
+                kernel().thread().is_task_alive(data.tid)
             });
-            kernel().thread().sleep(1);
+            kernel().thread().sleep(10);
         }
     }
 }

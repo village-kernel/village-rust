@@ -151,7 +151,6 @@ impl Terminal for ConcreteTerminal {
         self.sandboxes.retain_mut(|sandbox| {
             if sandbox.driver == driver {
                 kernel().thread().stop_task(sandbox.tid);
-                kernel().thread().delete_task(sandbox.tid);
                 false
             } else {
                 true
