@@ -48,22 +48,22 @@ impl RecordType {
 }
 
 // Struct record
-struct Record {
+struct Record<'a> {
     len: u8,
     addr: u16,
     typ: u8,
-    data: String,
+    data: &'a str,
 }
 
 // Impl Record
-impl Record {
+impl<'a> Record<'a> {
     // New
     pub const fn new() -> Self {
         Self {
             len: 0,
             addr: 0,
             typ : 0,
-            data: String::new(),
+            data: "",
         }
     }
 
@@ -82,7 +82,7 @@ impl Record {
     /// [:]   [0C]   [00 B4] [00] [B4 00 00 00 B4 02 00 00 76 02 00 00] [5E]
     /// start length address type data                                  check
     ///
-    pub fn from(text: &str) -> Option<Self> {
+    pub fn from(text: &'a str) -> Option<Self> {
         if !Self::check_sum(text) { return None; }
 
         let mut record = Self::new();
@@ -90,7 +90,7 @@ impl Record {
         record.len = u8::from_str_radix(&text[0..2], 16).unwrap();
         record.addr = u16::from_str_radix(&text[2..6], 16).unwrap();
         record.typ = u8::from_str_radix(&text[6..8], 16).unwrap();
-        record.data = text[8..record.len as usize * 2 + 8].to_string();
+        record.data = &text[8..record.len as usize * 2 + 8];
 
         Some(record)
     }
@@ -156,7 +156,6 @@ impl Hex {
 pub struct HexLoader {
     hex: Hex,
     filename: String,
-    records: LinkedList<Record>,
 }
 
 // Impl HexLoader
@@ -166,7 +165,6 @@ impl HexLoader {
         Self {
             hex: Hex::new(),
             filename: String::new(),
-            records: LinkedList::new(),
         }
     }
 
@@ -177,11 +175,10 @@ impl HexLoader {
 
         // Load and mapping
         if !self.load_hex()     { return false; }
-        if !self.pre_parser()   { return false; }
         if !self.load_program() { return false; }
+        if !self.clean_up()     { return false; }
         if !self.post_parser()  { return false; }
         if !self.rel_entries()  { return false; }
-        if !self.cleanup()      { return false; }
 
         // Output debug info
         kernel().debug().output(DebugLevel::Lv2, &format!("load at 0x{:08x}, {} load done", self.hex.base, self.filename));
@@ -210,8 +207,11 @@ impl HexLoader {
         false
     }
 
-    // Pre parser
-    fn pre_parser(&mut self) -> bool {
+    // load_program
+    fn load_program(&mut self) -> bool {
+        // Records
+        let mut records: LinkedList<Record> = LinkedList::new();
+
         // Split text into record strings
         let record_strs: Vec<&str> = self.hex.text.split(":").collect();
 
@@ -224,51 +224,55 @@ impl HexLoader {
             // Skip empty record string
             if record_str.is_empty() { continue; }
 
-            // New record
-            let some_record = Record::from(&record_str);
+            // Decode record
+            if let Some(record) = Record::from(&record_str) {
+                // Calculate data size
+                if record.typ == RecordType::DATA.as_u8() {
+                    data_size = segment + record.addr as usize + record.len as usize;
+                }
+                // Caclutate segment 
+                else if record.typ == RecordType::EXT_SEG_ADDR.as_u8() {
+                    segment += u16::from_str_radix(&record.data[0..4], 16).unwrap() as usize * SEG_BASE;
+                }
+                // Clear segment and break
+                else if record.typ == RecordType::END_OF_FILE.as_u8() {
+                    segment = 0;
+                    break;
+                }
 
-            // Break when decode failed
-            if some_record.is_none() { break; }
-
-            // Unwrap record
-            let record = some_record.unwrap();
-
-            // Calculate data size
-            if record.typ == RecordType::DATA.as_u8() {
-                data_size = segment + record.addr as usize + record.len as usize;
+                // Add record into list
+                records.add(record);
             }
-            // Caclutate segment 
-            else if record.typ == RecordType::EXT_SEG_ADDR.as_u8() {
-                segment += u16::from_str_radix(&record.data[0..4], 16).unwrap() as usize * SEG_BASE;
+            // Reture false when decode failed
+            else {
+                kernel().debug().error(&format!("{} hex file pre parser failed", self.filename));
+                return false;
             }
-            // Alloc hex data space
-            else if record.typ == RecordType::END_OF_FILE.as_u8() {
-                self.records.begin();
-                self.hex.offset = self.records.item().unwrap().addr as u32;
-                data_size = data_size - self.hex.offset as usize;
-                self.hex.data = vec![0u8; data_size];
-                return true;
-            }
-
-            // Add record into list
-            self.records.add(record);
         }
 
-        self.hex.text.clear();
-        kernel().debug().error(&format!("{} hex file pre parser failed", self.filename));
-        false
-    }
+        // Return false when records is empty
+        if records.len() == 0 {
+            kernel().debug().error(&format!("{} hex file no valid record", self.filename));
+            return false;
+        }
 
-    // Load program
-    fn load_program(&mut self) -> bool {
-        let mut segment: usize = 0;
-        
-        for record in self.records.iter_mut() {
+        // Start addr
+        let mut start_addr: usize = 0;
+
+        // Alloc hex data space
+        if self.hex.data.len() == 0 {
+            start_addr = records.iter_mut().nth(0).unwrap().addr as usize;
+            self.hex.data = vec![0u8; data_size - start_addr];
+        }
+
+        // Load program
+        for record in records.iter_mut() {
+            // Load data
             if record.typ == RecordType::DATA.as_u8() {
-                for pos in 0..record.len {
-                    let offset = (pos * 2) as usize;
+                for pos in 0..record.len as usize {
+                    let offset = pos * 2;
                     let value = u8::from_str_radix(&record.data[offset..offset+2], 16).unwrap();
-                    let addr = record.addr as usize + segment + pos as usize - self.hex.offset as usize;
+                    let addr = (record.addr as usize + segment + pos) - start_addr;
                     self.hex.data[addr] = value;
                 }
             } else if record.typ == RecordType::EXT_SEG_ADDR.as_u8() {
@@ -276,7 +280,14 @@ impl HexLoader {
             }
         }
 
-        self.records.clear();
+        // Clear records
+        records.clear();
+        true
+    }
+
+    // Clean up
+    fn clean_up(&mut self) -> bool {
+        self.hex.text = String::new();
         true
     }
 
@@ -363,13 +374,6 @@ impl HexLoader {
             }
         }
         
-        true
-    }
-
-    // Cleanup
-    fn cleanup(&mut self) -> bool {
-        self.hex.text.clear();
-        self.records.clear();
         true
     }
 
