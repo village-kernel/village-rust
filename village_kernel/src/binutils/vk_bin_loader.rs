@@ -16,7 +16,7 @@ use super::vk_elf_defines::{DynamicType, DynamicHeader, RelocationCode, Relocati
 
 // Struct Bin 
 struct Bin {
-    data: Vec<u8>,
+    prog: Vec<u8>,
 
     load: u32,
     base: u32,
@@ -32,7 +32,8 @@ impl Bin {
     // New
     pub const fn new() -> Self {
         Self {
-            data: Vec::new(),
+            prog: Vec::new(),
+            
             load: 0,
             base: 0,
             exec: 0,
@@ -81,9 +82,9 @@ impl BinLoader {
         
         if file.open(&self.filename, FileMode::READ) {
             let size = file.size();
-            self.bin.data = vec![0u8; size];
+            self.bin.prog = vec![0u8; size];
             
-            if file.read(&mut self.bin.data, size, 0) == size {
+            if file.read(&mut self.bin.prog, size, 0) == size {
                 kernel().debug().output(DebugLevel::Lv1, &format!("{} bin file load successful", self.filename));
                 file.close();
                 return true;
@@ -98,14 +99,14 @@ impl BinLoader {
 
     // Post parser
     fn post_parser(&mut self) -> bool {
-        if self.bin.data.len() < 12 {
+        if self.bin.prog.len() < 12 {
             return false;
         }
 
-        self.bin.load = self.bin.data.as_ptr() as u32;
-        self.bin.offset = u32::from_le_bytes(self.bin.data[0..4].try_into().unwrap());
-        self.bin.dynamic = u32::from_le_bytes(self.bin.data[4..8].try_into().unwrap());
-        self.bin.entry = u32::from_le_bytes(self.bin.data[8..12].try_into().unwrap());
+        self.bin.load = self.bin.prog.as_ptr() as u32;
+        self.bin.offset = u32::from_le_bytes(self.bin.prog[0..4].try_into().unwrap());
+        self.bin.dynamic = u32::from_le_bytes(self.bin.prog[4..8].try_into().unwrap());
+        self.bin.entry = u32::from_le_bytes(self.bin.prog[8..12].try_into().unwrap());
         
         self.bin.base = self.bin.load - self.bin.offset;
         self.bin.exec = self.bin.base + self.bin.entry;
@@ -120,10 +121,10 @@ impl BinLoader {
         
         // Calc dynamic section offset in bin data
         let dynamic_start = (self.bin.dynamic - self.bin.offset) as usize;
-        if dynamic_start + 8 > self.bin.data.len() { return false; }
+        if dynamic_start + 8 > self.bin.prog.len() { return false; }
 
         // Gets dynamic bytes from bin data
-        let dynamic_bytes = &self.bin.data[dynamic_start..];
+        let dynamic_bytes = &self.bin.prog[dynamic_start..];
         
         // Gets the relocate section address and the relcount
         let mut i = 0;
@@ -157,17 +158,17 @@ impl BinLoader {
         // Relocate the value of relative type
         for i in 0..relcount {
             let relocate_offset = relocate_start + (i * 8) as usize;
-            if relocate_offset + 8 > self.bin.data.len() { continue; }
+            if relocate_offset + 8 > self.bin.prog.len() { continue; }
             
-            let relocate_entry = RelocationEntry::from(&self.bin.data[relocate_offset..relocate_offset+8]);
+            let relocate_entry = RelocationEntry::from(&self.bin.prog[relocate_offset..relocate_offset+8]);
             
             if relocate_entry.typ == RelocationCode::TYPE_RELATIVE.as_u8() {
                 let rel_addr_offset = (relocate_entry.offset - self.bin.offset) as usize;
-                if rel_addr_offset + 4 > self.bin.data.len() { continue; }
+                if rel_addr_offset + 4 > self.bin.prog.len() { continue; }
                 
                 // Read original relative value
                 let original_relative = u32::from_le_bytes(
-                    self.bin.data[rel_addr_offset..rel_addr_offset+4].try_into().unwrap()
+                    self.bin.prog[rel_addr_offset..rel_addr_offset+4].try_into().unwrap()
                 );
                 
                 // Calc relocated value, absolute address
@@ -175,7 +176,7 @@ impl BinLoader {
                 
                 // Write relocated value back
                 let absolute_bytes = absolute_addr.to_le_bytes();
-                self.bin.data[rel_addr_offset..rel_addr_offset+4].copy_from_slice(&absolute_bytes);
+                self.bin.prog[rel_addr_offset..rel_addr_offset+4].copy_from_slice(&absolute_bytes);
             }
         }
         
@@ -196,8 +197,8 @@ impl BinLoader {
 
     // Exit
     pub fn exit(&mut self) -> bool {
-        self.bin.data.clear();
-        self.bin.data.shrink_to_fit();
+        self.bin.prog.clear();
+        self.bin.prog.shrink_to_fit();
         true
     }
 }

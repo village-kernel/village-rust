@@ -10,7 +10,6 @@ use alloc::vec::Vec;
 use alloc::string::{String, ToString};
 use crate::kernel;
 use crate::traits::vk_kernel::DebugLevel;
-use crate::traits::vk_linkedlist::LinkedList;
 use crate::traits::vk_filesys::FileMode;
 use crate::misc::fopts::vk_file_fopt::FileFopt;
 use super::vk_elf_defines::{DynamicType, DynamicHeader, RelocationCode, RelocationEntry, to_function};
@@ -122,7 +121,7 @@ impl<'a> Record<'a> {
 // Struct Hex
 struct Hex {
     text: String,
-    data: Vec<u8>,
+    prog: Vec<u8>,
 
     load: u32,
     base: u32,
@@ -139,7 +138,7 @@ impl Hex {
     pub const fn new() -> Self {
         Self {
             text: String::new(),
-            data: Vec::new(),
+            prog: Vec::new(),
 
             load: 0,
             base: 0,
@@ -176,7 +175,6 @@ impl HexLoader {
         // Load and mapping
         if !self.load_hex()     { return false; }
         if !self.load_program() { return false; }
-        if !self.clean_up()     { return false; }
         if !self.post_parser()  { return false; }
         if !self.rel_entries()  { return false; }
 
@@ -210,7 +208,7 @@ impl HexLoader {
     // load_program
     fn load_program(&mut self) -> bool {
         // Records
-        let mut records: LinkedList<Record> = LinkedList::new();
+        let mut records: Vec<Record> = Vec::new();
 
         // Split text into record strings
         let record_strs: Vec<&str> = self.hex.text.split(":").collect();
@@ -241,7 +239,7 @@ impl HexLoader {
                 }
 
                 // Add record into list
-                records.add(record);
+                records.push(record);
             }
             // Reture false when decode failed
             else {
@@ -259,10 +257,10 @@ impl HexLoader {
         // Start addr
         let mut start_addr: usize = 0;
 
-        // Alloc hex data space
-        if self.hex.data.len() == 0 {
-            start_addr = records.iter_mut().nth(0).unwrap().addr as usize;
-            self.hex.data = vec![0u8; data_size - start_addr];
+        // Alloc hex program space
+        if self.hex.prog.len() == 0 {
+            start_addr = records[0].addr as usize;
+            self.hex.prog = vec![0u8; data_size - start_addr];
         }
 
         // Load program
@@ -273,7 +271,7 @@ impl HexLoader {
                     let offset = pos * 2;
                     let value = u8::from_str_radix(&record.data[offset..offset+2], 16).unwrap();
                     let addr = (record.addr as usize + segment + pos) - start_addr;
-                    self.hex.data[addr] = value;
+                    self.hex.prog[addr] = value;
                 }
             } else if record.typ == RecordType::EXT_SEG_ADDR.as_u8() {
                 segment += u16::from_str_radix(&record.data[0..4], 16).unwrap() as usize * SEG_BASE;
@@ -282,25 +280,25 @@ impl HexLoader {
 
         // Clear records
         records.clear();
-        true
-    }
+        records.shrink_to_fit();
+        
+        // Clear text
+        self.hex.text.clear();
+        self.hex.text.shrink_to_fit();
 
-    // Clean up
-    fn clean_up(&mut self) -> bool {
-        self.hex.text = String::new();
         true
     }
 
     // Post parser
     fn post_parser(&mut self) -> bool {
-        if self.hex.data.len() < 12 {
+        if self.hex.prog.len() < 12 {
             return false;
         }
 
-        self.hex.load = self.hex.data.as_ptr() as u32;
-        self.hex.offset = u32::from_le_bytes(self.hex.data[0..4].try_into().unwrap());
-        self.hex.dynamic = u32::from_le_bytes(self.hex.data[4..8].try_into().unwrap());
-        self.hex.entry = u32::from_le_bytes(self.hex.data[8..12].try_into().unwrap());
+        self.hex.load = self.hex.prog.as_ptr() as u32;
+        self.hex.offset = u32::from_le_bytes(self.hex.prog[0..4].try_into().unwrap());
+        self.hex.dynamic = u32::from_le_bytes(self.hex.prog[4..8].try_into().unwrap());
+        self.hex.entry = u32::from_le_bytes(self.hex.prog[8..12].try_into().unwrap());
 
         self.hex.base = self.hex.load - self.hex.offset;
         self.hex.exec = self.hex.base + self.hex.entry;
@@ -315,10 +313,10 @@ impl HexLoader {
         
         // Calc dynamic section offset in hex data
         let dynamic_start = (self.hex.dynamic - self.hex.offset) as usize;
-        if dynamic_start + 8 > self.hex.data.len() { return false; }
+        if dynamic_start + 8 > self.hex.prog.len() { return false; }
 
         // Gets dynamic bytes from hex data
-        let dynamic_bytes = &self.hex.data[dynamic_start..];
+        let dynamic_bytes = &self.hex.prog[dynamic_start..];
         
         // Gets the relocate section address and the relcount
         let mut i = 0;
@@ -352,17 +350,17 @@ impl HexLoader {
         // Relocate the value of relative type
         for i in 0..relcount {
             let relocate_offset = relocate_start + (i * 8) as usize;
-            if relocate_offset + 8 > self.hex.data.len() { continue; }
+            if relocate_offset + 8 > self.hex.prog.len() { continue; }
             
-            let relocate_entry = RelocationEntry::from(&self.hex.data[relocate_offset..relocate_offset+8]);
+            let relocate_entry = RelocationEntry::from(&self.hex.prog[relocate_offset..relocate_offset+8]);
             
             if relocate_entry.typ == RelocationCode::TYPE_RELATIVE.as_u8() {
                 let rel_addr_offset = (relocate_entry.offset - self.hex.offset) as usize;
-                if rel_addr_offset + 4 > self.hex.data.len() { continue; }
+                if rel_addr_offset + 4 > self.hex.prog.len() { continue; }
                 
                 // Read original relative value
                 let original_relative = u32::from_le_bytes(
-                    self.hex.data[rel_addr_offset..rel_addr_offset+4].try_into().unwrap()
+                    self.hex.prog[rel_addr_offset..rel_addr_offset+4].try_into().unwrap()
                 );
                 
                 // Calc relocated value, absolute address
@@ -370,7 +368,7 @@ impl HexLoader {
                 
                 // Write relocated value back
                 let absolute_bytes = absolute_addr.to_le_bytes();
-                self.hex.data[rel_addr_offset..rel_addr_offset+4].copy_from_slice(&absolute_bytes);
+                self.hex.prog[rel_addr_offset..rel_addr_offset+4].copy_from_slice(&absolute_bytes);
             }
         }
         
@@ -393,8 +391,8 @@ impl HexLoader {
     pub fn exit(&mut self) -> bool {
         self.hex.text.clear();
         self.hex.text.shrink_to_fit();
-        self.hex.data.clear();
-        self.hex.data.shrink_to_fit();
+        self.hex.prog.clear();
+        self.hex.prog.shrink_to_fit();
         true
     }
 }
