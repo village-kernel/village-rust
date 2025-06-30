@@ -299,17 +299,17 @@ impl FatFolder{
     }
 
     // Create
-    pub fn create(diskio: &mut FatDiskio, mut parent: FatObject, name: &str, attr: EntryAttr) -> Option<FatObject> {
+    pub fn create(diskio: &mut FatDiskio, mut parent: FatObject, name: &str, attr: u8) -> Option<FatObject> {
         let parent_clust = parent.get_first_cluster();
         let newobj_clust = diskio.alloc_cluster(1);
         
         let mut newobj = vec![FatObject::new(); 1];
         newobj[0].set_name(name);
-        newobj[0].set_attribute(attr.as_u8());
+        newobj[0].set_attribute(attr);
         newobj[0].set_first_cluster(newobj_clust);
 
         if Self::new(diskio, parent).write(diskio, &mut newobj) {
-            if attr.contains(EntryAttr::DIRECTORY) {
+            if (attr & EntryAttr::DIRECTORY) != 0 {
                 let mut dotobjs = vec![FatObject::new(); 2];
                 dotobjs[0] = FatObject::new_dot_dir(newobj_clust);
                 dotobjs[1] = FatObject::new_dot_dot_dir(parent_clust);

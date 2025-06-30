@@ -19,68 +19,35 @@ const DIR_FREE_FLAG: u8 = 0xe5;
 const DIR_VALID_FLAG: u8 = 0x0;
 
 // Flag EntryAttr
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub struct EntryAttr(u8);
+pub struct EntryAttr;
 
 // Impl EntryAttr
 impl EntryAttr{
-    pub const FILE: Self           = EntryAttr(0x00);
-    pub const READ_ONLY: Self      = EntryAttr(0x01);
-    pub const HIDDEN: Self         = EntryAttr(0x02);
-    pub const SYSTEM: Self         = EntryAttr(0x04);
-    pub const VOLUME_ID: Self      = EntryAttr(0x08);
-    pub const DIRECTORY: Self      = EntryAttr(0x10);
-    pub const ARCHIVE: Self        = EntryAttr(0x20);
-    pub const LONG_NAME: Self      = EntryAttr(0x0f);
-    pub const LONG_NAME_MASK: Self = EntryAttr(0x3f);
-
-    // Contains
-    pub fn contains(self, flag: Self) -> bool {
-        (self.0 & flag.0) != 0
-    }
-
-    // Insert
-    pub fn insert(&mut self, flag: Self) {
-        self.0 |= flag.0
-    }
-
-    // as u8
-    pub fn as_u8(self) -> u8 {
-        self.0
-    }
+    pub const FILE: u8           = 0x00;
+    pub const READ_ONLY: u8      = 0x01;
+    pub const HIDDEN: u8         = 0x02;
+    pub const SYSTEM: u8         = 0x04;
+    pub const VOLUME_ID: u8      = 0x08;
+    pub const DIRECTORY: u8      = 0x10;
+    pub const ARCHIVE: u8        = 0x20;
+    pub const LONG_NAME: u8      = 0x0f;
+    pub const LONG_NAME_MASK: u8 = 0x3f;
 }
 
 // Flag NS
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub struct NSFlag(u8);
+pub struct NSFlag;
 
 // Impl NSFlag
 impl NSFlag {
-    pub const NOE: Self       = NSFlag(0x00);
-    pub const LOSS: Self      = NSFlag(0x01);   /* Out of 8.3 format */
-    pub const LFN: Self       = NSFlag(0x02);   /* Force to create LFN entry */
-    pub const LAST: Self      = NSFlag(0x04);   /* Last segment */
-    pub const BODY: Self      = NSFlag(0x08);   /* Lower case flag (body) */
-    pub const EXT: Self       = NSFlag(0x10);   /* Lower case flag (ext) */
-    pub const DOT: Self       = NSFlag(0x20);   /* Dot entry */
-    pub const NOLFN: Self     = NSFlag(0x40);   /* Do not find LFN */
-    pub const NONAME: Self    = NSFlag(0x80);   /* Not followed */
-
-    // Contains
-    pub fn contains(self, flag: Self) -> bool {
-        (self.0 & flag.0) != 0
-    }
-
-    // Insert
-    pub fn insert(&mut self, flag: Self) -> Self {
-        self.0 |= flag.0;
-        *self
-    }
-
-    // as u8
-    pub fn as_u8(self) -> u8 {
-        self.0
-    }
+    pub const NOE: u8       = 0x00;
+    pub const LOSS: u8      = 0x01;   /* Out of 8.3 format */
+    pub const LFN: u8       = 0x02;   /* Force to create LFN entry */
+    pub const LAST: u8      = 0x04;   /* Last segment */
+    pub const BODY: u8      = 0x08;   /* Lower case flag (body) */
+    pub const EXT: u8       = 0x10;   /* Lower case flag (ext) */
+    pub const DOT: u8       = 0x20;   /* Dot entry */
+    pub const NOLFN: u8     = 0x40;   /* Do not find LFN */
+    pub const NONAME: u8    = 0x80;   /* Not followed */
 }
 
 // Struct FatShortEntry
@@ -272,10 +239,10 @@ impl FatEntry {
     // Is Valid
     fn is_valid(bytes: &[u8]) -> bool {
         if bytes.len() >= DIR_ENTRY_SIZE as usize && bytes[0] != DIR_FREE_FLAG && bytes[0] > DIR_VALID_FLAG {
-            let attr = bytes[11] & (EntryAttr::DIRECTORY.as_u8() | EntryAttr::VOLUME_ID.as_u8());
-            if attr == EntryAttr::FILE.as_u8()      ||
-               attr == EntryAttr::DIRECTORY.as_u8() ||
-               attr == EntryAttr::VOLUME_ID.as_u8() ||
+            let attr = bytes[11] & (EntryAttr::DIRECTORY | EntryAttr::VOLUME_ID);
+            if attr == EntryAttr::FILE      ||
+               attr == EntryAttr::DIRECTORY ||
+               attr == EntryAttr::VOLUME_ID ||
                Self::is_long_entry(bytes) {
                 return true;
             }
@@ -285,7 +252,7 @@ impl FatEntry {
 
     // Is long name entry
     fn is_long_entry(bytes: &[u8]) -> bool {
-        (bytes[11] & EntryAttr::LONG_NAME_MASK.as_u8()) == EntryAttr::LONG_NAME.as_u8()
+        (bytes[11] & EntryAttr::LONG_NAME_MASK) == EntryAttr::LONG_NAME
     }
 
     // From bytes
@@ -344,7 +311,7 @@ impl FatObject {
     pub fn new_dir(name: &str) -> Self {
         let mut obj = Self::new();
         obj.set_name(name);
-        obj.set_attribute(EntryAttr::DIRECTORY.as_u8());
+        obj.set_attribute(EntryAttr::DIRECTORY);
         obj
     }
 
@@ -352,7 +319,7 @@ impl FatObject {
     pub fn new_file(name: &str) -> Self {
         let mut obj = Self::new();
         obj.set_name(name);
-        obj.set_attribute(EntryAttr::FILE.as_u8());
+        obj.set_attribute(EntryAttr::FILE);
         obj
     }
 
@@ -360,7 +327,7 @@ impl FatObject {
     pub fn root() -> Self {
         let mut obj = Self::new();
         obj.set_name("/");
-        obj.set_attribute(EntryAttr::DIRECTORY.as_u8());
+        obj.set_attribute(EntryAttr::DIRECTORY);
         obj
     }
 
@@ -369,7 +336,7 @@ impl FatObject {
         let mut obj = Self::new();
         obj.set_name(".");
         obj.set_first_cluster(fst_clust);
-        obj.set_attribute(EntryAttr::DIRECTORY.as_u8() | EntryAttr::HIDDEN.as_u8());
+        obj.set_attribute(EntryAttr::DIRECTORY | EntryAttr::HIDDEN);
         obj
     }
 
@@ -378,7 +345,7 @@ impl FatObject {
         let mut obj = Self::new();
         obj.set_name("..");
         obj.set_first_cluster(fst_clust);
-        obj.set_attribute(EntryAttr::DIRECTORY.as_u8() | EntryAttr::HIDDEN.as_u8());
+        obj.set_attribute(EntryAttr::DIRECTORY | EntryAttr::HIDDEN);
         obj
     }
 
@@ -427,17 +394,17 @@ impl FatObject {
 
     // Get object type
     pub fn get_object_type(&mut self) -> FileType {
-        match self.short_entry.attr & (EntryAttr::DIRECTORY.as_u8() | EntryAttr::VOLUME_ID.as_u8()) {
-            x if x == EntryAttr::FILE.as_u8() => FileType::File,
-            x if x == EntryAttr::DIRECTORY.as_u8() => FileType::Directory,
-            x if x == EntryAttr::VOLUME_ID.as_u8() => FileType::Volume,
+        match self.short_entry.attr & (EntryAttr::DIRECTORY | EntryAttr::VOLUME_ID) {
+            x if x == EntryAttr::FILE => FileType::File,
+            x if x == EntryAttr::DIRECTORY => FileType::Directory,
+            x if x == EntryAttr::VOLUME_ID => FileType::Volume,
             _ => FileType::Unknown,
         }
     }
 
     // Get object attr
     pub fn get_object_attr(&mut self) -> FileAttr {
-        if EntryAttr(self.short_entry.attr).contains(EntryAttr::HIDDEN) {
+        if (self.short_entry.attr & EntryAttr::HIDDEN) != 0 {
             FileAttr::Hidden
         } else {
             FileAttr::Visible
@@ -523,19 +490,19 @@ impl FatObject {
 
         // Set nt res
         if is_body_lowed_case {
-            self.short_entry.nt_res |= NSFlag::BODY.as_u8();
+            self.short_entry.nt_res |= NSFlag::BODY;
         }
 
         if is_ext_lowed_caset {
-            self.short_entry.nt_res |= NSFlag::EXT.as_u8();
+            self.short_entry.nt_res |= NSFlag::EXT;
         }
     }
 
     // Get short name
     fn get_short_name(&mut self) -> String {
         let mut name = String::new();
-        let is_body_lowed_case = NSFlag(self.short_entry.nt_res).contains(NSFlag::BODY);
-        let is_ext_lowed_case  = NSFlag(self.short_entry.nt_res).contains(NSFlag::EXT);
+        let is_body_lowed_case = (self.short_entry.nt_res & NSFlag::BODY) != 0;
+        let is_ext_lowed_case  = (self.short_entry.nt_res & NSFlag::EXT) != 0;
         
         // 8.3 name body
         for &c in &self.short_entry.name[..8] {

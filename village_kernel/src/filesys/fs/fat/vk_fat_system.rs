@@ -84,7 +84,7 @@ impl FatVolume {
     }
 
     // Create path
-    fn create_path(&mut self, path: &str, attr: EntryAttr) ->  Option<FatObject> {
+    fn create_path(&mut self, path: &str, attr: u8) ->  Option<FatObject> {
         if let Some(mut parent) = self.search_path(path, 1) {
             if parent.get_object_type() == FileType::Directory {
                 let name = self.base_name(path);
