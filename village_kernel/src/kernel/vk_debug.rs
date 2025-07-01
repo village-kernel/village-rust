@@ -130,7 +130,7 @@ impl Debug for ConcreteDebug {
     // Output
     fn output(&mut self, level: DebugLevel, msg: &str) {
         if level >= self.debug_level {
-            self.write(&format!("\x1b[36m[Warning] {} \r\n\x1b[39m", msg));
+            self.write(&format!("\x1b[34m[message] {} \r\n\x1b[39m", msg));
         }
     }
 
