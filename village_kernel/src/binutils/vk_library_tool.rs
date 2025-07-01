@@ -9,11 +9,11 @@ use alloc::boxed::Box;
 use crate::village::kernel;
 use crate::traits::vk_kernel::DebugLevel;
 use crate::traits::vk_linkedlist::LinkedList;
-use crate::binutils::vk_elf_loader::ElfLoader;
+use crate::binutils::vk_lib_loader::LibLoader;
 
 // Struct LibraryTool
 pub struct LibraryTool {
-    libs: LinkedList<Box<ElfLoader>>,
+    libs: LinkedList<Box<LibLoader>>,
 }
 
 // Impl LibraryTool
@@ -36,7 +36,7 @@ impl LibraryTool {
         }
         
         // Install library if it has not install
-        let mut lib = Box::new(ElfLoader::new());
+        let mut lib = Box::new(LibLoader::new());
 
         // Ignore unresolved symbols
         lib.ignore_unresolved_symbols(true);
@@ -89,7 +89,7 @@ impl LibraryTool {
     }
 
     // Get libraries
-    pub fn get_libraries(&mut self) -> &mut LinkedList<Box<ElfLoader>> {
+    pub fn get_libraries(&mut self) -> &mut LinkedList<Box<LibLoader>> {
         &mut self.libs
     }
 }

@@ -14,7 +14,8 @@ use super::vk_module::Module;
 use super::vk_driver::{Driver, PlatDriver, PlatDevice};
 use super::vk_executor::{Executor, ExecutorFty};
 use super::vk_filesys::{FileVol, FileSys};
-use crate::binutils::vk_elf_loader::ElfLoader;
+use crate::binutils::vk_lib_loader::LibLoader;
+use crate::binutils::vk_mod_loader::ModLoader;
 
 // System
 pub trait System {
@@ -414,8 +415,8 @@ pub trait Loader {
     fn uninstall_mod(&mut self, name: &str) -> bool;
 
     // Data Methods
-    fn get_libraries(&mut self) -> &mut LinkedList<Box<ElfLoader>>;
-    fn get_modules(&mut self) -> &mut LinkedList<Box<ElfLoader>>;
+    fn get_libraries(&mut self) -> &mut LinkedList<Box<LibLoader>>;
+    fn get_modules(&mut self) -> &mut LinkedList<Box<ModLoader>>;
 }
 
 // Process behavior

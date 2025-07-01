@@ -9,11 +9,11 @@ use alloc::boxed::Box;
 use crate::village::kernel;
 use crate::traits::vk_kernel::DebugLevel;
 use crate::traits::vk_linkedlist::LinkedList;
-use crate::binutils::vk_elf_loader::ElfLoader;
+use crate::binutils::vk_mod_loader::ModLoader;
 
 // Struct ModuleTool
 pub struct ModuleTool {
-    mods: LinkedList<Box<ElfLoader>>,
+    mods: LinkedList<Box<ModLoader>>,
 }
 
 // Impl ModuleTool
@@ -36,7 +36,7 @@ impl ModuleTool {
         }
         
         // Install module if it has not install
-        let mut module = Box::new(ElfLoader::new());
+        let mut module = Box::new(ModLoader::new());
 
         // Load module
         if module.load(filename) {
@@ -75,7 +75,7 @@ impl ModuleTool {
     }
 
     // Get modules
-    pub fn get_modules(&mut self) -> &mut LinkedList<Box<ElfLoader>> {
+    pub fn get_modules(&mut self) -> &mut LinkedList<Box<ModLoader>> {
         &mut self.mods
     }
 }
