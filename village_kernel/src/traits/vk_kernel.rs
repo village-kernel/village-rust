@@ -14,8 +14,8 @@ use super::vk_module::Module;
 use super::vk_driver::{Driver, PlatDriver, PlatDevice};
 use super::vk_executor::{Executor, ExecutorFty};
 use super::vk_filesys::{FileVol, FileSys};
-use crate::binutils::vk_lib_loader::LibLoader;
-use crate::binutils::vk_mod_loader::ModLoader;
+use crate::binutils::loader::vk_lib_loader::LibLoader;
+use crate::binutils::loader::vk_mod_loader::ModLoader;
 
 // System
 pub trait System {

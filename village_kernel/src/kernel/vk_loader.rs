@@ -8,10 +8,10 @@ use alloc::boxed::Box;
 use crate::village::kernel;
 use crate::traits::vk_kernel::Loader;
 use crate::traits::vk_linkedlist::LinkedList;
-use crate::binutils::vk_lib_loader::LibLoader;
-use crate::binutils::vk_library_tool::LibraryTool;
-use crate::binutils::vk_mod_loader::ModLoader;
-use crate::binutils::vk_module_tool::ModuleTool;
+use crate::binutils::loader::vk_lib_loader::LibLoader;
+use crate::binutils::loader::vk_mod_loader::ModLoader;
+use crate::binutils::tool::vk_library_tool::LibraryTool;
+use crate::binutils::tool::vk_module_tool::ModuleTool;
 use crate::misc::parser::vk_rc_parser::RcParser;
 
 // Struct concrete loader

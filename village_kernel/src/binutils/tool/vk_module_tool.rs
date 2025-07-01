@@ -9,7 +9,7 @@ use alloc::boxed::Box;
 use crate::village::kernel;
 use crate::traits::vk_kernel::DebugLevel;
 use crate::traits::vk_linkedlist::LinkedList;
-use crate::binutils::vk_mod_loader::ModLoader;
+use crate::binutils::loader::vk_mod_loader::ModLoader;
 
 // Struct ModuleTool
 pub struct ModuleTool {

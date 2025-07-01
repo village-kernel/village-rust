@@ -10,7 +10,7 @@ use crate::village::kernel;
 use crate::register_exec_factory;
 use crate::traits::vk_executor::{ExecFtyInfo, ExecInfo, Executor, ExecutorFty};
 use crate::traits::vk_callback::Callback;
-use super::vk_hex_loader::HexLoader;
+use crate::binutils::loader::vk_hex_loader::HexLoader;
 
 // Sturct HexExecutor
 struct HexExecutor {

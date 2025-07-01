@@ -25,17 +25,23 @@ pub mod arch {
 
 // import binutils modules
 pub mod binutils {
-    pub mod vk_bin_executor;
-    pub mod vk_bin_loader;
-    pub mod vk_elf_defines;
-    pub mod vk_elf_executor;
-    pub mod vk_elf_loader;
-    pub mod vk_hex_executor;
-    pub mod vk_hex_loader;
-    pub mod vk_lib_loader;
-    pub mod vk_library_tool;
-    pub mod vk_mod_loader;
-    pub mod vk_module_tool;
+    pub mod executor {
+        pub mod vk_bin_executor;
+        pub mod vk_elf_executor;
+        pub mod vk_hex_executor;
+    }
+    pub mod loader {
+        pub mod vk_bin_loader;
+        pub mod vk_elf_defines;
+        pub mod vk_elf_loader;
+        pub mod vk_hex_loader;
+        pub mod vk_lib_loader;
+        pub mod vk_mod_loader;
+    }
+    pub mod tool {
+        pub mod vk_library_tool;
+        pub mod vk_module_tool;
+    }
 }
 
 // import board modules

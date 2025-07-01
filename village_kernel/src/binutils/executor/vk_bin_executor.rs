@@ -1,6 +1,6 @@
 //###########################################################################
-// vk_elf_executor.rs
-// The specific implementation of functions related to elf executor
+// vk_bin_executor.rs
+// The specific implementation of functions related to bin executor
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
@@ -10,37 +10,37 @@ use crate::village::kernel;
 use crate::register_exec_factory;
 use crate::traits::vk_executor::{ExecFtyInfo, ExecInfo, Executor, ExecutorFty};
 use crate::traits::vk_callback::Callback;
-use super::vk_elf_loader::ElfLoader;
+use crate::binutils::loader::vk_bin_loader::BinLoader;
 
-// Sturct ElfExecutor
-struct ElfExecutor {
+// Sturct BinExecutor
+struct BinExecutor {
     info: ExecInfo,
-    elf: ElfLoader,
+    bin: BinLoader,
 }
 
-// Impl ElfExecutor
-impl ElfExecutor {
+// Impl BinExecutor
+impl BinExecutor {
     // New
     const fn new() -> Self {
         Self {
             info: ExecInfo::new(),
-            elf: ElfLoader::new(),
+            bin: BinLoader::new(),
         }
     }
 }
 
-// Impl ElfExecutor
-impl ElfExecutor {
+// Impl BinExecutor
+impl BinExecutor {
     // Sandbox
     fn sandbox(&mut self) {
         let argv = self.info.argv.iter_mut().map(|s| s.as_str()).collect();
-        self.elf.execute(argv);
-        self.elf.exit();
+        self.bin.execute(argv);
+        self.bin.exit();
     }
 }
 
-// Impl executor for elf executor
-impl Executor for ElfExecutor {
+// Impl executor for bin executor
+impl Executor for BinExecutor {
     // Base
     fn base(&mut self) -> &mut ExecInfo {
         &mut self.info
@@ -48,8 +48,8 @@ impl Executor for ElfExecutor {
 
     // Initiate
     fn initiate(&mut self) -> i32 {
-        // Load, parser and execute elf file
-        if !self.elf.load(&self.info.path) {
+        // Load, parser and execute bin file
+        if !self.bin.load(&self.info.path) {
             return -1;
         }
 
@@ -60,17 +60,17 @@ impl Executor for ElfExecutor {
 
     // Release
     fn release(&mut self) -> bool {
-        self.elf.exit()
+        self.bin.exit()
     }
 }
 
-// Struct ElfExecutorFty
-struct ElfExecutorFty {
+// Struct BinExecutorFty
+struct BinExecutorFty {
     info: ExecFtyInfo,
 }
 
-// Impl ElfExecutorFty
-impl ElfExecutorFty {
+// Impl BinExecutorFty
+impl BinExecutorFty {
     const fn new() -> Self {
         Self {
             info: ExecFtyInfo::new(),
@@ -78,8 +78,8 @@ impl ElfExecutorFty {
     }
 }
 
-// Impl executor fty for elf executro fty
-impl ExecutorFty for ElfExecutorFty {
+// Impl executor fty for bin executro fty
+impl ExecutorFty for BinExecutorFty {
     // Info
     fn info(&mut self) -> &mut ExecFtyInfo {
         &mut self.info
@@ -88,9 +88,9 @@ impl ExecutorFty for ElfExecutorFty {
     // Get suffixes
     fn get_suffixes(&mut self) -> Vec<&str> {
         let mut suffixes = Vec::<&str>::new();
-        suffixes.push(".elf");
+        suffixes.push(".bin");
 
-        #[cfg(feature = "binding_exec_elf")]
+        #[cfg(feature = "binding_exec_bin")]
         suffixes.push(".exec");
 
         suffixes
@@ -98,9 +98,9 @@ impl ExecutorFty for ElfExecutorFty {
 
     // Create
     fn create(&mut self) -> Box<dyn Executor> {
-        Box::new(ElfExecutor::new())
+        Box::new(BinExecutor::new())
     }
 }
 
 // Register executor factory
-register_exec_factory!(ElfExecutorFty::new(), elf_executor_fty);
+register_exec_factory!(BinExecutorFty::new(), bin_executor_fty);
