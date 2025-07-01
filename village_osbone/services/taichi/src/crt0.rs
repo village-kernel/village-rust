@@ -17,7 +17,7 @@ unsafe extern "C" { unsafe fn _DYNAMIC(); }
 
 // entry section
 #[used]
-#[link_section = ".entry"]
+#[unsafe(link_section = ".entry")]
 pub static G_PFN_VECTORS: [unsafe extern "C" fn(); 3] = [
     _IMGOFFS,
     _DYNAMIC,
@@ -134,7 +134,7 @@ pub unsafe extern "C" fn _start() {
 
     __init_array();
 
-    main();
+    unsafe { main() };
 
     __fini_array();
 }

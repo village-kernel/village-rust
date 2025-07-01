@@ -68,11 +68,11 @@ macro_rules! register_cmd {
     ($cmd:expr, $name:ident) => {
         paste::paste! {
             #[used]
-            #[link_section = ".init_array"]
+            #[unsafe(link_section = ".init_array")]
             static [<INIT_ $name:upper>]: fn() = [<$name _init>];
 
             #[used]
-            #[link_section = ".fini_array"]
+            #[unsafe(link_section = ".fini_array")]
             static [<EXIT_ $name:upper>]: fn() = [<$name _exit>];
 
             fn [<$name _init>]() {

@@ -215,11 +215,11 @@ macro_rules! register_plat_driver {
     ($drv:expr, $name:ident, $fn_name:ident) => {
         paste::paste! {
             #[used]
-            #[link_section = ".init_array"]
+            #[unsafe(link_section = ".init_array")]
             static [<INIT_ $fn_name:upper>]: fn() = [<$fn_name _init>];
 
             #[used]
-            #[link_section = ".fini_array"]
+            #[unsafe(link_section = ".fini_array")]
             static [<EXIT_ $fn_name:upper>]: fn() = [<$fn_name _exit>];
 
             fn [<$fn_name _init>]() {
@@ -242,11 +242,11 @@ macro_rules! register_plat_device {
     ($drv:expr, $name:ident, $fn_name:ident) => {
         paste::paste! {
             #[used]
-            #[link_section = ".init_array"]
+            #[unsafe(link_section = ".init_array")]
             static [<INIT_ $fn_name:upper>]: fn() = [<$fn_name _init>];
 
             #[used]
-            #[link_section = ".fini_array"]
+            #[unsafe(link_section = ".fini_array")]
             static [<EXIT_ $fn_name:upper>]: fn() = [<$fn_name _exit>];
 
             fn [<$fn_name _init>]() {

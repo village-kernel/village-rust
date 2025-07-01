@@ -22,7 +22,7 @@ fn print(message: &str) {
 }
 
 // Main
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub fn main() {
     print("hello village application");
 }

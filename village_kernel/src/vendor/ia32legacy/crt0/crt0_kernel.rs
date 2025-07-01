@@ -127,7 +127,7 @@ interrupt_handler!(ata_channel1_handler, 46, 14);
 interrupt_handler!(ata_channel2_handler, 47, 15);
 
 #[used]
-#[link_section = ".isr_vector"]
+#[unsafe(link_section = ".isr_vector")]
 pub static G_PFN_VECTORS: [unsafe extern "C" fn(); 49] = [
     _start,
     division_by_zero_handler,
@@ -279,7 +279,7 @@ pub unsafe extern "C" fn _start() {
 
     __init_array();
 
-    main();
+    unsafe { main() };
 
     __fini_array();
 

@@ -100,9 +100,9 @@ impl ConcreteMemory {
         // Initialize heap end at first call
         if self.sbrk_heap.load(Ordering::Relaxed) == 0 {
             // Symbol defined in the linker script
-            extern "C" {
-                static _ebss: u32;
-                static _estack: u32;
+            unsafe extern "C" {
+                unsafe static _ebss: u32;
+                unsafe static _estack: u32;
             }
 
             // Calculate sram start and end address

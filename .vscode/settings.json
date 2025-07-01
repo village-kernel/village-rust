@@ -1,4 +1,8 @@
 {
-  "rust-analyzer.linkedProjects": ["./village_kernel/Cargo.toml"],
+  "rust-analyzer.linkedProjects": [
+    "./village_kernel/Cargo.toml",
+    "./village_osbone/libraries/libc/Cargo.toml",
+    "./village_osbone/services/taichi/Cargo.toml",
+  ],
   "rust-analyzer.cargo.targetDir": "${workspaceFolder}/build",
 }

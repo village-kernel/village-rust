@@ -375,7 +375,7 @@ fn stacked_info(regs: &Registers) {
 // IRQ handler
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn irq_handler(regs: *const Registers) {
-    let regs = core::ptr::read(regs);
+    let regs = unsafe { core::ptr::read(regs) };
 
     // Send an EOI to the PICs
     if (32..=47).contains(&regs.irq) {
