@@ -103,7 +103,7 @@ impl ElfLoader {
     // Load parogram
     fn load_program(&mut self) -> bool {
         // Program headers
-        let mut phdr_loads: Vec<ProgramHeader> = Vec::new();
+        let mut phdrs: Vec<ProgramHeader> = Vec::new();
 
         // Prog size
         let mut prog_size = 0;
@@ -116,16 +116,17 @@ impl ElfLoader {
 
             // Overwrite the previously obtained data
             if phdr.typ == ProgHdrType::PT_LOAD {
-                prog_size = (phdr.vaddr + phdr.mem_size) + (phdr.align - 1);
-                prog_size = prog_size / phdr.align * phdr.align;
+                let need_size = (phdr.vaddr + phdr.mem_size) + (phdr.align - 1);
+                let align_size = need_size / phdr.align * phdr.align;
+                if prog_size < align_size { prog_size = align_size; };
             }
 
-            // Add program into list
-            phdr_loads.push(phdr);
+            // Add phdr into list
+            phdrs.push(phdr);
         }
 
-        // Return false when programs is empty
-        if phdr_loads.len() == 0 {
+        // Return false when phdrs is empty
+        if phdrs.len() == 0 {
             kernel().debug().error(&format!("{} elf file no valid program section", self.filename));
             return false;
         }
@@ -134,7 +135,7 @@ impl ElfLoader {
         let mut data = vec![0u8; prog_size as usize];
    
         // Load the program from the ELF file
-        for phdr in phdr_loads.iter_mut() {
+        for phdr in phdrs.iter_mut() {
             for i in 0..phdr.mem_size {
                 let vaddr = (phdr.vaddr + i) as usize;
                 let offset = (phdr.offset + i) as usize;
