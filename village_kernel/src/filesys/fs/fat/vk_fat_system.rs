@@ -197,9 +197,14 @@ impl FileVol for FatVolume {
 
     // Close
     fn close(&mut self, fd: usize) {
-       if let Some(file) = self.files.iter_mut().find(|f| f.get_id() == fd) {
-            file.close();
-        }
+       self.files.retain_mut(|file| {
+            if file.get_id() == fd {
+                file.close();
+                false
+            } else {
+                true
+            }
+       });
     }
 
     // Open dir
@@ -244,9 +249,14 @@ impl FileVol for FatVolume {
 
     // Close dir
     fn closedir(&mut self, fd: usize) {
-       if let Some(dir) = self.dirs.iter_mut().find(|d| d.get_id() == fd) {
-            dir.close();
-        }
+        self.dirs.retain_mut(|dir| {
+            if dir.get_id() == fd {
+                dir.close();
+                false
+            } else {
+                true
+            }
+        });
     }
 
     // Is exist
