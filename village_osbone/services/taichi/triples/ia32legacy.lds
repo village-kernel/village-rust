@@ -3,20 +3,13 @@ ENTRY(_start)
 
 SECTIONS
 {
-	PROVIDE (__executable_start = SEGMENT_START("text-segment", 0)); 
-	. = SEGMENT_START("text-segment", 0) + SIZEOF_HEADERS;
-	
 	_IMGOFFS = .;
 	
-	_sivector = LOADADDR(.entry);
-
 	.entry :
 	{
 		. = ALIGN(4);
-		_svector = .;
 		KEEP(*(.entry))
 		. = ALIGN(4);
-		_evector = .;
 	}
 
 	.text :
@@ -79,10 +72,6 @@ SECTIONS
 		. = ALIGN(4);
 		_edata = .; 
 	}
-
-    .dynamic : {
-        KEEP(*(.dynamic))
-    }
 
 	.rodata :
 	{
