@@ -8,7 +8,7 @@ use alloc::format;
 use alloc::vec;
 use alloc::vec::Vec;
 use alloc::string::{String, ToString};
-use crate::kernel;
+use crate::village::kernel;
 use crate::traits::vk_kernel::DebugLevel;
 use crate::traits::vk_filesys::FileMode;
 use crate::misc::fopts::vk_file_fopt::FileFopt;

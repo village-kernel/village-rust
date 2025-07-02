@@ -4,9 +4,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::village::kernel;
 use core::sync::atomic::{AtomicBool, AtomicU32, Ordering};
-
-use crate::kernel;
 
 // struct mutex
 pub struct Mutex {
