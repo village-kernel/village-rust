@@ -5,7 +5,16 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use alloc::vec::Vec;
-use super::vk_elf_defines::{DynamicType, DynamicHeader, RelocationCode, RelocationEntry, to_function};
+use crate::misc::parser::vk_args_parser::vec_to_c_args;
+use super::vk_elf_defines::{DynamicType, DynamicHeader, RelocationCode, RelocationEntry};
+
+// Type aliases for start entry
+type StartEntry = extern "C" fn(usize, usize, *mut *mut u8);
+
+// Erase a function pointer to a start entry
+fn to_start_entry(fn_addr: u32) -> StartEntry {
+    unsafe { core::mem::transmute::<u32, StartEntry>( fn_addr ) }
+}
 
 // Struct Program
 pub struct Program {
@@ -37,33 +46,6 @@ impl Program {
         }
     }
 
-    // Load
-    pub fn load(&mut self, prog: Vec<u8>) -> bool {
-        self.prog = prog;
-        
-        if !self.post_parser() { return false; }
-        if !self.rel_entries() { return false; }
-
-        true
-    }
-
-    // Execute
-    pub fn execute(&mut self, argv: Vec<&str>) -> bool {
-        let _ = argv;
-        if self.exec != 0 {
-            (to_function(self.exec))();
-            return true;
-        }
-        false
-    }
-
-    // Exit
-    pub fn exit(&mut self) -> bool {
-        self.prog.clear();
-        self.prog.shrink_to_fit();
-        true
-    }
-
     // Get base address
     pub fn base(&mut self) -> u32 {
         self.base
@@ -72,10 +54,11 @@ impl Program {
 
 // Impl Program
 impl Program {
-    // Post parser
-    fn post_parser(&mut self) -> bool {
-        if self.prog.len() < 12 { return false; }
+    // decode
+    fn decode(&mut self, prog: Vec<u8>) -> bool {
+        if prog.len() < 12 { return false; }
 
+        self.prog = prog;
         self.load = self.prog.as_ptr() as u32;
         self.offset = u32::from_le_bytes(self.prog[0..4].try_into().unwrap());
         self.dynamic = u32::from_le_bytes(self.prog[4..8].try_into().unwrap());
@@ -87,8 +70,8 @@ impl Program {
         true
     }
 
-    // Rel entries
-    fn rel_entries(&mut self) -> bool {
+    // Relocate
+    fn relocate(&mut self) -> bool {
         let mut relcount: u32 = 0;
         let mut relocate: Option<u32> = None;
         
@@ -153,6 +136,32 @@ impl Program {
             }
         }
         
+        true
+    }
+}
+
+impl Program {
+    // Init
+    pub fn init(&mut self, prog: Vec<u8>) -> bool {
+        if !self.decode(prog) { return false; }
+        if !self.relocate()   { return false; }
+        true
+    }
+
+    // Execute
+    pub fn execute(&mut self, args: Vec<&str>) -> bool {
+        if self.exec != 0 {
+            let (argc, argv, _) = vec_to_c_args(&args);
+            (to_start_entry(self.exec))(0, argc, argv);
+            return true;
+        }
+        false
+    }
+
+    // Exit
+    pub fn exit(&mut self) -> bool {
+        self.prog.clear();
+        self.prog.shrink_to_fit();
         true
     }
 }

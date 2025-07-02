@@ -5,30 +5,6 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 
-// Type aliases for function
-pub type Function = extern "C" fn();
-
-// Type aliases for start entry
-pub type StartEntry = extern "C" fn(*mut(), usize, *mut *mut u8);
-
-// Type aliase for function entry
-pub type FuncEntry = extern "C" fn(usize, *mut *mut u8);
-
-// Erase a function pointer to function
-pub fn to_function(fn_addr: u32) -> Function {
-    unsafe { core::mem::transmute::<u32, Function>( fn_addr ) }
-}
-
-// Erase a function pointer to a start entry
-pub fn to_start_entry(fn_addr: u32) -> StartEntry {
-    unsafe { core::mem::transmute::<u32, StartEntry>( fn_addr ) }
-}
-
-// Erase a function pointer to a function entry
-pub fn to_func_entry(fn_addr: u32) -> FuncEntry {
-    unsafe { core::mem::transmute::<u32, FuncEntry>( fn_addr ) }
-}
-
 // Flag ELFClass
 pub struct ELFClass;
 
@@ -534,4 +510,3 @@ impl DynamicHeader {
         dynamic
     }
 }
-

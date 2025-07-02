@@ -63,8 +63,8 @@ impl BinLoader {
             return false;
         }
         
-        // Load program
-        if !self.program.load(data) {
+        // Init program
+        if !self.program.init(data) {
             kernel().debug().error(&format!("{} load failed!", self.filename));
             return false;
         }

@@ -143,8 +143,8 @@ impl ElfLoader {
             }
         }
 
-        // Load program
-        if !self.program.load(data) {
+        // Init program
+        if !self.program.init(data) {
             kernel().debug().error(&format!("{} program load failed", self.filename));
             return false;
         }
