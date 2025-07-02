@@ -8,6 +8,9 @@
 #![no_main]
 #![feature(linkage)]
 
+// import alloc module
+extern crate alloc;
+
 // import village module
 pub mod village;
 
@@ -175,30 +178,4 @@ pub mod vklibs {
         pub mod stdlib;
         pub mod string;
     }
-}
-
-// Panic info
-extern crate alloc;
-use alloc::format;
-use village::kernel;
-use core::panic::PanicInfo;
-
-// Panic
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    // print panic message
-    kernel().debug().error(&format!("{}", info.message()));
-
-    // print panic location
-    if let Some(location) = info.location() {
-        let msg = format!("panic occurred in file '{}' at line {}",
-            location.file(),
-            location.line(),
-        );
-        kernel().debug().error(&msg);
-    } else {
-        kernel().debug().error("panic occurred but can't get location information...");
-    }
-
-    loop {}
 }
