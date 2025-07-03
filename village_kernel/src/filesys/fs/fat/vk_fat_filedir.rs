@@ -75,26 +75,21 @@ impl FatFile  {
 
     // Write
     pub fn write(&mut self, data: &[u8], size: usize, offset: usize) -> usize {
-        let mut buff_offset = 0usize;
+        let mut wrt_offset = 0usize;
 
         if self.file_mode.contains(FileMode::OPEN_APPEND) {
-            buff_offset = self.file_size as usize;
+            wrt_offset = self.file_size as usize + offset;
         } else if self.file_mode.contains(FileMode::WRITE) {
-            buff_offset = 0;
+            wrt_offset = offset;
         }
 
-        let new_size = buff_offset + size;
+        let new_size = wrt_offset + size;
         
-        if new_size as usize > self.buffer.len() {
-            self.buffer.resize(new_size as usize, 0);
+        if new_size > self.buffer.len() {
+            self.buffer.resize(new_size, 0);
         }
 
-        let src = &data[offset as usize..(offset + size) as usize];
-        self.buffer[buff_offset as usize..(buff_offset + size) as usize].copy_from_slice(src);
-
-        for i in 0..size {
-            self.buffer[buff_offset + i] = data[i + offset];
-        }
+        self.buffer[wrt_offset..(wrt_offset + size)].copy_from_slice(&data[0..size]);
 
         self.file_size = new_size as u32;
         self.file_mode = FileMode::OPEN_APPEND;
@@ -106,13 +101,11 @@ impl FatFile  {
     pub fn read(&mut self, data: &mut [u8], mut size: usize, offset: usize) -> usize {
         if self.file_size > 0 {
 
-            if (self.file_size as usize) < size {
-                size = self.file_size as usize;
+            if (self.file_size as usize) < offset + size  {
+                size = self.file_size as usize - offset;
             }
 
-            for i in 0..size {
-                data[i + offset] = self.buffer[i];
-            }
+            data.copy_from_slice(&self.buffer[offset..offset+size]);
             
             size
         } else {
