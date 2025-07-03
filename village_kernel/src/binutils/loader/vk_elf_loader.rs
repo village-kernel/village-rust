@@ -46,7 +46,7 @@ impl ElfLoader {
         if !self.load_program()  { return false; }
 
         // Output debug info
-        kernel().debug().output(DebugLevel::Lv2, &format!("load at 0x{:08x}, {} load done", self.program.base(), self.filename));
+        kernel().debug().output(DebugLevel::Lv2, &format!("{} load at 0x{:08x}", self.filename, self.program.base()));
         true
     }
 
