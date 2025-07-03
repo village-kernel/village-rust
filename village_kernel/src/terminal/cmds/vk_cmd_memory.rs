@@ -39,7 +39,7 @@ impl Cmd for CmdMem {
             let size = kernel().memory().get_size();
             let used = kernel().memory().get_used();
             let per  = used as f32 * 100.0 / size as f32;
-            console.println(&format!("memory size: {} Byte, memory used: {} Byte, percentage used: {:0.2} %", size, used, per));
+            console.println(&format!("memory size: 0x{:08x} Bytes, memory used: 0x{:08x} Bytes, percentage used: {:0.2} %", size, used, per));
         }
     }
     

@@ -5,13 +5,14 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use spin::Once;
+use alloc::boxed::Box;
 use core::cell::UnsafeCell;
 use crate::traits::vk_kernel::Kernel;
 use crate::kernel::vk_village::Village;
 
 /// Village kernel
 pub struct VillageKernel {
-    inner: UnsafeCell<Option<Village>>,
+    inner: UnsafeCell<Option<Box<Village>>>,
     initialized: Once<()>,
 }
 
@@ -28,10 +29,13 @@ impl VillageKernel {
     // get village kernel
     pub fn get(&'static self) -> &'static mut dyn Kernel {
         self.initialized.call_once(|| {
-            unsafe { *self.inner.get() = Some(Village::new()); }
+            unsafe { *self.inner.get() = Some(Box::new(Village::new())); }
         });
         unsafe {
-            (*self.inner.get()).as_mut().unwrap() as &'static mut Village
+            (*self.inner.get())
+                .as_mut()
+                .unwrap()
+                .as_mut() as &'static mut dyn Kernel
         }
     }
 }

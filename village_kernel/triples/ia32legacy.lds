@@ -3,8 +3,8 @@ OUTPUT_ARCH(i386)
 ENTRY(_start)
 
 _estack = 0x2000000;
-_Min_Heap_Size  = 0x400;
-_Min_Stack_Size = 0x800;
+_rsvd_heap  = 0x400;
+_rsvd_stack = 0x800;
 
 MEMORY
 {
@@ -107,8 +107,8 @@ SECTIONS
 		. = ALIGN(4);
 		PROVIDE ( end = . );
 		PROVIDE ( _end = . );
-		. = . + _Min_Heap_Size;
-		. = . + _Min_Stack_Size;
+		. = . + _rsvd_heap;
+		. = . + _rsvd_stack;
 		. = ALIGN(4);
 	} > RAM
 

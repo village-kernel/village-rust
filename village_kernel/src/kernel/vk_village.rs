@@ -4,6 +4,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use alloc::boxed::Box;
+
 use crate::traits::vk_kernel::Kernel;
 use crate::traits::vk_kernel::System;
 use crate::traits::vk_kernel::Memory;
@@ -45,49 +47,49 @@ use crate::arch::ia32::legacy::vk_scheduler::ConcreteScheduler;
 
 // Struct village
 pub struct Village {
-    memory:    ConcreteMemory,
-    debug:     ConcreteDebug,
-    interrupt: ConcreteInterrupt,
-    system:    ConcreteSystem,
-    scheduler: ConcreteScheduler,
-    thread:    ConcreteThread,
-    workqueue: ConcreteWorkQueue,
-    event:     ConcreteEvent,
-    symbol:    ConcreteSymbol,
-    device:    ConcreteDevice,
-    feature:   ConcreteFeature,
-    filesys:   ConcreteFileSystem,
-    loader:    ConcreteLoader,
-    process:   ConcreteProcess,
-    timer:     ConcreteTimer,
-    terminal:  ConcreteTerminal,
-    signal:    ConcreteSignal,
-    protocol:  ConcreteProtocol,
+    memory:    Box<ConcreteMemory>,
+    debug:     Box<ConcreteDebug>,
+    interrupt: Box<ConcreteInterrupt>,
+    system:    Box<ConcreteSystem>,
+    scheduler: Box<ConcreteScheduler>,
+    thread:    Box<ConcreteThread>,
+    workqueue: Box<ConcreteWorkQueue>,
+    event:     Box<ConcreteEvent>,
+    symbol:    Box<ConcreteSymbol>,
+    device:    Box<ConcreteDevice>,
+    feature:   Box<ConcreteFeature>,
+    filesys:   Box<ConcreteFileSystem>,
+    loader:    Box<ConcreteLoader>,
+    process:   Box<ConcreteProcess>,
+    timer:     Box<ConcreteTimer>,
+    terminal:  Box<ConcreteTerminal>,
+    signal:    Box<ConcreteSignal>,
+    protocol:  Box<ConcreteProtocol>,
 }
 
 // Impl village 
 impl Village {
     // New village object
-    pub const fn new() -> Self {
+    pub fn new() -> Self {
         Self {
-            memory:    ConcreteMemory::new(),
-            debug:     ConcreteDebug::new(),
-            interrupt: ConcreteInterrupt::new(),
-            system:    ConcreteSystem::new(),
-            scheduler: ConcreteScheduler::new(),
-            thread:    ConcreteThread::new(),
-            workqueue: ConcreteWorkQueue::new(),
-            event:     ConcreteEvent::new(),
-            symbol:    ConcreteSymbol::new(),
-            device:    ConcreteDevice::new(),
-            feature:   ConcreteFeature::new(),
-            filesys:   ConcreteFileSystem::new(),
-            loader:    ConcreteLoader::new(),
-            process:   ConcreteProcess::new(),
-            timer:     ConcreteTimer::new(),
-            terminal:  ConcreteTerminal::new(),
-            signal:    ConcreteSignal::new(),
-            protocol:  ConcreteProtocol::new(),
+            memory:    Box::new(ConcreteMemory::new()),
+            debug:     Box::new(ConcreteDebug::new()),
+            interrupt: Box::new(ConcreteInterrupt::new()),
+            system:    Box::new(ConcreteSystem::new()),
+            scheduler: Box::new(ConcreteScheduler::new()),
+            thread:    Box::new(ConcreteThread::new()),
+            workqueue: Box::new(ConcreteWorkQueue::new()),
+            event:     Box::new(ConcreteEvent::new()),
+            symbol:    Box::new(ConcreteSymbol::new()),
+            device:    Box::new(ConcreteDevice::new()),
+            feature:   Box::new(ConcreteFeature::new()),
+            filesys:   Box::new(ConcreteFileSystem::new()),
+            loader:    Box::new(ConcreteLoader::new()),
+            process:   Box::new(ConcreteProcess::new()),
+            timer:     Box::new(ConcreteTimer::new()),
+            terminal:  Box::new(ConcreteTerminal::new()),
+            signal:    Box::new(ConcreteSignal::new()),
+            protocol:  Box::new(ConcreteProtocol::new()),
         }
     }
 }
@@ -264,91 +266,91 @@ impl Kernel for Village {
 
     // System
     fn system(&mut self) -> &mut dyn System {
-        &mut self.system
+        self.system.as_mut()
     }
     
     // Memory
     fn memory(&mut self) -> &mut dyn Memory {
-        &mut self.memory
+        self.memory.as_mut()
     }
 
     // Debug
     fn debug(&mut self) -> &mut dyn Debug {
-        &mut self.debug
+        self.debug.as_mut()
     }
 
     // Interrupt
     fn interrupt(&mut self) -> &mut dyn Interrupt {
-        &mut self.interrupt
+        self.interrupt.as_mut()
     }
 
     // Scheduler
     fn scheduler(&mut self) -> &mut dyn Scheduler {
-        &mut self.scheduler
+        self.scheduler.as_mut()
     }
 
     // Thread
     fn thread(&mut self) -> &mut dyn Thread {
-        &mut self.thread
+        self.thread.as_mut()
     }
 
     // Workqueue
     fn workqueue(&mut self) -> &mut dyn WorkQueue {
-        &mut self.workqueue
+        self.workqueue.as_mut()
     }
 
     // Event
     fn event(&mut self) -> &mut dyn Event {
-        &mut self.event
+        self.event.as_mut()
     }
 
     // Symbol
     fn symbol(&mut self) -> &mut dyn Symbol {
-        &mut self.symbol
+        self.symbol.as_mut()
     }
 
     // Device
     fn device(&mut self) -> &mut dyn Device {
-        &mut self.device
+        self.device.as_mut()
     }
 
     // Feature
     fn feature(&mut self) -> &mut dyn Feature {
-        &mut self.feature
+        self.feature.as_mut()
     }
 
     // Filesys
     fn filesys(&mut self) -> &mut dyn FileSystem {
-        &mut self.filesys
+        self.filesys.as_mut()
     }
 
     // Loader
     fn loader(&mut self) -> &mut dyn Loader {
-        &mut self.loader
+        self.loader.as_mut()
     }
 
     // Process
     fn process(&mut self) -> &mut dyn Process {
-        &mut self.process
+        self.process.as_mut()
     }
 
     // Timer
     fn timer(&mut self) -> &mut dyn Timer {
-        &mut self.timer
+        self.timer.as_mut()
     }
 
     // Terminal
     fn terminal(&mut self) -> &mut dyn Terminal {
-        &mut self.terminal
+        self.terminal.as_mut()
     }
 
     // Signal
     fn signal(&mut self) -> &mut dyn Signal {
-        &mut self.signal
+        self.signal.as_mut()
     }
 
     // Protocol
     fn protocol(&mut self) -> &mut dyn Protocol {
-        &mut self.protocol
+        self.protocol.as_mut()
     }
 }
