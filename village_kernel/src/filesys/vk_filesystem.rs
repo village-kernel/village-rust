@@ -6,7 +6,7 @@
 //###########################################################################
 use alloc::format;
 use alloc::vec;
-use alloc::vec::Vec;
+//use alloc::vec::Vec;
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
 use crate::village::kernel;
@@ -99,7 +99,7 @@ impl MBRPartition {
 
 // Struct MBR partition table
 struct MBR {
-    pub boot: Vec<u8>,
+    //pub boot: Vec<u8>,
     pub partitions: [MBRPartition; 4],
     pub magic: u16,
 }
@@ -108,7 +108,7 @@ impl MBR {
     // New
     pub const fn new() -> Self {
         Self {
-            boot: Vec::new(),
+            //boot: Vec::new(),
             partitions: [const { MBRPartition::new() }; 4],
             magic: 0,
         }
@@ -123,8 +123,8 @@ impl MBR {
         let mut mbr = Self::new();
 
         // Copy boot code
-        mbr.boot = vec![0u8; 446];
-        mbr.boot.copy_from_slice(&data[0..446]);
+        //mbr.boot = vec![0u8; 446];
+        //mbr.boot.copy_from_slice(&data[0..446]);
 
         // Parser partitions
         mbr.partitions[0] = MBRPartition::from(&data[446..462]);
@@ -151,7 +151,7 @@ struct GPTPartition {
     pub ending_lba: u64,
     pub attributes: u64,
     pub partition_name: [u16; 36],
-    pub reserved: Vec<u8>,
+    //pub reserved: Vec<u8>,
 }
 
 // Impl GPTPartition
@@ -165,7 +165,7 @@ impl GPTPartition {
             ending_lba: 0,
             attributes: 0,
             partition_name: [0u16; 36],
-            reserved: Vec::new(),
+            //reserved: Vec::new(),
         }
     }
 
@@ -196,8 +196,8 @@ impl GPTPartition {
         }
 
         // Reserved
-        partition.reserved = vec![0u8; 384];
-        partition.reserved.copy_from_slice(&data[128..512]);
+        //partition.reserved = vec![0u8; 384];
+        //partition.reserved.copy_from_slice(&data[128..512]);
 
         // Check
         if Self::is_empty(&partition) {
@@ -229,7 +229,7 @@ struct GPT {
     pub number_of_partition_entries: u32,
     pub size_of_partition_entry: u32,
     pub partition_entry_array_crc32: u32,
-    pub reserved1: Vec<u8>,
+    //pub reserved1: Vec<u8>,
 }
 
 // Impl GPT
@@ -251,7 +251,7 @@ impl GPT {
             number_of_partition_entries: 0,
             size_of_partition_entry: 0,
             partition_entry_array_crc32: 0,
-            reserved1: Vec::new(),
+            //reserved1: Vec::new(),
         }
     }
 
@@ -288,8 +288,8 @@ impl GPT {
         gpt.partition_entry_array_crc32 = u32::from_le_bytes(<[u8; 4]>::try_from(&data[88..92]).ok()?);
         
         // Copy reserved
-        gpt.reserved1 = vec![0u8; 420];
-        gpt.reserved1.copy_from_slice(&data[92..512]);
+        //gpt.reserved1 = vec![0u8; 420];
+        //gpt.reserved1.copy_from_slice(&data[92..512]);
 
         // Check is valid
         if !Self::is_valid(&gpt) {

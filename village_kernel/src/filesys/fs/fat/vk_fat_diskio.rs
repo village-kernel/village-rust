@@ -5,6 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use alloc::vec;
+use alloc::vec::Vec;
 use crate::{misc::fopts::vk_dev_fopt::DevFopt};
 
 // Const mebers
@@ -213,7 +214,7 @@ pub struct DBR {
     pub bpb: BiosParameterBlock,
     pub fat1216: Fat1216,
     pub fat32: Fat32,
-    pub reserved: [u8; 420],
+    pub reserved: Vec<u8>,
     pub magic: u16,
 }
 
@@ -226,7 +227,7 @@ impl DBR {
             bpb: BiosParameterBlock::new(),
             fat1216: Fat1216::new(),
             fat32: Fat32::new(),
-            reserved: [0u8; 420],
+            reserved: Vec::new(),
             magic: 0,
         }
     }
@@ -244,7 +245,10 @@ impl DBR {
         dbr.bpb = BiosParameterBlock::from(&data[11..36]);
         dbr.fat1216 = Fat1216::from(&data[36..90]);
         dbr.fat32 = Fat32::from(&data[36..90]);
-        dbr.reserved.copy_from_slice(&data[90..510]);
+        
+        // Reserved
+        //dbr.reserved = vec![0u8; 420];
+        //dbr.reserved.copy_from_slice(&data[90..510]);
 
         // Get magic and check
         dbr.magic = u16::from_le_bytes([data[510], data[511]]);
