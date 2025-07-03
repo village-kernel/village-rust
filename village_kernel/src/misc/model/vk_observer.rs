@@ -23,12 +23,14 @@ impl ObserverModel {
 
     // Attach
     pub fn attach(&mut self, callback: Callback) {
-        self.observers.add(callback);
+        self.observers.push(callback);
     }
 
     // Detach
     pub fn detach(&mut self, callback: Callback) {
-        self.observers.del(&callback);
+        self.observers.retain_mut(|cb|{
+            !(cb.instance == callback.instance && core::ptr::fn_addr_eq(cb.callback , callback.callback))
+        });
     }
 
     // Notify

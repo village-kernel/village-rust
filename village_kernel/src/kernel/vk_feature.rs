@@ -76,7 +76,7 @@ impl Feature for ConcreteFeature {
         if self.is_runtime {
             module.setup();
         }
-        self.modules.add(module);
+        self.modules.push(module);
     }
 
     // Unregister module

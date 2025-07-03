@@ -100,7 +100,7 @@ impl RcParser {
                     record_bytes = 0;
                     
                     // Add cmd to run cmd list
-                    self.runcmds.add(cmd);
+                    self.runcmds.push(cmd);
                 }
             }
         }

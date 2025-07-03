@@ -25,13 +25,6 @@ impl Entry {
     }
 }
 
-// Impl partia eq for entry
-impl PartialEq for Entry {
-    fn eq(&self, other: &Self) -> bool {
-        self.addr == other.addr
-    }
-}
-
 // Struct concrete symbol
 pub struct ConcreteSymbol {
     entrys: LinkedList<Entry>
@@ -65,13 +58,14 @@ impl Symbol for ConcreteSymbol {
     // Export
     fn export(&mut self, sym_addr: u32, name: &str) {
         let entry = Entry::new(sym_addr, name);
-        self.entrys.add(entry);
+        self.entrys.push(entry);
     }
 
     // Unexport
     fn unexport(&mut self, sym_addr: u32, name: &str) {
-        let entry = Entry::new(sym_addr, name);
-        self.entrys.del(&entry);
+        self.entrys.retain_mut(|entry| {
+            !(entry.addr == sym_addr && entry.name == name)
+        });
     }
     
     // Search

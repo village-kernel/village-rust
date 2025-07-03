@@ -42,7 +42,7 @@ impl ModuleTool {
         if module.load(filename) {
             module.fill_bss_zero();
             module.init_array();
-            self.mods.add(module);
+            self.mods.push(module);
             kernel().debug().output(DebugLevel::Lv2, &format!("{} module install successful", filename));
             return true;
         }

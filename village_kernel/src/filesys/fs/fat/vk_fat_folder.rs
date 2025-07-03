@@ -184,7 +184,7 @@ impl FatFolder{
                     if let FatEntry::Short(_) = entry {
                         let mut fatobj = FatObject::from_entries(&mut entries);
                         fatobj.set_index(index.clone());
-                        self.fatobjs.add(Box::new(fatobj));
+                        self.fatobjs.push(Box::new(fatobj));
                         entries.clear();
                     }
                 }
@@ -209,7 +209,7 @@ impl FatFolder{
                 return false;
             }
 
-            self.fatobjs.add(Box::new(obj.clone()));
+            self.fatobjs.push(Box::new(obj.clone()));
         }
         true
     }

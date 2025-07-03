@@ -157,7 +157,7 @@ impl FileVol for FatVolume {
             file.set_id(fd);
             file.open(&mut self.diskio, fatobj, mode);
 
-            self.files.add(file);
+            self.files.push(file);
 
             return fd;
         }
@@ -224,7 +224,7 @@ impl FileVol for FatVolume {
             dir.set_id(fd);
             dir.open(&mut self.diskio, fatobj, mode);
 
-            self.dirs.add(dir);
+            self.dirs.push(dir);
 
             return fd;
         }

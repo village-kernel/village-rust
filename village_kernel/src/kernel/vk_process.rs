@@ -108,7 +108,7 @@ impl ConcreteProcess {
 impl Process for ConcreteProcess {
     // Register executor
     fn register_exec_factory(&mut self, factory: Box<dyn ExecutorFty>) {
-        self.factories.add(factory);
+        self.factories.push(factory);
     }
     
     // Unregister executor
@@ -150,7 +150,7 @@ impl Process for ConcreteProcess {
         // Add to process list
         process.pid = self.pid_cnt;
         self.pid_cnt += 1;
-        self.processes.add(process);
+        self.processes.push(process);
 
         // Wait for task done
         if behavior == ProcessBehavior::Foreground {

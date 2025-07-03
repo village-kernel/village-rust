@@ -86,7 +86,7 @@ impl ConcreteTerminal {
 impl Terminal for ConcreteTerminal {
     // Register cmd
     fn register_cmd(&mut self, cmd: Box<dyn Cmd>) {
-        self.commands.add(cmd);
+        self.commands.push(cmd);
     }
 
     // Unregister cmd
@@ -137,7 +137,7 @@ impl Terminal for ConcreteTerminal {
         sandbox.tid = tid;
 
         // Add to sandboxes list
-        self.sandboxes.add(sandbox);
+        self.sandboxes.push(sandbox);
 
         // Start console task
         kernel().thread().start_task(tid);

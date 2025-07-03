@@ -89,7 +89,7 @@ impl Event for ConcreteEvent {
 
         // Open and add into in_devs list
         if device.open(input) {
-            self.in_devs.add(device);
+            self.in_devs.push(device);
         }
     }
 

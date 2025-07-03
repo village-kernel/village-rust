@@ -170,13 +170,6 @@ impl ThreadTask {
     }
 }
 
-// Impl partial eq for thread task
-impl PartialEq for ThreadTask {
-    fn eq(&self, other: &Self) -> bool {
-        self.id == other.id
-    }
-}
-
 // Thread
 pub trait Thread {
     // Create Methods
@@ -281,13 +274,6 @@ impl Work {
             state: WorkState::New,
             callback,
         }
-    }
-}
-
-// Impl partia eq for work
-impl PartialEq for Work {
-    fn eq(&self, other: &Self) -> bool {
-        self.id == other.id
     }
 }
 
@@ -449,14 +435,6 @@ impl ProcessData {
     }
 }
 
-// Impl partial eq for process data
-impl PartialEq for ProcessData {
-    fn eq(&self, other: &Self) -> bool {
-        self.pid == other.pid && 
-        self.tid == other.tid
-    }
-}
-
 // Process
 pub trait Process {
     // Register Methods
@@ -505,13 +483,6 @@ impl Job {
             state: JobState::New,
             callback,
         }
-    }
-}
-
-// Impl partia eq for timer job
-impl PartialEq for Job {
-    fn eq(&self, other: &Self) -> bool {
-        self.id == other.id
     }
 }
 

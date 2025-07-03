@@ -409,7 +409,7 @@ impl ConcreteFileSystem {
 
         // Clone all the disk name
         for media in self.medias.iter_mut() {
-            disks.add(media.name.clone());
+            disks.push(media.name.clone());
         }
 
         // Exit hard drive
@@ -450,7 +450,7 @@ impl ConcreteFileSystem {
         for media in self.medias.iter_mut() {
             for volume in media.vols.iter_mut() {
                 if volume.get_mount_path() == mount.source {
-                    self.mounts.add(mount);
+                    self.mounts.push(mount);
                     return true;
                 }
             }
@@ -468,7 +468,7 @@ impl ConcreteFileSystem {
             if volume.setup(&media.name, starting_lba) {
                 let mount_path = &format!("/media/{}", volume.get_name());
                 volume.set_mount_path(mount_path);
-                media.vols.add(volume);
+                media.vols.push(volume);
                 return;
             }
         }
@@ -479,7 +479,7 @@ impl ConcreteFileSystem {
 impl FileSystem for ConcreteFileSystem {
     // Register fs
     fn register_fs(&mut self, fs: Box<dyn FileSys>) {
-        self.filesyses.add(fs);
+        self.filesyses.push(fs);
     }
 
     // Unregister fs
@@ -563,7 +563,7 @@ impl FileSystem for ConcreteFileSystem {
             device.close();
 
             // Add to medias list
-            self.medias.add(media);
+            self.medias.push(media);
         } else {
             kernel().debug().error("Not a vaild disk");
             device.close();

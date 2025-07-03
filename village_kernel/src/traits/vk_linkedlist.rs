@@ -45,7 +45,7 @@ impl<T> LinkedList<T> {
 
 impl<T> LinkedList<T> {
     // Push node to list with atomic operations
-    pub fn add(&mut self, obj: T) {
+    pub fn push(&mut self, obj: T) {
         let node = ListNode {
             obj,
             prev: AtomicPtr::new(ptr::null_mut()),
@@ -199,7 +199,7 @@ impl<T> FromIterator<T> for LinkedList<T> {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
         let mut list = LinkedList::new();
         for item in iter {
-            list.add(item);
+            list.push(item);
         }
         list
     }

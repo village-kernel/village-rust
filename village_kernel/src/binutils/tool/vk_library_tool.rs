@@ -45,7 +45,7 @@ impl LibraryTool {
         if lib.load(filename) {
             lib.fill_bss_zero();
             lib.init_array();
-            self.libs.add(lib);
+            self.libs.push(lib);
             kernel().debug().output(DebugLevel::Lv2, &format!("{} library install successful", filename));
             return true;
         }

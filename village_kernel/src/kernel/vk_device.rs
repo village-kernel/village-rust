@@ -153,7 +153,7 @@ impl Device for ConcreteDevice {
                 kernel().event().init_input_device(driver.info().get_name());
             }
         }
-        self.base_devs.add(driver);
+        self.base_devs.push(driver);
     }
 
     // Unregister driver
@@ -179,7 +179,7 @@ impl Device for ConcreteDevice {
         if self.is_runtime {
             Self::platform_device_probe(&mut self.plat_devs, &mut *driver);
         }
-        self.plat_drvs.add(driver);
+        self.plat_drvs.push(driver);
     }
 
     // Unregister plat driver
@@ -201,7 +201,7 @@ impl Device for ConcreteDevice {
         if self.is_runtime {
             Self::platform_driver_probe(&mut self.plat_drvs, &mut *device);
         }
-        self.plat_devs.add(device);
+        self.plat_devs.push(device);
     }
 
     // Unregister plat device

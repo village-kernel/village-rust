@@ -71,7 +71,7 @@ impl Timer for ConcreteTimer {
         let id = self.id_cnt;
         self.id_cnt += 1;
         let job = Job::new(id, callback);
-        self.jobs.add(job);
+        self.jobs.push(job);
         self.jobs.end();
         self.jobs.item()
     }
@@ -86,6 +86,8 @@ impl Timer for ConcreteTimer {
 
     // Delete
     fn delete(&mut self, job: &mut Job) {
-        self.jobs.del(job);
+        self.jobs.retain_mut(|j|{
+            !(j.id == job.id && j.callback == job.callback)
+        });
     }
 }
