@@ -16,7 +16,7 @@
 			"isBackground":true,
 			"dependsOn": ["Build"],
 			"command": "qemu-system-i386 -hda ${workspaceFolder}/build/village_os.img -hdb ${workspaceFolder}/build/village_fs.img -monitor null -serial stdio -s -S -nographic",
-			//"command": "qemu-system-i386 -hda ${workspaceFolder}/build/village_os.img -monitor null -serial stdio -s -S",
+			//"command": "qemu-system-i386 -hda ${workspaceFolder}/build/village_os.img -hdb ${workspaceFolder}/build/village_fs.img -monitor null -serial stdio -s -S",
 			"presentation": {
 				"echo": false,
 				"reveal": "never",

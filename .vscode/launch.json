@@ -1,8 +1,4 @@
-
 {
-    // 使用 IntelliSense 了解相关属性。 
-    // 悬停以查看现有属性的描述。
-    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
@@ -46,6 +42,22 @@
             ],
             "sourceLanguages": ["rust"],
             "preLaunchTask": "Run QEMU x86 bios",
+        },
+        {
+            "name": "QEMU Debug x86 bios kernel gdb",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/village_kernel.elf",
+            "cwd": "${workspaceFolder}",
+            "miDebuggerPath": "i386-elf-gdb",
+            "miDebuggerServerAddress": "localhost:1234",
+            "stopAtEntry": true,
+            "preLaunchTask": "Run QEMU x86 bios",
+            "setupCommands": [ {
+                "description": "Enable pretty-printing and set hex output",
+                "text": "-enable-pretty-printing\nset output-radix 16",
+                "ignoreFailures": false
+            } ]
         }
     ]
 }
