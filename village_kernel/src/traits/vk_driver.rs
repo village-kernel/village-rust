@@ -4,7 +4,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::{boxed::Box, string::{String, ToString}};
+use alloc::boxed::Box;
+use alloc::string::{String, ToString};
 use crate::village::kernel;
 
 // Driver id

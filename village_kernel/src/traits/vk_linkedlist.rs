@@ -97,8 +97,6 @@ impl<T> LinkedList<T> {
                         self.tail.store(prev, Ordering::Release);
                     }
                     
-                    // Free the node
-                    drop(Box::from_raw(current));
                     self.len -= 1;
                 }
                 
@@ -184,13 +182,6 @@ impl<T> LinkedList<T> {
         } else {
             unsafe { Some(&mut (*iter_ptr).obj) }
         }
-    }
-}
-
-// Impl drop for linked list
-impl<T> Drop for LinkedList<T> {
-    fn drop(&mut self) {
-        self.clear();
     }
 }
 
