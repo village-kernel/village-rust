@@ -42,7 +42,7 @@ impl Cmd for CmdListMod {
             }
 
             for module in kernel().loader().get_modules().iter_mut() {
-                console.println(&format!("name {}", module.get_filename()));
+                console.println(&format!("name {}", module));
             }
         }
     }

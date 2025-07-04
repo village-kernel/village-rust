@@ -4,12 +4,9 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::boxed::Box;
+use alloc::vec::Vec;
 use crate::village::kernel;
 use crate::traits::vk_kernel::Loader;
-use crate::traits::vk_linkedlist::LinkedList;
-use crate::binutils::loader::vk_lib_loader::LibLoader;
-use crate::binutils::loader::vk_mod_loader::ModLoader;
 use crate::binutils::tool::vk_library_tool::LibraryTool;
 use crate::binutils::tool::vk_module_tool::ModuleTool;
 use crate::misc::parser::vk_rc_parser::RcParser;
@@ -137,12 +134,12 @@ impl Loader for ConcreteLoader {
     }
 
     // Get libraries
-    fn get_libraries(&mut self) -> &mut LinkedList<Box<LibLoader>> {
-        self.libtool.get_libraries()
+    fn get_libraries(&mut self) -> Vec<&str> {
+        self.libtool.get_libraries().iter_mut().map(|l| l.get_filename()).collect()
     }
 
     // Get modules
-    fn get_modules(&mut self) -> &mut LinkedList<Box<ModLoader>> {
-        self.modtool.get_modules()
+    fn get_modules(&mut self) -> Vec<&str> {
+        self.modtool.get_modules().iter_mut().map(|m| m.get_filename()).collect()
     }
 }
