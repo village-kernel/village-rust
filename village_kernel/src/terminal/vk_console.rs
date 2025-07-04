@@ -101,16 +101,9 @@ impl Console {
 
     // Show welcome msg
     fn show_welcome_msg(&mut self) {
-        // Disable irq
-        kernel().system().disable_irq();
-
-        // Output welcome message
         for line in VK_WELCOME.iter() {
             self.msg_mgr.write(&format!("{}\r\n",line));
         }
-
-        // Enable irq
-        kernel().system().enable_irq();
     }
 
     // Show user and path
