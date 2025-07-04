@@ -25,6 +25,7 @@ use crate::traits::vk_kernel::Timer;
 use crate::traits::vk_kernel::Terminal;
 use crate::traits::vk_kernel::Signal;
 use crate::traits::vk_kernel::Protocol;
+use crate::traits::vk_kernel::BuildInfo;
 
 use super::vk_debug::ConcreteDebug;
 use super::vk_device::ConcreteDevice;
@@ -219,31 +220,6 @@ impl Kernel for Village {
         self.system.exit();
     }
 
-    // Get build year
-    fn get_build_year(&mut self) -> &'static str {
-        env!("BUILD_YEAR")
-    }
-
-    // Get build date
-    fn get_build_date(&mut self) -> &'static str {
-        env!("BUILD_DATE")
-    }
-
-    // Get build time
-    fn get_build_time(&mut self) -> &'static str {
-        env!("BUILD_TIME")
-    }
-
-    // Get build version
-    fn get_build_version(&mut self) -> &'static str {
-        env!("BUILD_VER")
-    }
-
-    // Get build git sha
-    fn get_build_git_sha(&mut self) -> &'static str {
-        env!("GIT_COMMIT")
-    }
-
     // System
     fn system(&mut self) -> &mut dyn System {
         self.system.as_mut()
@@ -332,5 +308,17 @@ impl Kernel for Village {
     // Protocol
     fn protocol(&mut self) -> &mut dyn Protocol {
         self.protocol.as_mut()
+    }
+
+    // Build info
+    fn build_info(&self) -> &BuildInfo {
+        const INFO: BuildInfo = BuildInfo {
+            year: env!("BUILD_YEAR"),
+            date: env!("BUILD_DATE"),
+            time: env!("BUILD_TIME"),
+            version: env!("BUILD_VER"),
+            git_sha: env!("GIT_COMMIT"),
+        };
+        &INFO
     }
 }

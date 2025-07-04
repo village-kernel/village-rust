@@ -36,13 +36,13 @@ impl Cmd for CmdAbout {
     // Execute
     fn execute(&mut self, _argv: Vec<&str>) {
         if let Some(console) = self.base.get_console() {
-            console.println(&format!("build date      : {}", kernel().get_build_date()));
-            console.println(&format!("build time      : {}", kernel().get_build_time()));
-            console.println(&format!("build version   : {}", kernel().get_build_version()));
-            console.println(&format!("build gitcommit : {}", kernel().get_build_git_sha()));
+            console.println(&format!("build date      : {}", kernel().build_info().date));
+            console.println(&format!("build time      : {}", kernel().build_info().time));
+            console.println(&format!("build version   : {}", kernel().build_info().version));
+            console.println(&format!("build gitcommit : {}", kernel().build_info().git_sha));
             console.println("village kernel is based on Rust.");
             console.println("A fast, safe and efficient operating system kernel.");
-            console.println(&format!("License: GPL-3.0, Copyright (C) {} village.", kernel().get_build_year()));
+            console.println(&format!("License: GPL-3.0, Copyright (C) {} village.", kernel().build_info().year));
         }
     }
     

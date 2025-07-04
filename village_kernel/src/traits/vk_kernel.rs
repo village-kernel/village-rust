@@ -534,17 +534,20 @@ pub trait Protocol {
     fn unregister_stack(&mut self);
 }
 
+// Struct BuildInfo
+pub struct BuildInfo {
+    pub year: &'static str,
+    pub date: &'static str,
+    pub time: &'static str,
+    pub version: &'static str,
+    pub git_sha: &'static str,
+}
+
 // Kernel
 pub trait Kernel {
     fn setup(&mut self);
     fn start(&mut self);
     fn exit(&mut self);
-
-    fn get_build_year(&mut self) -> &'static str;
-    fn get_build_date(&mut self) -> &'static str;
-    fn get_build_time(&mut self) -> &'static str;
-    fn get_build_version(&mut self) -> &'static str;
-    fn get_build_git_sha(&mut self) -> &'static str;
 
     fn system(&mut self) -> &mut dyn System;
     fn memory(&mut self) -> &mut dyn Memory;
@@ -564,4 +567,5 @@ pub trait Kernel {
     fn terminal(&mut self) -> &mut dyn Terminal;
     fn signal(&mut self) -> &mut dyn Signal;
     fn protocol(&mut self) -> &mut dyn Protocol;
+    fn build_info(&self) -> &BuildInfo;
 }
