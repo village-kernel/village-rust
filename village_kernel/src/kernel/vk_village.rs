@@ -219,26 +219,6 @@ impl Kernel for Village {
         self.system.exit();
     }
 
-    // Sleep
-    fn sleep(&mut self) {
-        self.system.sleep();
-    }
-
-    // Standby
-    fn standby(&mut self) {
-        self.system.standby();
-    }
-
-    // Shutdown
-    fn shutdown(&mut self) {
-        self.system.shutdown();
-    }
-
-    // Reboot
-    fn reboot(&mut self) {
-        self.system.reboot();
-    }
-
     // Get build year
     fn get_build_year(&mut self) -> &'static str {
         env!("BUILD_YEAR")

@@ -34,7 +34,7 @@ impl Cmd for CmdSleep {
 
     // Execute
     fn execute(&mut self, _argv: Vec<&str>) {
-        kernel().sleep();
+        kernel().system().sleep();
     }
     
     // Help
@@ -69,7 +69,7 @@ impl Cmd for CmdStandby {
 
     // Execute
     fn execute(&mut self, _argv: Vec<&str>) {
-        kernel().standby();
+        kernel().system().standby();
     }
     
     // Help
@@ -104,7 +104,7 @@ impl Cmd for CmdShutdown {
 
     // Execute
     fn execute(&mut self, _argv: Vec<&str>) {
-        kernel().shutdown();
+        kernel().system().shutdown();
     }
     
     // Help
@@ -139,7 +139,7 @@ impl Cmd for CmdReboot {
 
     // Execute
     fn execute(&mut self, _argv: Vec<&str>) {
-        kernel().reboot();
+        kernel().system().reboot();
     }
     
     // Help

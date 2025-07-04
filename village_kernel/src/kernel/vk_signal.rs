@@ -39,10 +39,10 @@ impl Signal for ConcreteSignal {
 
         match signal {
             Signals::None => todo!(),
-            Signals::Sleep => kernel().sleep(),
-            Signals::Standby => kernel().standby(),
-            Signals::Shutdown => kernel().shutdown(),
-            Signals::Reboot => kernel().reboot(),
+            Signals::Sleep => kernel().system().sleep(),
+            Signals::Standby => kernel().system().standby(),
+            Signals::Shutdown => kernel().system().shutdown(),
+            Signals::Reboot => kernel().system().reboot(),
             Signals::Kill => todo!(),
         }
 

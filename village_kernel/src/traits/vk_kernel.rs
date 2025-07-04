@@ -540,11 +540,6 @@ pub trait Kernel {
     fn start(&mut self);
     fn exit(&mut self);
 
-    fn sleep(&mut self);
-    fn standby(&mut self);
-    fn shutdown(&mut self);
-    fn reboot(&mut self);
-
     fn get_build_year(&mut self) -> &'static str;
     fn get_build_date(&mut self) -> &'static str;
     fn get_build_time(&mut self) -> &'static str;
