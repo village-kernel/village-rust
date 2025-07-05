@@ -12,6 +12,7 @@ pub mod village;
 pub mod vk_kernel;
 use core::panic::PanicInfo;
 use crate::village::kernel;
+pub use c::string::{memcmp, memset};
 
 // Main
 #[unsafe(no_mangle)]

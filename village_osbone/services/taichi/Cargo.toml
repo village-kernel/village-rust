@@ -2,6 +2,7 @@
 name = "taichi"
 version = "0.1.0"
 edition = "2024"
+build = "build.rs"
 
 [[bin]]
 name = "taichi"
@@ -9,3 +10,4 @@ test = false
 bench = false
 
 [dependencies]
+libc = { path = "../../libraries/libc" }
