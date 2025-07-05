@@ -5,16 +5,15 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use alloc::vec::Vec;
-use crate::misc::parser::vk_args_parser::vec_to_c_args;
+use crate::village::kernel;
+use crate::traits::vk_kernel::Kernel;
 use super::vk_elf_defines::{DynamicType, DynamicHeader, RelocationCode, RelocationEntry};
 
 // Type aliases for start entry
-type StartEntry = extern "C" fn(usize, usize, *mut *mut u8);
+type DynKernel = fn() -> &'static mut dyn Kernel;
 
-// Erase a function pointer to a start entry
-fn to_start_entry(fn_addr: u32) -> StartEntry {
-    unsafe { core::mem::transmute::<u32, StartEntry>( fn_addr ) }
-}
+// Type aliases for start entry
+type StartEntry = fn(DynKernel, &[&str]);
 
 // Struct Program
 pub struct Program {
@@ -138,6 +137,11 @@ impl Program {
         
         true
     }
+
+    // Erase a function pointer to a start entry
+    fn start_exec(exec: u32) -> StartEntry {
+        unsafe { core::mem::transmute::<u32, StartEntry>( exec ) }
+    }
 }
 
 impl Program {
@@ -149,10 +153,9 @@ impl Program {
     }
 
     // Execute
-    pub fn execute(&mut self, args: Vec<&str>) -> bool {
+    pub fn execute(&mut self, argv: Vec<&str>) -> bool {
         if self.exec != 0 {
-            let (argc, argv, _) = vec_to_c_args(&args);
-            (to_start_entry(self.exec))(0, argc, argv);
+            (Self::start_exec(self.exec))(kernel, argv.as_slice());
             return true;
         }
         false
