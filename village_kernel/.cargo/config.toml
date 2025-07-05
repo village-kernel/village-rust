@@ -1,6 +1,5 @@
 [build]
 target = "./triples/ia32legacy.json"
-target-dir = "../build/village_kernel"
 
 [unstable]
 build-std = ["core", "alloc", "compiler_builtins"]
@@ -9,8 +8,7 @@ build-std = ["core", "alloc", "compiler_builtins"]
 rustflags = [
     "-C", "opt-level=0",
     "-C", "debuginfo=2",
-    "-C", "link-arg=-T./triples/ia32legacy.lds",
-    "-C", "link-arg=-Map=../build/village_kernel/ia32legacy/debug/village_kernel.map",
     "-C", "linker=rust-lld",
     "-C", "panic=abort",
+    "-C", "link-arg=-T./triples/ia32legacy.lds",
 ]

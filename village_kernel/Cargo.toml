@@ -14,7 +14,6 @@ binding_exec_bin = []
 
 [lib]
 name = "vk"
-crate-type = ["rlib", "staticlib"]
 test = false
 bench = false
 

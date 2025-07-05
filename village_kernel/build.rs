@@ -1,9 +1,11 @@
 use std::env;
+use std::path::PathBuf;
 use std::process::Command;
 use time::{OffsetDateTime, PrimitiveDateTime};
 use time::macros::format_description;
 
-fn main() {
+// Set build info env
+fn build_info() {
     // Get the local time
     let now = OffsetDateTime::now_local().unwrap_or_else(|_| OffsetDateTime::now_utc());
     
@@ -35,10 +37,41 @@ fn main() {
         _ => "unknown".to_string(),
     };
 
-    // Set the env value
+    // Set the rustc env
+    println!("cargo:rustc-env=BUILD_YEAR={}", year);
     println!("cargo:rustc-env=BUILD_DATE={}", date);
     println!("cargo:rustc-env=BUILD_TIME={}", time);
     println!("cargo:rustc-env=BUILD_VER=v{}", version);
     println!("cargo:rustc-env=GIT_COMMIT={}", commit_hash);
-    println!("cargo:rustc-env=BUILD_YEAR={}", year);
+}
+
+// Set map file path
+fn map_file() {
+    // Get target dir
+    let out_dir = env::var("OUT_DIR").unwrap();
+    let binding = PathBuf::from(&out_dir);
+    let target_dir = binding// out/
+        .parent().unwrap()           // <crate>-<hash>/
+        .parent().unwrap()           // build/
+        .parent().unwrap();                // profile/
+
+    // Get packge name
+    let package_name = env::var("CARGO_PKG_NAME").unwrap();
+
+    // Set map path
+    let map_path = target_dir.join(format!("{}.map", package_name));
+
+    // Ensure path exist
+    if let Some(parent) = map_path.parent() {
+        std::fs::create_dir_all(parent).unwrap();
+    }
+
+    // Set the rustc link arg
+    println!("cargo:rustc-link-arg=-Map={}", map_path.display());
+}
+
+// main
+fn main() {
+    build_info();
+    map_file();
 }
