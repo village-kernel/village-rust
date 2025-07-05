@@ -7,7 +7,7 @@
 #![no_std]
 #![no_main]
 
-use village_kernel::village::kernel;
+use vk::village::kernel;
 
 // Main
 #[unsafe(no_mangle)]
