@@ -7,22 +7,23 @@
 #![no_std]
 #![no_main]
 
-mod crt0;
-
-// print
-fn print(message: &str) {
-    let vga_buffer = 0xb8000 as *mut u8;
-
-    for (i, &byte) in message.as_bytes().iter().enumerate() {
-        unsafe {
-            *vga_buffer.add(i * 2) = byte;
-            *vga_buffer.add(i * 2 + 1) = 0x0f;
-        }
-    }
-}
+pub mod crt0;
+pub mod village;
+pub mod vk_kernel;
+use core::panic::PanicInfo;
+use crate::village::kernel;
 
 // Main
 #[unsafe(no_mangle)]
-pub fn main() {
-    print("hello village application");
+pub fn main(argv: &[&str]) {
+    kernel().debug().info("hello village application");
+    for arg in argv {
+        kernel().debug().info(arg);
+    }
+}
+
+// panic
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    loop {}
 }

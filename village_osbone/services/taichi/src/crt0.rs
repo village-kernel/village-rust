@@ -1,24 +1,27 @@
 //###########################################################################
-// crt0_app.c
+// vk_crt0.c
 // Low level file that manages app entry
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use core::panic::PanicInfo;
+use core::ffi::c_void;
+
+// extern set kernel
+unsafe extern "Rust" { unsafe fn set_kernel(village: *const c_void); }
 
 // extern main
-unsafe extern "Rust" { unsafe fn main(); }
+unsafe extern "Rust" { unsafe fn main(argv: &[&str]); }
 
 // image offset
-unsafe extern "C" { unsafe fn _IMGOFFS(); } 
+unsafe extern "Rust" { unsafe fn _IMGOFFS(_: *const c_void, _: &[&str]); } 
 
 // dynamic header
-unsafe extern "C" { unsafe fn _DYNAMIC(); }
+unsafe extern "Rust" { unsafe fn _DYNAMIC(_: *const c_void, _: &[&str]); }
 
 // entry section
 #[used]
 #[unsafe(link_section = ".entry")]
-pub static G_PFN_VECTORS: [unsafe extern "C" fn(); 3] = [
+pub static G_PFN_VECTORS: [unsafe extern "Rust" fn(*const c_void, &[&str]); 3] = [
     _IMGOFFS,
     _DYNAMIC,
     _start,
@@ -127,20 +130,16 @@ pub extern "C" fn __fini_array() {
 
 // _start
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn _start() {
+pub unsafe extern "Rust" fn _start(village: *const c_void, argv: &[&str]) {
     __fill_bss_zero();
+
+    unsafe { set_kernel(village) }; 
 
     __preinit_array();
 
     __init_array();
 
-    unsafe { main() };
+    unsafe { main(argv) };
 
     __fini_array();
-}
-
-// panic
-#[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    loop {}
 }
