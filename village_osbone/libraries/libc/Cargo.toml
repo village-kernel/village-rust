@@ -1,9 +1,10 @@
 [package]
-name = "c"
+name = "libc"
 version = "0.1.0"
 edition = "2024"
 
 [lib]
+name = "c"
 test = false
 bench = false
 
