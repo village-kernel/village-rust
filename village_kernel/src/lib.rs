@@ -113,6 +113,7 @@ pub mod misc {
         pub mod vk_observer;
     }
     pub mod parser {
+        pub mod vk_args_parser;
         pub mod vk_rc_parser;
     }
 }
