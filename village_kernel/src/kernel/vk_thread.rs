@@ -58,7 +58,7 @@ impl ConcreteThread {
     pub fn exit(&mut self) {
         for task in &mut self.tasks.iter_mut() {
             if task.stack_start != 0 {
-                kernel().memory().free(task.stack_start, 0);
+                kernel().memory().dealloc(task.stack_start, 0);
             }
         }
         self.tasks.clear();
@@ -76,7 +76,7 @@ impl ConcreteThread {
         loop {
             self.tasks.retain_mut(|task| {
                 if task.state == ThreadState::Terminated {
-                    kernel().memory().free(task.stack_start, 0);
+                    kernel().memory().dealloc(task.stack_start, 0);
                     false
                 } else {
                     true
@@ -92,7 +92,7 @@ impl Thread for ConcreteThread {
     // Create task fn
     fn create_task(&mut self, name: &str, callback: Callback) -> i32 {
        // Create a new task and allocate stack space
-        let stack_start = kernel().memory().stack_alloc(TASK_STACK_SIZE);
+        let stack_start = kernel().memory().alloc(TASK_STACK_SIZE);
         let stack_end = stack_start + TASK_STACK_SIZE;
         let psp = stack_end - PSP_FRAME_SIZE;
 
@@ -159,7 +159,7 @@ impl Thread for ConcreteThread {
     fn delete_task(&mut self, tid: i32) {
         self.tasks.retain(|task| {
             if task.id == tid {
-                kernel().memory().free(task.stack_start, 0);
+                kernel().memory().dealloc(task.stack_start, 0);
                 false
             } else {
                 true

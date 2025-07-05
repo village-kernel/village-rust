@@ -17,14 +17,15 @@ const ALIGN: u32 = 4;
 // Struct map
 #[repr(C, align(4))]
 struct Map {
-    addr: u32,
+    start: u32,
+    ended: u32,
     size: u32,
 }
 
 // Impl map
 impl Map {
-    const fn new(addr: u32, size: u32) -> Self {
-        Self { addr, size }
+    const fn new(start: u32, ended: u32, size: u32) -> Self {
+        Self { start, ended, size }
     }
 }
 
@@ -143,12 +144,17 @@ impl MemoryAllocator {
             
             // Initialize head and tail node
             unsafe {
+                // The space of the head node in the linked list contains 
+                // the data of both the head node and the tail node.
+                let head_map_start =  sram_start;
+                let head_map_ended = sram_start + size_of_node * 2;
+                let head_map_size = size_of_node * 2;
                 ptr::write(head, MapNode::new(
-                    Map::new(sram_start + size_of_node, size_of_node))
+                    Map::new(head_map_start, head_map_ended, head_map_size))
                 );
 
                 ptr::write(tail, MapNode::new(
-                    Map::new(sram_ended - size_of_node, size_of_node))
+                    Map::new(sram_ended, sram_ended, 0))
                 );
 
                 (*head).next.store(tail, Ordering::Relaxed);
@@ -174,13 +180,13 @@ impl MemoryAllocator {
 
 // Impl memory for concrete memory
 impl MemoryAllocator {
-    // Heap alloc
+    // Alloc
     // |--------------|---------------|
     // | size of node | size of alloc |
     // |--------------|---------------|
     // |    MapNode   |  heap memory  |
     // |--------------|---------------|
-    fn heap_alloc(&mut self, size: u32) -> u32 {
+    fn alloc(&mut self, size: u32) -> u32 {
         // Check is initialized
         if !self.initialized.load(Ordering::Acquire) {
             self.initiate();
@@ -208,26 +214,26 @@ impl MemoryAllocator {
                     }
                 }
 
+                // Calculate and align the new node map start addr
+                let mut new_map_start = (*curr_node).map.ended;
+                new_map_start = Self::align_up(new_map_start, ALIGN);
+
                 // Calculate and align the new node map size
                 let mut new_map_size = size_of_node + size;
                 new_map_size = Self::align_up(new_map_size, ALIGN);
 
-                // Calculate and align the new node map addr
-                let mut new_map_addr = (*curr_node).map.addr + (*curr_node).map.size;
-                new_map_addr = Self::align_up(new_map_addr, ALIGN);
-
-                // Calculate the end addr
-                let new_end_addr = new_map_addr + new_map_size;
+                // Calculate the new map ended addr
+                let new_map_ended = new_map_start + new_map_size;
 
                 // There is free space between the current node and the next node
-                if new_end_addr <= (*next_node).map.addr {
+                if new_map_ended <= (*next_node).map.start {
                     // Update the used size of sram
                     self.sram_used.fetch_add(new_map_size, Ordering::SeqCst);
 
                     // Create an new node
-                    let new_node = new_map_addr as *mut MapNode;
+                    let new_node = new_map_start as *mut MapNode;
                     ptr::write(new_node, MapNode{
-                        map: Map::new(new_map_addr, new_map_size),
+                        map: Map::new(new_map_start, new_map_ended, size),
                         prev: curr_node.into(),
                         next: next_node.into(),
                     });
@@ -243,7 +249,7 @@ impl MemoryAllocator {
                     self.curr.store(new_node, Ordering::Relaxed);
 
                     // Calculate the alloc address
-                    alloc_addr = new_map_addr + size_of_node;
+                    alloc_addr = new_map_start + size_of_node;
                     break;
                 }
 
@@ -251,107 +257,32 @@ impl MemoryAllocator {
             }
         }
 
-        alloc_addr
-    }
-    
-    // Stack alloc
-    // |-------------------| |---------------|
-    // |  MapNode in heap  | | size of alloc |
-    // |                   | |---------------|
-    // |  memory in stack  | | stack memory  |
-    // |-------------------| |---------------|
-    fn stack_alloc(&mut self, size: u32) -> u32 {
-        // Check is initialized
-        if !self.initialized.load(Ordering::Acquire) {
-            self.initiate();
-        }
-
-        // Create an new node by heap alloc
-        let size_of_node = core::mem::size_of::<MapNode>() as u32;
-        let new_node = self.heap_alloc(size_of_node) as *mut MapNode;
-
-        let mut curr_node = self.tail.load(Ordering::Acquire);
-        let mut alloc_addr = 0;
-
-        unsafe {
-            // Find free space
-            while !curr_node.is_null() {
-                // Get the prev node
-                let prev_node = (*curr_node).prev.load(Ordering::Acquire);
-
-                // Break loop when prev node is null
-                if prev_node.is_null() { break; }
-
-                // Calculate and align the new map size
-                let mut new_map_size = size;
-                new_map_size = Self::align_up(new_map_size, ALIGN);
-                
-                // Calculate and align the new map
-                let mut new_map_addr = (*curr_node).map.addr - new_map_size;
-                new_map_addr = Self::align_up(new_map_addr, ALIGN);
-
-                // There is free space between the current node and the prev node
-                if  new_map_addr >= ((*prev_node).map.addr + (*prev_node).map.size) {
-                    // Update the used size of sram
-                    self.sram_used.fetch_add(new_map_size, Ordering::SeqCst);
-
-                    // Create an new node
-                    ptr::write(new_node, MapNode{
-                        map: Map::new(new_map_addr, new_map_size),
-                        prev: prev_node.into(),
-                        next: curr_node.into(),
-                    });
-
-                    // Memory barrier: Ensure that the pointer update of the new node is visible to other threads.
-                    core::sync::atomic::fence(Ordering::Release);
-
-                    // Update list
-                    (*prev_node).next.store(new_node, Ordering::Release);
-                    (*curr_node).prev.store(new_node, Ordering::Release);
-
-                    // Update current node
-                    self.curr.store(new_node, Ordering::Relaxed);
- 
-                    // Calculate the alloc address
-                    alloc_addr = new_map_addr;
-                    break;
-                }
-
-                curr_node = prev_node;
-            }
+        // Alloc failed
+        if alloc_addr == 0 {
+            panic!("out of memory.");
         }
 
         alloc_addr
     }
     
-    // Free
-    fn free(&mut self, memory: u32, size: u32) {
-        if memory == 0 { return; }
+    // Dealloc
+    fn dealloc(&mut self, memory: u32, size: u32) {
+        // Invalid memory
+        if memory < self.sram_start.load(Ordering::Acquire) || 
+           memory > self.sram_ended.load(Ordering::Acquire)
+        {
+            panic!("invalid memory.");
+        }
 
-        let size_of_node = core::mem::size_of::<MapNode>() as u32;
+        // Gets the curret node ptr
         let mut curr_node = self.curr.load(Ordering::Acquire);
 
         unsafe {
             while !curr_node.is_null() {
-            
-                let curr_start_addr = (*curr_node).map.addr;
-                let curr_ended_addr = (*curr_node).map.addr + (*curr_node).map.size;
-
-                // Break when the memory is between the end of the current node 
-                // and the beginning of the next node, because it has been released
-                let next_node = (*curr_node).next.load(Ordering::Acquire);
-                if !next_node.is_null() {
-                    let next_start_addr = (*next_node).map.addr;
-                    if memory > curr_ended_addr && memory < next_start_addr {
-                        break;
-                    }
-                }
-
                 // Release memory node
-                if memory >= curr_start_addr && memory < curr_ended_addr {
-                    let curr_map_size = (*curr_node).map.size;
-
-                    if size == 0 || size_of_node == (curr_map_size - size) {
+                if memory >= (*curr_node).map.start && memory < (*curr_node).map.ended {
+                    // Remove node when dealloc size as 0 or size eq curr node map size
+                    if size == 0 || size == (*curr_node).map.size {
                         let prev_node = (*curr_node).prev.load(Ordering::Acquire);
                         let next_node = (*curr_node).next.load(Ordering::Acquire);
                         
@@ -362,9 +293,17 @@ impl MemoryAllocator {
                         if !next_node.is_null() {
                             (*next_node).prev = prev_node.into();
                         }
-                    } else {
-                        // Reduce space
-                        (*curr_node).map.size = curr_map_size - size;
+
+                        // Update the used size of sram
+                        let curr_map_size = (*curr_node).map.ended - (*curr_node).map.start;
+                        self.sram_used.fetch_sub(curr_map_size, Ordering::SeqCst);
+                    }
+                    // When the size to be released is smaller than the allocated size
+                    else if size < (*curr_node).map.size {
+                        // No deal
+                    }
+                    else {
+                        panic!("The size to be released is larger than the size of the current node.")
                     }
 
                     // Update current node
@@ -375,14 +314,14 @@ impl MemoryAllocator {
                         self.curr.store(self.head.load(Ordering::Relaxed), Ordering::Relaxed);
                     };
                     
-                    // Update the used size of sram
-                    self.sram_used.fetch_sub((*curr_node).map.size, Ordering::SeqCst);
                     break;
                 } else {
-                    if memory < (*curr_node).map.addr {
+                    if memory < (*curr_node).map.start {
                         curr_node = (*curr_node).prev.load(Ordering::Acquire);
-                    } else {
+                    } else if memory >= (*curr_node).map.ended {
                         curr_node = (*curr_node).next.load(Ordering::Acquire);
+                    } else {
+                        panic!("The memory is already been released.")
                     }
                 }
             }
@@ -405,7 +344,7 @@ impl MemoryAllocator {
     // Get curr addr
     fn get_curr_addr(&mut self) -> u32 {
         let curr_ptr = self.curr.load(Ordering::Relaxed);
-        unsafe { (*curr_ptr).map.addr }
+        unsafe { (*curr_ptr).map.start }
     }
 }
 
@@ -435,35 +374,14 @@ impl ConcreteMemory {
 
 // Impl Memory for ConcreteMemory
 impl Memory for ConcreteMemory {
-    // Heap alloc
-    fn heap_alloc(&mut self, size: u32) -> u32 {
-        let alloc_addr = ALLOCATOR.memory.lock().heap_alloc(size);
-
-        // Out of memory
-        if alloc_addr == 0 {
-            kernel().debug().error("out of memory.");
-            loop {}
-        }
-
-        alloc_addr
+    // Alloc
+    fn alloc(&mut self, size: u32) -> u32 {
+        ALLOCATOR.memory.lock().alloc(size)
     }
     
-    // Stack alloc
-    fn stack_alloc(&mut self, size: u32) -> u32 {
-        let alloc_addr = ALLOCATOR.memory.lock().stack_alloc(size);
-
-        // Out of memory
-        if alloc_addr == 0 {
-            kernel().debug().error("out of memory.");
-            loop {}
-        }
-
-        alloc_addr
-    }
-    
-    // Free
-    fn free(&mut self, address: u32, size: u32) {
-        ALLOCATOR.memory.lock().free(address, size);
+    // Dealloc
+    fn dealloc(&mut self, address: u32, size: u32) {
+        ALLOCATOR.memory.lock().dealloc(address, size);
     }
     
     // Get size
@@ -497,21 +415,11 @@ static ALLOCATOR: GlobalAllocator = GlobalAllocator {
 unsafe impl GlobalAlloc for GlobalAllocator {
     // Alloc
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        let alloc_addr = self.memory.lock().heap_alloc(layout.size() as u32);
-        
-        if alloc_addr == 0 {
-            panic!("out of memory.");
-        }
-
-        alloc_addr as *mut u8
+        self.memory.lock().alloc(layout.size() as u32) as *mut u8
     }
 
     // Dealloc
     unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
-        if ptr.is_null() {
-            panic!("invalid memory ptr.");
-        }
-
-        self.memory.lock().free(ptr as u32, layout.size() as u32);
+        self.memory.lock().dealloc(ptr as u32, layout.size() as u32);
     }
 }

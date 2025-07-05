@@ -33,9 +33,8 @@ pub trait System {
 // Memory
 pub trait Memory {
     // Alloc Methods
-    fn heap_alloc(&mut self, size: u32) -> u32;
-    fn stack_alloc(&mut self, size: u32) -> u32;
-    fn free(&mut self, address: u32, size: u32);
+    fn alloc(&mut self, size: u32) -> u32;
+    fn dealloc(&mut self, address: u32, size: u32);
 
     // Info Methods
     fn get_size(&mut self) -> u32;
