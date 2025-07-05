@@ -542,10 +542,6 @@ pub struct BuildInfo {
 
 // Kernel
 pub trait Kernel {
-    fn setup(&mut self);
-    fn start(&mut self);
-    fn exit(&mut self);
-
     fn system(&mut self) -> &mut dyn System;
     fn memory(&mut self) -> &mut dyn Memory;
     fn debug(&mut self) -> &mut dyn Debug;
@@ -565,4 +561,8 @@ pub trait Kernel {
     fn signal(&mut self) -> &mut dyn Signal;
     fn protocol(&mut self) -> &mut dyn Protocol;
     fn build_info(&self) -> &BuildInfo;
+    
+    fn setup(&mut self);
+    fn start(&mut self);
+    fn exit(&mut self);
 }
