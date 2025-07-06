@@ -4,17 +4,17 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::register_cmd;
+use crate::traits::vk_command::{Cmd, CmdBase};
+use crate::traits::vk_driver::DriverID;
+use crate::village::kernel;
 use alloc::boxed::Box;
 use alloc::format;
 use alloc::vec::Vec;
-use crate::register_cmd;
-use crate::traits::vk_driver::DriverID;
-use crate::village::kernel;
-use crate::traits::vk_command::{Cmd, CmdBase};
 
 // Struct cmd device
 struct CmdDevice {
-    base: CmdBase
+    base: CmdBase,
 }
 
 // Impl cmd device
@@ -41,13 +41,17 @@ impl Cmd for CmdDevice {
                 for device in kernel().device().get_drivers().iter_mut() {
                     let info = device.info();
                     if driver_id == info.get_id() {
-                        console.println(&format!("name: {}, type: {}", info.get_name(), info.get_id().as_str()));
+                        console.println(&format!(
+                            "name: {}, type: {}",
+                            info.get_name(),
+                            info.get_id().as_str()
+                        ));
                     }
                 }
             }
         }
     }
-    
+
     // Help
     fn help(&mut self) {
         if let Some(console) = self.base.get_console() {

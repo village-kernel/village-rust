@@ -4,10 +4,10 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::village::kernel;
-use crate::traits::vk_kernel::Scheduler;
 use crate::traits::vk_callback::Callback;
+use crate::traits::vk_kernel::Scheduler;
 use crate::vendor::ia32legacy::core::i686::{PENDSV_IRQN, SYSTICK_IRQN};
+use crate::village::kernel;
 use core::arch::{asm, naked_asm};
 
 // Struct concrete scheduler
@@ -19,9 +19,7 @@ pub struct ConcreteScheduler {
 impl ConcreteScheduler {
     // New
     pub const fn new() -> Self {
-        Self {
-            is_ready: false,
-        }
+        Self { is_ready: false }
     }
 }
 
@@ -75,10 +73,14 @@ impl Scheduler for ConcreteScheduler {
     // Rescheduler task
     fn sched(&mut self) {
         // Not ready to schedule
-        if !self.is_ready { return; }
+        if !self.is_ready {
+            return;
+        }
 
         // Trigger PendSV directly
-        unsafe { asm!("int $31", options(att_syntax)); }
+        unsafe {
+            asm!("int $31", options(att_syntax));
+        }
     }
 }
 

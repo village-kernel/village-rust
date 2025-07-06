@@ -4,9 +4,9 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::village::kernel;
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
-use crate::village::kernel;
 
 // Driver id
 #[derive(PartialEq, Clone)]
@@ -25,14 +25,28 @@ pub enum DriverID {
 impl DriverID {
     // Iterator
     pub fn iter() -> impl Iterator<Item = DriverID> {
-        [DriverID::Block, DriverID::Char, DriverID::Display, 
-         DriverID::Input, DriverID::Network, DriverID::Misc].into_iter()
+        [
+            DriverID::Block,
+            DriverID::Char,
+            DriverID::Display,
+            DriverID::Input,
+            DriverID::Network,
+            DriverID::Misc,
+        ]
+        .into_iter()
     }
 
     // Rev iterator
     pub fn rev_iter() -> impl Iterator<Item = DriverID> {
-        [DriverID::Misc, DriverID::Network, DriverID::Input,
-         DriverID::Display, DriverID::Char, DriverID::Block].into_iter()
+        [
+            DriverID::Misc,
+            DriverID::Network,
+            DriverID::Input,
+            DriverID::Display,
+            DriverID::Char,
+            DriverID::Block,
+        ]
+        .into_iter()
     }
 }
 
@@ -40,12 +54,12 @@ impl DriverID {
 impl DriverID {
     pub fn as_str(&self) -> &'static str {
         match self {
-            DriverID::Block   => "block driver",
-            DriverID::Char    => "char driver",
+            DriverID::Block => "block driver",
+            DriverID::Char => "char driver",
             DriverID::Display => "display driver",
-            DriverID::Input   => "input driver",
+            DriverID::Input => "input driver",
             DriverID::Network => "network driver",
-            DriverID::Misc    => "misc driver",
+            DriverID::Misc => "misc driver",
             _ => "",
         }
     }
@@ -55,7 +69,7 @@ impl DriverID {
 pub struct DrvInfo {
     id: DriverID,
     name: String,
-    data: *mut(),
+    data: *mut (),
 }
 
 // Impl driver data
@@ -90,7 +104,7 @@ impl DrvInfo {
     }
 
     // Set data
-    pub fn set_data(&mut self, data: *mut()) {
+    pub fn set_data(&mut self, data: *mut ()) {
         self.data = data;
     }
 
@@ -107,9 +121,15 @@ impl DrvInfo {
 pub trait Driver {
     fn info(&mut self) -> &mut DrvInfo;
     fn open(&mut self) -> bool;
-    fn write(&mut self, _data: &[u8], _size: usize, _offset: usize) -> usize { 0 }
-    fn read(&mut self, _data: &mut [u8], _size: usize, _offset: usize) -> usize { 0 }
-    fn ioctrl(&mut self, _cmd: u8, _data: &[u8]) -> usize { 0 }
+    fn write(&mut self, _data: &[u8], _size: usize, _offset: usize) -> usize {
+        0
+    }
+    fn read(&mut self, _data: &mut [u8], _size: usize, _offset: usize) -> usize {
+        0
+    }
+    fn ioctrl(&mut self, _cmd: u8, _data: &[u8]) -> usize {
+        0
+    }
     fn close(&mut self);
 }
 
@@ -117,7 +137,7 @@ pub trait Driver {
 pub struct PlatData {
     pub drvid: DriverID,
     pub drvname: String,
-    pub drvdata: *mut(),
+    pub drvdata: *mut (),
     is_attach: bool,
 }
 
@@ -170,7 +190,7 @@ impl PlatData {
 
 pub trait PlatDriver {
     fn info(&mut self) -> &mut DrvInfo;
-    
+
     fn probe(&mut self, device: &mut dyn PlatDevice) -> bool;
     fn remove(&mut self, device: &mut dyn PlatDevice) -> bool;
 }

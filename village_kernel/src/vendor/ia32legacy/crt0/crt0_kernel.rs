@@ -7,17 +7,16 @@
 use core::arch::naked_asm;
 
 // extern main
-unsafe extern "Rust" { unsafe fn main(); }
+unsafe extern "Rust" {
+    unsafe fn main();
+}
 
 // irq handler
 #[linkage = "weak"]
 #[unsafe(naked)]
 //#[unsafe(no_mangle)]
 pub unsafe extern "C" fn irq_handler() {
-    naked_asm!(
-        "jmp .",
-        options(att_syntax)
-    );
+    naked_asm!("jmp .", options(att_syntax));
 }
 
 // stub handler
@@ -31,26 +30,22 @@ pub unsafe extern "C" fn stub_handler() {
         "pushl %fs",
         "pushl %gs",
         "pushal",
-        
         // sets the segments
         "movw $0x10, %ax",
         "movw %ax, %ds",
         "movw %ax, %es",
         "movw %ax, %fs",
         "movw %ax, %gs",
-        
         // call irq_handler(%esp)
         "pushl %esp",
         "call irq_handler",
         "addl $4, %esp",
-        
         // pop all data back
         "popal",
         "popl %gs",
         "popl %fs",
         "popl %es",
         "popl %ds",
-        
         // skip irq and errcode
         "addl $8, %esp",
         "sti",
@@ -221,7 +216,8 @@ pub extern "C" fn __preinit_array() {
     unsafe {
         let start = &__preinit_array_start as *const _ as *const unsafe extern "C" fn();
         let end = &__preinit_array_end as *const _ as *const unsafe extern "C" fn();
-        let count = (end as usize - start as usize) / core::mem::size_of::<unsafe extern "C" fn()>();
+        let count =
+            (end as usize - start as usize) / core::mem::size_of::<unsafe extern "C" fn()>();
 
         for i in 0..count {
             let func = start.add(i);
@@ -241,7 +237,8 @@ pub extern "C" fn __init_array() {
     unsafe {
         let start = &__init_array_start as *const _ as *const unsafe extern "C" fn();
         let end = &__init_array_end as *const _ as *const unsafe extern "C" fn();
-        let count = (end as usize - start as usize) / core::mem::size_of::<unsafe extern "C" fn()>();
+        let count =
+            (end as usize - start as usize) / core::mem::size_of::<unsafe extern "C" fn()>();
 
         for i in 0..count {
             let func = start.add(i);
@@ -261,7 +258,8 @@ pub extern "C" fn __fini_array() {
     unsafe {
         let start = &__fini_array_start as *const _ as *const unsafe extern "C" fn();
         let end = &__fini_array_end as *const _ as *const unsafe extern "C" fn();
-        let count = (end as usize - start as usize) / core::mem::size_of::<unsafe extern "C" fn()>();
+        let count =
+            (end as usize - start as usize) / core::mem::size_of::<unsafe extern "C" fn()>();
 
         for i in 0..count {
             let func = start.add(i);

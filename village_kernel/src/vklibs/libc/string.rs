@@ -58,7 +58,9 @@ pub unsafe extern "C" fn strcpy(dst: *mut u8, src: *const u8) -> *mut u8 {
     loop {
         let c = unsafe { *src.add(i) };
         unsafe { *dst.add(i) = c };
-        if c == 0 { break; }
+        if c == 0 {
+            break;
+        }
         i += 1;
     }
     dst
@@ -70,11 +72,11 @@ pub unsafe extern "C" fn strncpy(dst: *mut u8, src: *const u8, len: usize) -> *m
     for i in 0..len {
         let c = unsafe { *src.add(i) };
         unsafe { *dst.add(i) = c };
-        if c == 0 { 
-            for j in (i+1)..len {
+        if c == 0 {
+            for j in (i + 1)..len {
                 unsafe { *dst.add(j) = 0 };
             }
-            break; 
+            break;
         }
     }
     dst
@@ -84,13 +86,17 @@ pub unsafe extern "C" fn strncpy(dst: *mut u8, src: *const u8, len: usize) -> *m
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn strcat(s1: *mut u8, s2: *const u8) -> *mut u8 {
     let mut i = 0;
-    while unsafe { *s1.add(i) } != 0 { i += 1; }
+    while unsafe { *s1.add(i) } != 0 {
+        i += 1;
+    }
 
     let mut j = 0;
     loop {
         let c = unsafe { *s2.add(j) };
         unsafe { *s1.add(i) = c };
-        if c == 0 { break; }
+        if c == 0 {
+            break;
+        }
         i += 1;
         j += 1;
     }
@@ -101,17 +107,21 @@ pub unsafe extern "C" fn strcat(s1: *mut u8, s2: *const u8) -> *mut u8 {
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn strncat(s1: *mut u8, s2: *const u8, n: usize) -> *mut u8 {
     let mut i = 0;
-    while unsafe { *s1.add(i) } != 0 { i += 1; }
-    
+    while unsafe { *s1.add(i) } != 0 {
+        i += 1;
+    }
+
     let mut j = 0;
     while j < n {
         let c = unsafe { *s2.add(j) };
         unsafe { *s1.add(i) = c };
-        if c == 0 { break; }
+        if c == 0 {
+            break;
+        }
         i += 1;
         j += 1;
     }
-    
+
     unsafe { *s1.add(i) = 0 };
     s1
 }
@@ -126,7 +136,9 @@ pub unsafe extern "C" fn strcmp(s1: *const u8, s2: *const u8) -> i32 {
         if a != b {
             return a as i32 - b as i32;
         }
-        if a == 0 { break; }
+        if a == 0 {
+            break;
+        }
         i += 1;
     }
     0
@@ -141,7 +153,9 @@ pub unsafe extern "C" fn strncmp(s1: *const u8, s2: *const u8, n: usize) -> i32 
         if a != b {
             return a as i32 - b as i32;
         }
-        if a == 0 { break; }
+        if a == 0 {
+            break;
+        }
     }
     0
 }
@@ -150,7 +164,9 @@ pub unsafe extern "C" fn strncmp(s1: *const u8, s2: *const u8, n: usize) -> i32 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn strlen(s: *const u8) -> usize {
     let mut len = 0;
-    while unsafe { *s.add(len) } != 0 { len += 1; }
+    while unsafe { *s.add(len) } != 0 {
+        len += 1;
+    }
     len
 }
 
@@ -158,7 +174,9 @@ pub unsafe extern "C" fn strlen(s: *const u8) -> usize {
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn strnlen(s: *const u8, maxlen: usize) -> usize {
     let mut len = 0;
-    while len < maxlen && unsafe { *s.add(len) } != 0 { len += 1; }
+    while len < maxlen && unsafe { *s.add(len) } != 0 {
+        len += 1;
+    }
     len
 }
 
@@ -169,8 +187,12 @@ pub unsafe extern "C" fn strchr(s: *const u8, c: i32) -> *mut u8 {
     let mut i = 0;
     loop {
         let current = unsafe { *s.add(i) };
-        if current == c { return unsafe { s.add(i) } as *mut u8; }
-        if current == 0 { return core::ptr::null_mut(); }
+        if current == c {
+            return unsafe { s.add(i) } as *mut u8;
+        }
+        if current == 0 {
+            return core::ptr::null_mut();
+        }
         i += 1;
     }
 }
@@ -183,9 +205,13 @@ pub unsafe extern "C" fn strrchr(s: *const u8, c: i32) -> *mut u8 {
     let mut i = 0;
     loop {
         let current = unsafe { *s.add(i) };
-        if current == c { last = unsafe { s.add(i) } as *mut u8; }
-        if current == 0 { break; }
+        if current == c {
+            last = unsafe { s.add(i) } as *mut u8;
+        }
+        if current == 0 {
+            break;
+        }
         i += 1;
     }
     last
-}    
+}

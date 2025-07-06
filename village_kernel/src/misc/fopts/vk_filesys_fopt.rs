@@ -4,8 +4,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::string::String;
 use crate::village::kernel;
+use alloc::string::String;
 
 // Struct FilesysFopt
 pub struct FilesysFopt {
@@ -13,7 +13,7 @@ pub struct FilesysFopt {
 }
 
 // Imp FilesysFopt
-impl FilesysFopt  {
+impl FilesysFopt {
     // New
     pub const fn new() -> Self {
         Self {
@@ -23,7 +23,7 @@ impl FilesysFopt  {
 }
 
 // Impl FilesysFopt
-impl FilesysFopt  {
+impl FilesysFopt {
     // Moving
     pub fn moving(&mut self, source: &str, target: &str) -> bool {
         let _ = source;

@@ -4,14 +4,14 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::village::kernel;
-use crate::traits::vk_kernel::{Event, EventType, EventOutFormat};
-use crate::traits::vk_kernel::{EventInputKey, EventInputAxis, EventOutputText, EventOutputAxis};
-use crate::traits::vk_driver::DriverID;
-use crate::traits::vk_callback::Callback;
-use crate::traits::vk_linkedlist::LinkedList;
 use crate::misc::fopts::vk_dev_fopt::DevFopt;
 use crate::misc::model::vk_observer::ObserverModel;
+use crate::traits::vk_callback::Callback;
+use crate::traits::vk_driver::DriverID;
+use crate::traits::vk_kernel::{Event, EventOutFormat, EventType};
+use crate::traits::vk_kernel::{EventInputAxis, EventInputKey, EventOutputAxis, EventOutputText};
+use crate::traits::vk_linkedlist::LinkedList;
+use crate::village::kernel;
 
 // Struct concrete event
 pub struct ConcreteEvent {
@@ -95,9 +95,8 @@ impl Event for ConcreteEvent {
 
     // Exit input device
     fn exit_input_device(&mut self, input: &str) {
-        self.in_devs.retain_mut(|device| {
-            !(device.get_name() == input)
-        });
+        self.in_devs
+            .retain_mut(|device| !(device.get_name() == input));
     }
 
     // Attach

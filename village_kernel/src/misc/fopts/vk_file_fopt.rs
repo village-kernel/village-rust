@@ -4,9 +4,9 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::string::{String, ToString};
-use crate::village::kernel;
 use crate::traits::vk_filesys::{FileMode, FileType};
+use crate::village::kernel;
+use alloc::string::{String, ToString};
 
 // Struct FileFopt
 pub struct FileFopt {
@@ -15,7 +15,7 @@ pub struct FileFopt {
 }
 
 // Imp FileFopt
-impl FileFopt  {
+impl FileFopt {
     // New
     pub const fn new() -> Self {
         Self {
@@ -26,7 +26,7 @@ impl FileFopt  {
 }
 
 // Impl FileFopt
-impl FileFopt  {
+impl FileFopt {
     // Is exist
     pub fn is_exist(&mut self, path: &str) -> bool {
         if let Some(volume) = kernel().filesys().get_volume(path) {
@@ -52,7 +52,7 @@ impl FileFopt  {
         }
         0
     }
-    
+
     // Read
     pub fn read(&mut self, data: &mut [u8], size: usize, offset: usize) -> usize {
         if let Some(volume) = kernel().filesys().get_volume(&self.path) {

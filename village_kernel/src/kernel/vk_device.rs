@@ -4,14 +4,14 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::boxed::Box;
-use crate::village::kernel;
-use crate::traits::vk_kernel::Device;
 use crate::traits::vk_driver::Driver;
 use crate::traits::vk_driver::DriverID;
-use crate::traits::vk_driver::PlatDriver;
 use crate::traits::vk_driver::PlatDevice;
+use crate::traits::vk_driver::PlatDriver;
+use crate::traits::vk_kernel::Device;
 use crate::traits::vk_linkedlist::LinkedList;
+use crate::village::kernel;
+use alloc::boxed::Box;
 
 // Struct concrete device
 pub struct ConcreteDevice {
@@ -93,28 +93,40 @@ impl ConcreteDevice {
     }
 
     // Platform device probe
-    fn platform_device_probe(plat_devs: &mut LinkedList<Box<dyn PlatDevice>>, driver: &mut dyn PlatDriver) {
+    fn platform_device_probe(
+        plat_devs: &mut LinkedList<Box<dyn PlatDevice>>,
+        driver: &mut dyn PlatDriver,
+    ) {
         for device in plat_devs.iter_mut() {
             Self::platform_probe(&mut **device, driver);
         }
     }
 
     // Platform device remove
-    fn platform_device_remove(plat_devs: &mut LinkedList<Box<dyn PlatDevice>>, driver: &mut dyn PlatDriver) {
+    fn platform_device_remove(
+        plat_devs: &mut LinkedList<Box<dyn PlatDevice>>,
+        driver: &mut dyn PlatDriver,
+    ) {
         for device in plat_devs.iter_mut() {
             Self::platform_remove(&mut **device, driver);
         }
     }
 
     // Platform driver probe
-    fn platform_driver_probe(plat_drvs: &mut LinkedList<Box<dyn PlatDriver>>, device: &mut dyn PlatDevice) {
+    fn platform_driver_probe(
+        plat_drvs: &mut LinkedList<Box<dyn PlatDriver>>,
+        device: &mut dyn PlatDevice,
+    ) {
         for driver in plat_drvs.iter_mut() {
             Self::platform_probe(device, &mut **driver);
         }
     }
 
     // Platform driver remove
-    fn platform_driver_remove(plat_drvs: &mut LinkedList<Box<dyn PlatDriver>>, device: &mut dyn PlatDevice) {
+    fn platform_driver_remove(
+        plat_drvs: &mut LinkedList<Box<dyn PlatDriver>>,
+        device: &mut dyn PlatDevice,
+    ) {
         for driver in plat_drvs.iter_mut() {
             Self::platform_remove(device, &mut **driver);
         }
@@ -148,7 +160,9 @@ impl Device for ConcreteDevice {
     fn register_driver(&mut self, mut driver: Box<dyn Driver>) {
         if self.is_runtime {
             if driver.info().get_id() == DriverID::Block {
-                kernel().filesys().mount_hard_drive(driver.info().get_name());
+                kernel()
+                    .filesys()
+                    .mount_hard_drive(driver.info().get_name());
             } else if driver.info().get_id() == DriverID::Input {
                 kernel().event().init_input_device(driver.info().get_name());
             }
@@ -162,7 +176,9 @@ impl Device for ConcreteDevice {
             if driver.info().get_name() == name {
                 if self.is_runtime {
                     if driver.info().get_id() == DriverID::Block {
-                        kernel().filesys().unmount_hard_drive(driver.info().get_name());
+                        kernel()
+                            .filesys()
+                            .unmount_hard_drive(driver.info().get_name());
                     } else if driver.info().get_id() == DriverID::Input {
                         kernel().event().exit_input_device(driver.info().get_name());
                     }
@@ -227,7 +243,7 @@ impl Device for ConcreteDevice {
         }
         None
     }
-    
+
     // Get drivers
     fn get_drivers(&mut self) -> &mut LinkedList<Box<dyn Driver>> {
         &mut self.base_devs

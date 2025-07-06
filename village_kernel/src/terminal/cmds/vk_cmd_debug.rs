@@ -4,16 +4,16 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::boxed::Box;
-use alloc::vec::Vec;
 use crate::register_cmd;
+use crate::traits::vk_command::{Cmd, CmdBase};
 use crate::traits::vk_kernel::DebugLevel;
 use crate::village::kernel;
-use crate::traits::vk_command::{Cmd, CmdBase};
+use alloc::boxed::Box;
+use alloc::vec::Vec;
 
 // Struct cmd debug
 struct CmdDebug {
-    base: CmdBase
+    base: CmdBase,
 }
 
 // Impl cmd debug
@@ -48,7 +48,7 @@ impl Cmd for CmdDebug {
             }
         }
     }
-    
+
     // Help
     fn help(&mut self) {
         if let Some(console) = self.base.get_console() {

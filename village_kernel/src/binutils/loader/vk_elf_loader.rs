@@ -4,16 +4,16 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use super::vk_elf_defines::*;
+use super::vk_prog_decode::Program;
+use crate::misc::fopts::vk_file_fopt::FileFopt;
+use crate::traits::vk_filesys::FileMode;
+use crate::traits::vk_kernel::DebugLevel;
+use crate::village::kernel;
 use alloc::format;
+use alloc::string::{String, ToString};
 use alloc::vec;
 use alloc::vec::Vec;
-use alloc::string::{String, ToString};
-use crate::village::kernel;
-use crate::traits::vk_kernel::DebugLevel;
-use crate::traits::vk_filesys::FileMode;
-use crate::misc::fopts::vk_file_fopt::FileFopt;
-use super::vk_prog_decode::Program;
-use super::vk_elf_defines::*;
 
 // Struct ElfLoader
 pub struct ElfLoader {
@@ -41,12 +41,21 @@ impl ElfLoader {
         self.filename = filename.to_string();
 
         // Load and mapping
-        if !self.load_elf()      { return false; }
-        if !self.check_elf()     { return false; }
-        if !self.load_program()  { return false; }
+        if !self.load_elf() {
+            return false;
+        }
+        if !self.check_elf() {
+            return false;
+        }
+        if !self.load_program() {
+            return false;
+        }
 
         // Output debug info
-        kernel().debug().output(DebugLevel::Lv2, &format!("{} load at 0x{:08x}", self.filename, self.program.base()));
+        kernel().debug().output(
+            DebugLevel::Lv2,
+            &format!("{} load at 0x{:08x}", self.filename, self.program.base()),
+        );
         true
     }
 
@@ -54,7 +63,7 @@ impl ElfLoader {
     fn load_elf(&mut self) -> bool {
         let mut file = FileFopt::new();
         let mut result = false;
-        
+
         if file.open(&self.filename, FileMode::READ) {
             let size = file.size();
             self.elf = vec![0u8; size];
@@ -63,7 +72,9 @@ impl ElfLoader {
         }
 
         if !result {
-            kernel().debug().error(&format!("{} no such file!", self.filename));
+            kernel()
+                .debug()
+                .error(&format!("{} no such file!", self.filename));
         }
 
         result
@@ -76,27 +87,49 @@ impl ElfLoader {
 
         // Check if it is a valid elf file
         let elf_magic: [u8; 4] = [0x7f, b'E', b'L', b'F'];
-        if self.hdr.ident[0] != elf_magic[0]        { return false; }
-        if self.hdr.ident[1] != elf_magic[1]        { return false; }
-        if self.hdr.ident[2] != elf_magic[2]        { return false; }
-        if self.hdr.ident[3] != elf_magic[3]        { return false; }
-        if self.hdr.ident[4] != ELFClass::X32       { return false; }
-        if self.hdr.version  != ELFVersion::CURRENT { return false; }
+        if self.hdr.ident[0] != elf_magic[0] {
+            return false;
+        }
+        if self.hdr.ident[1] != elf_magic[1] {
+            return false;
+        }
+        if self.hdr.ident[2] != elf_magic[2] {
+            return false;
+        }
+        if self.hdr.ident[3] != elf_magic[3] {
+            return false;
+        }
+        if self.hdr.ident[4] != ELFClass::X32 {
+            return false;
+        }
+        if self.hdr.version != ELFVersion::CURRENT {
+            return false;
+        }
 
         // Check machine type
         #[cfg(feature = "arch_i386")]
-        if self.hdr.machine  != ELFMachine::X86     { return false; }
+        if self.hdr.machine != ELFMachine::X86 {
+            return false;
+        }
         #[cfg(feature = "arch_arm")]
-        if self.elf.hdr.machine  != ELFMachine::ARM     { return false; }
+        if self.elf.hdr.machine != ELFMachine::ARM {
+            return false;
+        }
 
         // Check elf type
         if self.hdr.typ != ELFType::DYN {
-            kernel().debug().error(&format!("{} is not Position-Independent Executable file", self.filename));
+            kernel().debug().error(&format!(
+                "{} is not Position-Independent Executable file",
+                self.filename
+            ));
             return false;
         }
 
         // Output debug info
-        kernel().debug().output(DebugLevel::Lv1, &format!("{} pre parser successful", self.filename));
+        kernel().debug().output(
+            DebugLevel::Lv1,
+            &format!("{} pre parser successful", self.filename),
+        );
         true
     }
 
@@ -107,7 +140,7 @@ impl ElfLoader {
 
         // Prog size
         let mut prog_size = 0;
-        
+
         // To estimate how much memory space this program needs.
         for i in 0..self.hdr.prog_hdr_num as usize {
             let prog_start = self.hdr.prog_hdr_off as usize + i * ProgramHeader::SIZE;
@@ -118,7 +151,9 @@ impl ElfLoader {
             if phdr.typ == ProgHdrType::PT_LOAD {
                 let need_size = (phdr.vaddr + phdr.mem_size) + (phdr.align - 1);
                 let align_size = need_size / phdr.align * phdr.align;
-                if prog_size < align_size { prog_size = align_size; };
+                if prog_size < align_size {
+                    prog_size = align_size;
+                };
             }
 
             // Add phdr into list
@@ -127,13 +162,16 @@ impl ElfLoader {
 
         // Return false when phdrs is empty
         if phdrs.len() == 0 {
-            kernel().debug().error(&format!("{} elf file no valid program section", self.filename));
+            kernel().debug().error(&format!(
+                "{} elf file no valid program section",
+                self.filename
+            ));
             return false;
         }
 
         // Allocate the memory space required by the program
         let mut data = vec![0u8; prog_size as usize];
-   
+
         // Load the program from the ELF file
         for phdr in phdrs.iter_mut() {
             for i in 0..phdr.mem_size {
@@ -145,7 +183,9 @@ impl ElfLoader {
 
         // Init program
         if !self.program.init(data) {
-            kernel().debug().error(&format!("{} program load failed", self.filename));
+            kernel()
+                .debug()
+                .error(&format!("{} program load failed", self.filename));
             return false;
         }
 
@@ -157,11 +197,15 @@ impl ElfLoader {
         let result = self.program.execute(argv);
 
         if result {
-            kernel().debug().output(DebugLevel::Lv2, &format!("{} exit", self.filename));
+            kernel()
+                .debug()
+                .output(DebugLevel::Lv2, &format!("{} exit", self.filename));
         } else {
-            kernel().debug().error(&format!("{} execute failed!", self.filename));
+            kernel()
+                .debug()
+                .error(&format!("{} execute failed!", self.filename));
         }
-        
+
         result
     }
 

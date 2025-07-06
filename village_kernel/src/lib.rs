@@ -18,10 +18,10 @@ pub mod village;
 pub mod arch {
     pub mod ia32 {
         pub mod legacy {
-            pub mod vk_system;
-            pub mod vk_registers;
             pub mod vk_exception;
+            pub mod vk_registers;
             pub mod vk_scheduler;
+            pub mod vk_system;
         }
     }
 }
@@ -175,7 +175,7 @@ pub mod vendor {
 
 // import vklibs modules
 pub mod vklibs {
-    pub mod libc{
+    pub mod libc {
         pub mod stdlib;
         pub mod string;
     }

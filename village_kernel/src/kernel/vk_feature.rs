@@ -4,11 +4,11 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::boxed::Box;
-use crate::village::kernel;
 use crate::traits::vk_kernel::Feature;
-use crate::traits::vk_module::{Module, ModuleID};
 use crate::traits::vk_linkedlist::LinkedList;
+use crate::traits::vk_module::{Module, ModuleID};
+use crate::village::kernel;
+use alloc::boxed::Box;
 
 // Struct concrete feature
 pub struct ConcreteFeature {
@@ -22,7 +22,7 @@ impl ConcreteFeature {
     pub const fn new() -> Self {
         Self {
             modules: LinkedList::new(),
-            is_runtime: false
+            is_runtime: false,
         }
     }
 }

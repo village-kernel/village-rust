@@ -4,12 +4,12 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use spin::Mutex;
-use core::ptr;
-use core::alloc::{GlobalAlloc, Layout};
-use core::sync::atomic::{AtomicBool, AtomicPtr, AtomicU32, Ordering};
-use crate::village::kernel;
 use crate::traits::vk_kernel::Memory;
+use crate::village::kernel;
+use core::alloc::{GlobalAlloc, Layout};
+use core::ptr;
+use core::sync::atomic::{AtomicBool, AtomicPtr, AtomicU32, Ordering};
+use spin::Mutex;
 
 // Constant Members
 const ALIGN: u32 = 4;
@@ -124,49 +124,48 @@ impl MemoryAllocator {
             // Aligning sram_start and sram_ended by align byte
             let sram_start = Self::align_up(sram_start, ALIGN);
             let sram_ended = Self::align_down(sram_ended, ALIGN);
-            
+
             // Store value
             self.sram_start.store(sram_start, Ordering::Relaxed);
             self.sram_ended.store(sram_ended, Ordering::Relaxed);
         }
 
         // Initialize list, align 4 bytes
-        if self.head.load(Ordering::Relaxed).is_null() ||
-           self.head.load(Ordering::Relaxed).is_null()
+        if self.head.load(Ordering::Relaxed).is_null()
+            || self.head.load(Ordering::Relaxed).is_null()
         {
             let size_of_node = core::mem::size_of::<MapNode>() as u32;
             let sram_start = self.sram_start.load(Ordering::Relaxed);
             let sram_ended = self.sram_ended.load(Ordering::Relaxed);
 
             // Create head and tail
-            let head =  sram_start as *mut MapNode;
+            let head = sram_start as *mut MapNode;
             let tail = (sram_start + size_of_node) as *mut MapNode;
-            
+
             // Initialize head and tail node
             unsafe {
-                // The space of the head node in the linked list contains 
+                // The space of the head node in the linked list contains
                 // the data of both the head node and the tail node.
-                let head_map_start =  sram_start;
+                let head_map_start = sram_start;
                 let head_map_ended = sram_start + size_of_node * 2;
                 let head_map_size = size_of_node * 2;
-                ptr::write(head, MapNode::new(
-                    Map::new(head_map_start, head_map_ended, head_map_size))
+                ptr::write(
+                    head,
+                    MapNode::new(Map::new(head_map_start, head_map_ended, head_map_size)),
                 );
 
-                ptr::write(tail, MapNode::new(
-                    Map::new(sram_ended, sram_ended, 0))
-                );
+                ptr::write(tail, MapNode::new(Map::new(sram_ended, sram_ended, 0)));
 
                 (*head).next.store(tail, Ordering::Relaxed);
                 (*tail).prev.store(head, Ordering::Relaxed);
             }
-            
+
             // Store value
             self.head.store(head, Ordering::Relaxed);
             self.tail.store(tail, Ordering::Relaxed);
             self.curr.store(head, Ordering::Relaxed);
         }
-        
+
         // Set initialized flag
         self.initialized.store(true, Ordering::Release);
     }
@@ -204,7 +203,7 @@ impl MemoryAllocator {
                 let next_node = (*curr_node).next.load(Ordering::Relaxed);
 
                 // Retry or break when next node is null
-                if next_node.is_null() { 
+                if next_node.is_null() {
                     if ena_retry {
                         curr_node = self.head.load(Ordering::Acquire);
                         ena_retry = false;
@@ -232,11 +231,14 @@ impl MemoryAllocator {
 
                     // Create an new node
                     let new_node = new_map_start as *mut MapNode;
-                    ptr::write(new_node, MapNode{
-                        map: Map::new(new_map_start, new_map_ended, size),
-                        prev: curr_node.into(),
-                        next: next_node.into(),
-                    });
+                    ptr::write(
+                        new_node,
+                        MapNode {
+                            map: Map::new(new_map_start, new_map_ended, size),
+                            prev: curr_node.into(),
+                            next: next_node.into(),
+                        },
+                    );
 
                     // Memory barrier: Ensure that the pointer update of the new node is visible to other threads.
                     core::sync::atomic::fence(Ordering::Release);
@@ -244,7 +246,7 @@ impl MemoryAllocator {
                     // Update list
                     (*curr_node).next.store(new_node, Ordering::Release);
                     (*next_node).prev.store(new_node, Ordering::Release);
-                    
+
                     // Update curr node
                     self.curr.store(new_node, Ordering::Relaxed);
 
@@ -264,12 +266,12 @@ impl MemoryAllocator {
 
         alloc_addr
     }
-    
+
     // Dealloc
     fn dealloc(&mut self, memory: u32, size: u32) {
         // Invalid memory
-        if memory < self.sram_start.load(Ordering::Acquire) || 
-           memory > self.sram_ended.load(Ordering::Acquire)
+        if memory < self.sram_start.load(Ordering::Acquire)
+            || memory > self.sram_ended.load(Ordering::Acquire)
         {
             panic!("invalid memory.");
         }
@@ -285,7 +287,7 @@ impl MemoryAllocator {
                     if size == 0 || size == (*curr_node).map.size {
                         let prev_node = (*curr_node).prev.load(Ordering::Acquire);
                         let next_node = (*curr_node).next.load(Ordering::Acquire);
-                        
+
                         // Remove map node from list
                         if !prev_node.is_null() {
                             (*prev_node).next = next_node.into();
@@ -301,9 +303,10 @@ impl MemoryAllocator {
                     // When the size to be released is smaller than the allocated size
                     else if size < (*curr_node).map.size {
                         // No deal
-                    }
-                    else {
-                        panic!("The size to be released is larger than the size of the current node.")
+                    } else {
+                        panic!(
+                            "The size to be released is larger than the size of the current node."
+                        )
                     }
 
                     // Update current node
@@ -311,9 +314,10 @@ impl MemoryAllocator {
                     if !new_curr.is_null() {
                         self.curr.store(new_curr, Ordering::Relaxed);
                     } else {
-                        self.curr.store(self.head.load(Ordering::Relaxed), Ordering::Relaxed);
+                        self.curr
+                            .store(self.head.load(Ordering::Relaxed), Ordering::Relaxed);
                     };
-                    
+
                     break;
                 } else {
                     if memory < (*curr_node).map.start {
@@ -327,20 +331,20 @@ impl MemoryAllocator {
             }
         }
     }
-    
+
     // Get size
     fn get_size(&mut self) -> u32 {
         let sram_start = self.sram_start.load(Ordering::Relaxed);
         let sram_ended = self.sram_ended.load(Ordering::Relaxed);
         sram_ended - sram_start
     }
-    
+
     // Get used
     fn get_used(&mut self) -> u32 {
         let sram_used = self.sram_used.load(Ordering::Relaxed);
         sram_used
     }
-    
+
     // Get curr addr
     fn get_curr_addr(&mut self) -> u32 {
         let curr_ptr = self.curr.load(Ordering::Relaxed);
@@ -378,22 +382,22 @@ impl Memory for ConcreteMemory {
     fn alloc(&mut self, size: u32) -> u32 {
         ALLOCATOR.memory.lock().alloc(size)
     }
-    
+
     // Dealloc
     fn dealloc(&mut self, address: u32, size: u32) {
         ALLOCATOR.memory.lock().dealloc(address, size);
     }
-    
+
     // Get size
     fn get_size(&mut self) -> u32 {
         ALLOCATOR.memory.lock().get_size()
     }
-    
+
     // Get used
     fn get_used(&mut self) -> u32 {
         ALLOCATOR.memory.lock().get_used()
     }
-    
+
     // Get curr addr
     fn get_curr_addr(&mut self) -> u32 {
         ALLOCATOR.memory.lock().get_curr_addr()
@@ -408,7 +412,7 @@ struct GlobalAllocator {
 // Set global allocator
 #[global_allocator]
 static ALLOCATOR: GlobalAllocator = GlobalAllocator {
-    memory: Mutex::new(MemoryAllocator::new())
+    memory: Mutex::new(MemoryAllocator::new()),
 };
 
 // Impl global alloc for global allocator

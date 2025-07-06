@@ -6,9 +6,16 @@ build-std = ["core", "alloc", "compiler_builtins"]
 
 [target.ia32legacy]
 rustflags = [
-    "-C", "opt-level=0",
-    "-C", "debuginfo=2",
     "-C", "linker=rust-lld",
-    "-C", "panic=abort",
     "-C", "link-arg=-T./triples/ia32legacy.lds",
 ]
+
+[profile.dev]
+opt-level = 0
+debug = true
+panic = "abort"
+
+[profile.release]
+opt-level = 3
+debug = false
+panic = "abort"

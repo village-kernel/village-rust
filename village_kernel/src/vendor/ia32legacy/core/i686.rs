@@ -7,30 +7,30 @@
 use core::arch::asm;
 
 // PIC defines
-pub const PIC1: u16 = 0x20;           // IO base address for master PIC
-pub const PIC2: u16 = 0xA0;           // IO base address for slave PIC
+pub const PIC1: u16 = 0x20; // IO base address for master PIC
+pub const PIC2: u16 = 0xA0; // IO base address for slave PIC
 pub const PIC1_CMD: u16 = PIC1;
 pub const PIC1_DATA: u16 = PIC1 + 1;
 pub const PIC2_CMD: u16 = PIC2;
 pub const PIC2_DATA: u16 = PIC2 + 1;
 pub const PIC_EOI: u8 = 0x20;
 
-pub const PIC_READ_IRR: u8 = 0x0a;     // OCW3 irq ready next CMD read
-pub const PIC_READ_ISR: u8 = 0x0b;     // OCW3 irq service next CMD read
+pub const PIC_READ_IRR: u8 = 0x0a; // OCW3 irq ready next CMD read
+pub const PIC_READ_ISR: u8 = 0x0b; // OCW3 irq service next CMD read
 
 // ICW1 defines
-pub const ICW1_ICW4: u8 = 0x01;       // Indicates that ICW4 will be present
-pub const ICW1_SINGLE: u8 = 0x02;      // Single (cascade) mode
-pub const ICW1_INTERVAL4: u8 = 0x04;   // Call address interval 4 (8)
-pub const ICW1_LEVEL: u8 = 0x08;       // Level triggered (edge) mode
-pub const ICW1_INIT: u8 = 0x10;        // Initialization - required!
+pub const ICW1_ICW4: u8 = 0x01; // Indicates that ICW4 will be present
+pub const ICW1_SINGLE: u8 = 0x02; // Single (cascade) mode
+pub const ICW1_INTERVAL4: u8 = 0x04; // Call address interval 4 (8)
+pub const ICW1_LEVEL: u8 = 0x08; // Level triggered (edge) mode
+pub const ICW1_INIT: u8 = 0x10; // Initialization - required!
 
 // ICW4 defines
-pub const ICW4_8086: u8 = 0x01;       // 8086/88 (MCS-80/85) mode
-pub const ICW4_AUTO: u8 = 0x02;        // Auto (normal) EOI
-pub const ICW4_BUF_SLAVE: u8 = 0x08;   // Buffered mode/slave
-pub const ICW4_BUF_MASTER: u8 = 0x0C;  // Buffered mode/master
-pub const ICW4_SFNM: u8 = 0x10;        // Special fully nested (not)
+pub const ICW4_8086: u8 = 0x01; // 8086/88 (MCS-80/85) mode
+pub const ICW4_AUTO: u8 = 0x02; // Auto (normal) EOI
+pub const ICW4_BUF_SLAVE: u8 = 0x08; // Buffered mode/slave
+pub const ICW4_BUF_MASTER: u8 = 0x0C; // Buffered mode/master
+pub const ICW4_SFNM: u8 = 0x10; // Special fully nested (not)
 
 // Timer defines
 pub const TIMER: u16 = 0x40;
@@ -357,40 +357,52 @@ pub const ATA_CHANNEL2_IRQN: isize = 47;
 #[inline(always)]
 pub fn port_byte_in(port: u16) -> u8 {
     let mut val: u8;
-    unsafe { asm!("inb %dx, %al", in("dx") port, out("al") val, options(att_syntax)); }
+    unsafe {
+        asm!("inb %dx, %al", in("dx") port, out("al") val, options(att_syntax));
+    }
     val
 }
 
 // Write a byte to the specified port
 #[inline(always)]
 pub fn port_byte_out(port: u16, val: u8) {
-    unsafe { asm!("outb %al, %dx", in("al") val, in("dx") port, options(att_syntax)); }
+    unsafe {
+        asm!("outb %al, %dx", in("al") val, in("dx") port, options(att_syntax));
+    }
 }
 
 // Read a word from the specified port
 #[inline(always)]
 pub fn port_word_in(port: u16) -> u16 {
     let mut val: u16;
-    unsafe { asm!("inw %dx, %ax", in("dx") port, out("ax") val, options(att_syntax)); }
+    unsafe {
+        asm!("inw %dx, %ax", in("dx") port, out("ax") val, options(att_syntax));
+    }
     val
 }
 
 // Write a word to the specified port
 #[inline(always)]
 pub fn port_word_out(port: u16, val: u16) {
-    unsafe { asm!("outw %ax, %dx", in("ax") val, in("dx") port, options(att_syntax)); }
+    unsafe {
+        asm!("outw %ax, %dx", in("ax") val, in("dx") port, options(att_syntax));
+    }
 }
 
 // Read a long word from the specified port
 #[inline(always)]
 pub fn port_long_in(port: u16) -> u32 {
     let mut val: u32;
-    unsafe { asm!("inl %dx, %eax", in("dx") port, out("eax") val, options(att_syntax)); }
+    unsafe {
+        asm!("inl %dx, %eax", in("dx") port, out("eax") val, options(att_syntax));
+    }
     val
 }
 
 // Write a long word to the specified port
 #[inline(always)]
 pub fn port_long_out(port: u16, val: u32) {
-    unsafe { asm!("outl %eax, %dx", in("eax") val, in("dx") port, options(att_syntax)); }
+    unsafe {
+        asm!("outl %eax, %dx", in("eax") val, in("dx") port, options(att_syntax));
+    }
 }

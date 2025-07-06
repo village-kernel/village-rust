@@ -5,9 +5,9 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use alloc::boxed::Box;
-use core::ptr;
 use core::iter::Iterator;
 use core::marker::PhantomData;
+use core::ptr;
 use core::sync::atomic::{AtomicPtr, Ordering};
 
 // List node struct with atomic pointers
@@ -51,9 +51,9 @@ impl<T> LinkedList<T> {
             prev: AtomicPtr::new(ptr::null_mut()),
             next: AtomicPtr::new(ptr::null_mut()),
         };
-        
+
         let node_ptr = Box::into_raw(Box::new(node));
-        
+
         if self.head.load(Ordering::Relaxed).is_null() {
             self.head.store(node_ptr, Ordering::Release);
             self.tail.store(node_ptr, Ordering::Release);
@@ -65,7 +65,7 @@ impl<T> LinkedList<T> {
                 self.tail.store(node_ptr, Ordering::Release);
             }
         }
-        
+
         self.len += 1;
     }
 
@@ -75,7 +75,7 @@ impl<T> LinkedList<T> {
         T: PartialEq,
     {
         let mut current = self.head.load(Ordering::Acquire);
-        
+
         while !current.is_null() {
             unsafe {
                 let node = &*current;
@@ -84,22 +84,22 @@ impl<T> LinkedList<T> {
                 if obj_eq {
                     let prev = node.prev.load(Ordering::Acquire);
                     let next = node.next.load(Ordering::Acquire);
-                    
+
                     if !prev.is_null() {
                         (*prev).next.store(next, Ordering::Release);
                     } else {
                         self.head.store(next, Ordering::Release);
                     }
-                    
+
                     if !next.is_null() {
                         (*next).prev.store(prev, Ordering::Release);
                     } else {
                         self.tail.store(prev, Ordering::Release);
                     }
-                    
+
                     self.len -= 1;
                 }
-                
+
                 current = node.next.load(Ordering::Acquire);
             }
         }
@@ -108,7 +108,7 @@ impl<T> LinkedList<T> {
     // Clear List with atomic operations
     pub fn clear(&mut self) {
         let mut current = self.head.load(Ordering::Acquire);
-        
+
         while !current.is_null() {
             unsafe {
                 let next = (*current).next.load(Ordering::Acquire);
@@ -116,7 +116,7 @@ impl<T> LinkedList<T> {
                 current = next;
             }
         }
-        
+
         self.head.store(ptr::null_mut(), Ordering::Release);
         self.tail.store(ptr::null_mut(), Ordering::Release);
         self.len = 0;
@@ -127,7 +127,8 @@ impl<T> LinkedList<T> {
 impl<T> LinkedList<T> {
     // List begin node
     pub fn begin(&mut self) {
-        self.iter.store(self.head.load(Ordering::Acquire), Ordering::Release);
+        self.iter
+            .store(self.head.load(Ordering::Acquire), Ordering::Release);
     }
 
     // List next node
@@ -135,8 +136,10 @@ impl<T> LinkedList<T> {
         if !self.iter.load(Ordering::Acquire).is_null() {
             unsafe {
                 self.iter.store(
-                    (*self.iter.load(Ordering::Acquire)).next.load(Ordering::Acquire), 
-                    Ordering::Release
+                    (*self.iter.load(Ordering::Acquire))
+                        .next
+                        .load(Ordering::Acquire),
+                    Ordering::Release,
                 );
             }
         }
@@ -147,8 +150,10 @@ impl<T> LinkedList<T> {
         if !self.iter.load(Ordering::Acquire).is_null() {
             unsafe {
                 self.iter.store(
-                    (*self.iter.load(Ordering::Acquire)).prev.load(Ordering::Acquire), 
-                    Ordering::Release
+                    (*self.iter.load(Ordering::Acquire))
+                        .prev
+                        .load(Ordering::Acquire),
+                    Ordering::Release,
                 );
             }
         }
@@ -156,7 +161,8 @@ impl<T> LinkedList<T> {
 
     // List end node
     pub fn end(&mut self) {
-        self.iter.store(self.tail.load(Ordering::Acquire), Ordering::Release);
+        self.iter
+            .store(self.tail.load(Ordering::Acquire), Ordering::Release);
     }
 
     // List is begin
@@ -221,10 +227,8 @@ impl<'a, T> Iterator for ListIterator<'a, T> {
         } else {
             unsafe {
                 let obj = &mut (*current).obj;
-                self.current.store(
-                    (*current).next.load(Ordering::Acquire), 
-                    Ordering::Release
-                );
+                self.current
+                    .store((*current).next.load(Ordering::Acquire), Ordering::Release);
                 Some(obj)
             }
         }
@@ -242,17 +246,15 @@ impl<'a, T> Iterator for ListReverseIterator<'a, T> {
         } else {
             unsafe {
                 let obj = &mut (*current).obj;
-                self.current.store(
-                    (*current).prev.load(Ordering::Acquire), 
-                    Ordering::Release
-                );
+                self.current
+                    .store((*current).prev.load(Ordering::Acquire), Ordering::Release);
                 Some(obj)
             }
         }
     }
 }
 
-impl<T> LinkedList<T> {  
+impl<T> LinkedList<T> {
     // Create iterator
     pub fn iter_mut(&mut self) -> ListIterator<'_, T> {
         ListIterator {

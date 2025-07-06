@@ -5,7 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 // Type aliases for function callback
-pub type FnCallback = extern "C" fn(*mut(), *mut());
+pub type FnCallback = extern "C" fn(*mut (), *mut ());
 
 // Erase a function pointer to a callback function
 fn convert_to_cb(fn_addr: u32) -> FnCallback {
@@ -15,8 +15,8 @@ fn convert_to_cb(fn_addr: u32) -> FnCallback {
 // Structure to hold callback function, instance, and userdata
 pub struct Callback {
     pub callback: FnCallback,
-    pub instance: *mut(),
-    pub userdata: *mut(),
+    pub instance: *mut (),
+    pub userdata: *mut (),
 }
 
 impl Callback {
@@ -31,7 +31,7 @@ impl Callback {
 
     // Set the instance
     pub fn with_instance<T>(mut self, instance: &mut T) -> Self {
-        self.instance = instance as *mut T as *mut();
+        self.instance = instance as *mut T as *mut ();
         self
     }
 
@@ -50,8 +50,8 @@ impl Callback {
 // Impl partialeq for callback
 impl PartialEq for Callback {
     fn eq(&self, other: &Self) -> bool {
-        core::ptr::fn_addr_eq(self.callback, other.callback) &&
-        self.instance == other.instance &&
-        self.userdata == other.userdata
+        core::ptr::fn_addr_eq(self.callback, other.callback)
+            && self.instance == other.instance
+            && self.userdata == other.userdata
     }
 }

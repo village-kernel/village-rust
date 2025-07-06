@@ -4,11 +4,11 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::village::kernel;
-use crate::traits::vk_kernel::{Timer, Job, JobState};
 use crate::traits::vk_callback::Callback;
+use crate::traits::vk_kernel::{Job, JobState, Timer};
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::vendor::ia32legacy::core::i686::SYSTICK_IRQN;
+use crate::village::kernel;
 
 // Struct concrete timer
 pub struct ConcreteTimer {
@@ -86,8 +86,7 @@ impl Timer for ConcreteTimer {
 
     // Delete
     fn delete(&mut self, job: &mut Job) {
-        self.jobs.retain_mut(|j|{
-            !(j.id == job.id && j.callback == job.callback)
-        });
+        self.jobs
+            .retain_mut(|j| !(j.id == job.id && j.callback == job.callback));
     }
 }

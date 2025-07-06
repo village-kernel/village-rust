@@ -4,12 +4,12 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::format;
-use alloc::boxed::Box;
-use crate::village::kernel;
+use crate::binutils::loader::vk_lib_loader::LibLoader;
 use crate::traits::vk_kernel::DebugLevel;
 use crate::traits::vk_linkedlist::LinkedList;
-use crate::binutils::loader::vk_lib_loader::LibLoader;
+use crate::village::kernel;
+use alloc::boxed::Box;
+use alloc::format;
 
 // Struct LibraryTool
 pub struct LibraryTool {
@@ -30,11 +30,14 @@ impl LibraryTool {
         // Check the library if it has been installed
         for lib in self.libs.iter_mut() {
             if lib.get_filename() == filename {
-                kernel().debug().output(DebugLevel::Lv2, &format!("{} library has already been installed", filename));
+                kernel().debug().output(
+                    DebugLevel::Lv2,
+                    &format!("{} library has already been installed", filename),
+                );
                 return true;
             }
         }
-        
+
         // Install library if it has not install
         let mut lib = Box::new(LibLoader::new());
 
@@ -46,12 +49,17 @@ impl LibraryTool {
             lib.fill_bss_zero();
             lib.init_array();
             self.libs.push(lib);
-            kernel().debug().output(DebugLevel::Lv2, &format!("{} library install successful", filename));
+            kernel().debug().output(
+                DebugLevel::Lv2,
+                &format!("{} library install successful", filename),
+            );
             return true;
         }
 
         // Install failed
-        kernel().debug().error(&format!("{} library install failed", filename));
+        kernel()
+            .debug()
+            .error(&format!("{} library install failed", filename));
         false
     }
 
@@ -63,7 +71,10 @@ impl LibraryTool {
             if lib.get_filename() == filename {
                 is_unistall = true;
                 lib.fini_array();
-                kernel().debug().output(DebugLevel::Lv2, &format!("{} library uninstall successful", filename));
+                kernel().debug().output(
+                    DebugLevel::Lv2,
+                    &format!("{} library uninstall successful", filename),
+                );
                 false
             } else {
                 true
@@ -71,7 +82,9 @@ impl LibraryTool {
         });
 
         if !is_unistall {
-            kernel().debug().error(&format!("{} library not found", filename));
+            kernel()
+                .debug()
+                .error(&format!("{} library not found", filename));
             return false;
         }
         true

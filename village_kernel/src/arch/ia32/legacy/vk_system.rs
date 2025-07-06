@@ -4,11 +4,11 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use core::arch::asm;
-use crate::village::kernel;
-use crate::traits::vk_kernel::System;
 use crate::traits::vk_callback::Callback;
+use crate::traits::vk_kernel::System;
 use crate::vendor::ia32legacy::core::i686::*;
+use crate::village::kernel;
+use core::arch::asm;
 
 // Struct concrete system
 pub struct ConcreteSystem {
@@ -16,7 +16,7 @@ pub struct ConcreteSystem {
 }
 
 // Impl concrete system
-impl ConcreteSystem {    
+impl ConcreteSystem {
     pub const fn new() -> Self {
         Self { systicks: 0 }
     }
@@ -29,7 +29,7 @@ impl ConcreteSystem {
         // Set interrupt handler
         kernel().interrupt().set_isr_cb(
             SYSTICK_IRQN,
-            Callback::new(Self::systick_handler as u32).with_instance(self)
+            Callback::new(Self::systick_handler as u32).with_instance(self),
         );
 
         // Configure clock
@@ -40,7 +40,7 @@ impl ConcreteSystem {
     pub fn exit(&mut self) {
         kernel().interrupt().del_isr_cb(
             SYSTICK_IRQN,
-            Callback::new(Self::systick_handler as u32).with_instance(self)
+            Callback::new(Self::systick_handler as u32).with_instance(self),
         );
     }
 
@@ -52,7 +52,7 @@ impl ConcreteSystem {
         // Get the PIT value: hardware clock at 1193182 Hz
         let freq = 1000; //1000hz, 1ms
         let divider = 1193182 / freq;
-        let low  = ((divider >> 0) & 0xFF) as u8;
+        let low = ((divider >> 0) & 0xFF) as u8;
         let high = ((divider >> 8) & 0xFF) as u8;
 
         // Send the command
@@ -92,31 +92,27 @@ impl System for ConcreteSystem {
 
     // Enable irq
     fn enable_irq(&mut self) {
-        unsafe { asm!("sti"); }
+        unsafe {
+            asm!("sti");
+        }
     }
 
     // Disable irq
     fn disable_irq(&mut self) {
-        unsafe { asm!("cli"); }
+        unsafe {
+            asm!("cli");
+        }
     }
 
     // Sleep
-    fn sleep(&mut self) {
-
-    }
+    fn sleep(&mut self) {}
 
     // Standby
-    fn standby(&mut self) {
-
-    }
+    fn standby(&mut self) {}
 
     // Shutdown
-    fn shutdown(&mut self) {
-
-    }
+    fn shutdown(&mut self) {}
 
     // Reboot
-    fn reboot(&mut self) {
-
-    }
+    fn reboot(&mut self) {}
 }

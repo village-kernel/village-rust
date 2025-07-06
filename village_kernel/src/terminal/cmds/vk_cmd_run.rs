@@ -4,16 +4,16 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::boxed::Box;
-use alloc::vec::Vec;
 use crate::register_cmd;
-use crate::village::kernel;
 use crate::traits::vk_command::{Cmd, CmdBase};
 use crate::traits::vk_kernel::ProcessBehavior;
+use crate::village::kernel;
+use alloc::boxed::Box;
+use alloc::vec::Vec;
 
 // Struct cmd run
 struct CmdRun {
-    base: CmdBase
+    base: CmdBase,
 }
 
 // Impl cmd run
@@ -48,11 +48,12 @@ impl Cmd for CmdRun {
             }
 
             let path = console.absolute_path(argv[1]);
-            let mut argv = argv; argv.remove(0);
+            let mut argv = argv;
+            argv.remove(0);
             kernel().process().run_with_argv(behavior, &path, argv);
         }
     }
-    
+
     // Help
     fn help(&mut self) {
         if let Some(console) = self.base.get_console() {

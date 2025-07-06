@@ -4,25 +4,25 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::format;
-use alloc::vec;
-use alloc::vec::Vec;
-use alloc::boxed::Box;
-use alloc::string::{String, ToString};
-use crate::register_cmd;
-use crate::village::kernel;
-use crate::traits::vk_command::{Cmd, CmdBase};
-use crate::traits::vk_filesys::FileType;
-use crate::traits::vk_filesys::FileAttr;
-use crate::traits::vk_filesys::FileMode;
-use crate::traits::vk_filesys::FileDir;
 use crate::misc::fopts::vk_dir_fopt::DirFopt;
 use crate::misc::fopts::vk_file_fopt::FileFopt;
 use crate::misc::fopts::vk_filesys_fopt::FilesysFopt;
+use crate::register_cmd;
+use crate::traits::vk_command::{Cmd, CmdBase};
+use crate::traits::vk_filesys::FileAttr;
+use crate::traits::vk_filesys::FileDir;
+use crate::traits::vk_filesys::FileMode;
+use crate::traits::vk_filesys::FileType;
+use crate::village::kernel;
+use alloc::boxed::Box;
+use alloc::format;
+use alloc::string::{String, ToString};
+use alloc::vec;
+use alloc::vec::Vec;
 
 // Struct cmd cd
 struct CmdCd {
-    base: CmdBase
+    base: CmdBase,
 }
 
 // Impl cmd cd
@@ -47,7 +47,7 @@ impl CmdCd {
 
                 if let Some(last_slash_pos) = path.rfind('/') {
                     let dir_part = &path[last_slash_pos..];
-                    
+
                     // Handle "." dir
                     if dir_part == "/." {
                         new_path.truncate(last_slash_pos);
@@ -68,7 +68,10 @@ impl CmdCd {
 
                 console.set_path(&new_path);
             } else {
-                console.error(&format!("{} is not a valid path, please confirm whether the path is correct", path));
+                console.error(&format!(
+                    "{} is not a valid path, please confirm whether the path is correct",
+                    path
+                ));
             }
         }
     }
@@ -93,7 +96,7 @@ impl Cmd for CmdCd {
             self.change_directory(&path);
         }
     }
-    
+
     // Help
     fn help(&mut self) {
         if let Some(console) = self.base.get_console() {
@@ -104,7 +107,7 @@ impl Cmd for CmdCd {
 
 // Struct cmd list
 struct CmdList {
-    base: CmdBase
+    base: CmdBase,
 }
 
 // Impl cmd list
@@ -131,7 +134,9 @@ impl CmdList {
                 if dir.read(&mut dirs, size) == size {
                     for i in 0..size {
                         if dirs[i].attr == FileAttr::Visible {
-                            if FileType::Directory == dirs[i].typid || FileType::File == dirs[i].typid {
+                            if FileType::Directory == dirs[i].typid
+                                || FileType::File == dirs[i].typid
+                            {
                                 console.print(&format!("{}  ", dirs[i].name));
                             }
                         }
@@ -139,7 +144,10 @@ impl CmdList {
                     console.print("\r\n");
                 }
             } else {
-                console.error(&format!("{} is not a valid path, please confirm whether the path is correct", path));
+                console.error(&format!(
+                    "{} is not a valid path, please confirm whether the path is correct",
+                    path
+                ));
             }
         }
     }
@@ -169,7 +177,7 @@ impl Cmd for CmdList {
             self.list_directory(&path);
         }
     }
-    
+
     // Help
     fn help(&mut self) {
         if let Some(console) = self.base.get_console() {
@@ -180,7 +188,7 @@ impl Cmd for CmdList {
 
 // Struct cmd touch
 struct CmdTouch {
-    base: CmdBase
+    base: CmdBase,
 }
 
 // Impl cmd touch
@@ -230,7 +238,7 @@ impl Cmd for CmdTouch {
             self.create_file(&path);
         }
     }
-    
+
     // Help
     fn help(&mut self) {
         if let Some(console) = self.base.get_console() {
@@ -241,7 +249,7 @@ impl Cmd for CmdTouch {
 
 // Struct cmd mkdir
 struct CmdMkdir {
-    base: CmdBase
+    base: CmdBase,
 }
 
 // Impl cmd mkdir
@@ -291,7 +299,7 @@ impl Cmd for CmdMkdir {
             self.create_dir(&path);
         }
     }
-    
+
     // Help
     fn help(&mut self) {
         if let Some(console) = self.base.get_console() {
@@ -302,7 +310,7 @@ impl Cmd for CmdMkdir {
 
 // Struct cmd move
 struct CmdMove {
-    base: CmdBase
+    base: CmdBase,
 }
 
 // Impl cmd move
@@ -321,7 +329,7 @@ impl CmdMove {
     fn moving(&mut self, source: &str, target: &str) {
         if let Some(console) = self.base.get_console() {
             let mut filesys_opt = FilesysFopt::new();
-                
+
             if !filesys_opt.moving(source, target) {
                 console.error(&format!("move {} to {} failed!", source, target));
             }
@@ -349,7 +357,7 @@ impl Cmd for CmdMove {
             self.moving(&path1, &path2);
         }
     }
-    
+
     // Help
     fn help(&mut self) {
         if let Some(console) = self.base.get_console() {
@@ -358,10 +366,9 @@ impl Cmd for CmdMove {
     }
 }
 
-
 // Struct cmd copy
 struct CmdCopy {
-    base: CmdBase
+    base: CmdBase,
 }
 
 // Impl cmd copy
@@ -380,7 +387,7 @@ impl CmdCopy {
     fn copy(&mut self, source: &str, target: &str) {
         if let Some(console) = self.base.get_console() {
             let mut filesys_opt = FilesysFopt::new();
-                
+
             if !filesys_opt.copy(source, target) {
                 console.error(&format!("copy {} to {} failed!", source, target));
             }
@@ -408,7 +415,7 @@ impl Cmd for CmdCopy {
             self.copy(&path1, &path2);
         }
     }
-    
+
     // Help
     fn help(&mut self) {
         if let Some(console) = self.base.get_console() {
@@ -417,10 +424,9 @@ impl Cmd for CmdCopy {
     }
 }
 
-
 // Struct cmd remove
 struct CmdRemove {
-    base: CmdBase
+    base: CmdBase,
 }
 
 // Impl cmd remove
@@ -439,7 +445,7 @@ impl CmdRemove {
     fn remove(&mut self, path: &str) {
         if let Some(console) = self.base.get_console() {
             let mut filesys_opt = FilesysFopt::new();
-                
+
             if !filesys_opt.remove(path) {
                 console.error(&format!("Remove {} failed!", path));
             }
@@ -466,7 +472,7 @@ impl Cmd for CmdRemove {
             self.remove(&path);
         }
     }
-    
+
     // Help
     fn help(&mut self) {
         if let Some(console) = self.base.get_console() {
@@ -476,10 +482,10 @@ impl Cmd for CmdRemove {
 }
 
 // Register cmd
-register_cmd!(CmdCd::new(),     cd    );
-register_cmd!(CmdList::new(),   ls    );
-register_cmd!(CmdTouch::new(),  touch );
-register_cmd!(CmdMkdir::new(),  mkdir );
-register_cmd!(CmdMove::new(),   mv    );
-register_cmd!(CmdCopy::new(),   cp    );
-register_cmd!(CmdRemove::new(), rm    );
+register_cmd!(CmdCd::new(), cd);
+register_cmd!(CmdList::new(), ls);
+register_cmd!(CmdTouch::new(), touch);
+register_cmd!(CmdMkdir::new(), mkdir);
+register_cmd!(CmdMove::new(), mv);
+register_cmd!(CmdCopy::new(), cp);
+register_cmd!(CmdRemove::new(), rm);

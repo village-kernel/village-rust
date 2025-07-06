@@ -7,14 +7,14 @@
 use alloc::format;
 use alloc::vec;
 //use alloc::vec::Vec;
+use crate::misc::fopts::vk_dev_fopt::DevFopt;
+use crate::traits::vk_driver::DriverID;
+use crate::traits::vk_filesys::{FileSys, FileVol};
+use crate::traits::vk_kernel::FileSystem;
+use crate::traits::vk_linkedlist::LinkedList;
+use crate::village::kernel;
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
-use crate::village::kernel;
-use crate::traits::vk_kernel::FileSystem;
-use crate::traits::vk_driver::DriverID;
-use crate::traits::vk_filesys::{FileVol, FileSys};
-use crate::traits::vk_linkedlist::LinkedList;
-use crate::misc::fopts::vk_dev_fopt::DevFopt;
 
 // Enum BootIndicator
 pub enum BootIndicator {
@@ -70,7 +70,7 @@ impl MBRPartition {
         let ending_chs = u16::from_le_bytes([data[6], data[7]]);
         let starting_lba = u32::from_le_bytes([data[8], data[9], data[10], data[11]]);
         let size_in_lba = u32::from_le_bytes([data[12], data[13], data[14], data[15]]);
-        
+
         Self {
             boot_indicator,
             starting_head,
@@ -86,12 +86,12 @@ impl MBRPartition {
     // Check is vaild
     pub fn is_vaild(&mut self) -> bool {
         if self.os_indicator != 0 && self.size_in_lba != 0 {
-            return self.boot_indicator != 0 || 
-                self.starting_head != 0 ||
-                self.starting_chs != 0 ||
-                self.ending_head != 0 ||
-                self.ending_chs != 0 ||
-                self.starting_lba != 0
+            return self.boot_indicator != 0
+                || self.starting_head != 0
+                || self.starting_chs != 0
+                || self.ending_head != 0
+                || self.ending_chs != 0
+                || self.starting_lba != 0;
         }
         false
     }
@@ -131,10 +131,10 @@ impl MBR {
         mbr.partitions[1] = MBRPartition::from(&data[462..478]);
         mbr.partitions[2] = MBRPartition::from(&data[478..494]);
         mbr.partitions[3] = MBRPartition::from(&data[494..510]);
- 
+
         // Get magic and check
         mbr.magic = u16::from_le_bytes([data[510], data[511]]);
-        
+
         if mbr.magic != 0xAA55 {
             return None;
         }
@@ -179,7 +179,9 @@ impl GPTPartition {
 
         // Parser guid
         partition.partition_type_guid.copy_from_slice(&data[0..16]);
-        partition.unique_partition_guid.copy_from_slice(&data[16..32]);
+        partition
+            .unique_partition_guid
+            .copy_from_slice(&data[16..32]);
 
         // Parser lba
         partition.starting_lba = u64::from_le_bytes(<[u8; 8]>::try_from(&data[32..40]).ok()?);
@@ -271,29 +273,31 @@ impl GPT {
         gpt.header_size = u32::from_le_bytes(<[u8; 4]>::try_from(&data[12..16]).ok()?);
         gpt.header_crc32 = u32::from_le_bytes(<[u8; 4]>::try_from(&data[16..20]).ok()?);
         gpt.reserved0 = u32::from_le_bytes(<[u8; 4]>::try_from(&data[20..24]).ok()?);
-        
+
         // Copy lba
         gpt.my_lba = u64::from_le_bytes(<[u8; 8]>::try_from(&data[24..32]).ok()?);
         gpt.alternate_lba = u64::from_le_bytes(<[u8; 8]>::try_from(&data[32..40]).ok()?);
         gpt.first_usable_lba = u64::from_le_bytes(<[u8; 8]>::try_from(&data[40..48]).ok()?);
         gpt.last_usable_lba = u64::from_le_bytes(<[u8; 8]>::try_from(&data[48..56]).ok()?);
-        
+
         // Copy guid
         gpt.disk_guid.copy_from_slice(&data[56..72]);
-        
+
         // Copy entry
         gpt.partition_entry_lba = u64::from_le_bytes(<[u8; 8]>::try_from(&data[72..80]).ok()?);
-        gpt.number_of_partition_entries = u32::from_le_bytes(<[u8; 4]>::try_from(&data[80..84]).ok()?);
+        gpt.number_of_partition_entries =
+            u32::from_le_bytes(<[u8; 4]>::try_from(&data[80..84]).ok()?);
         gpt.size_of_partition_entry = u32::from_le_bytes(<[u8; 4]>::try_from(&data[84..88]).ok()?);
-        gpt.partition_entry_array_crc32 = u32::from_le_bytes(<[u8; 4]>::try_from(&data[88..92]).ok()?);
-        
+        gpt.partition_entry_array_crc32 =
+            u32::from_le_bytes(<[u8; 4]>::try_from(&data[88..92]).ok()?);
+
         // Copy reserved
         //gpt.reserved1 = vec![0u8; 420];
         //gpt.reserved1.copy_from_slice(&data[92..512]);
 
         // Check is valid
         if !Self::is_valid(&gpt) {
-            return None
+            return None;
         }
 
         Some(gpt)
@@ -301,10 +305,10 @@ impl GPT {
 
     // Check is valid
     pub fn is_valid(&self) -> bool {
-        &self.signature == b"EFI PART" &&
-        self.header_size >= 92 &&
-        self.size_of_partition_entry >= 128 &&
-        self.number_of_partition_entries > 0
+        &self.signature == b"EFI PART"
+            && self.header_size >= 92
+            && self.size_of_partition_entry >= 128
+            && self.number_of_partition_entries > 0
     }
 }
 
@@ -441,7 +445,9 @@ impl ConcreteFileSystem {
         }
 
         // Output info
-        kernel().debug().error("Mount root node failed, 'VILLAGE OS' not found");
+        kernel()
+            .debug()
+            .error("Mount root node failed, 'VILLAGE OS' not found");
         false
     }
 
@@ -463,7 +469,7 @@ impl ConcreteFileSystem {
         for filesys in self.filesyses.iter_mut() {
             // Create new volume
             let mut volume = filesys.create_volume();
-            
+
             // Setup volume
             if volume.setup(&media.name, starting_lba) {
                 let mount_path = &format!("/media/{}", volume.get_name());
@@ -484,21 +490,24 @@ impl FileSystem for ConcreteFileSystem {
 
     // Unregister fs
     fn unregister_fs(&mut self, name: &str) {
-        self.filesyses.retain_mut(|fs| {
-            !(fs.info().get_name() == name)
-        });
+        self.filesyses
+            .retain_mut(|fs| !(fs.info().get_name() == name));
     }
 
     // Mount hard drive
     fn mount_hard_drive(&mut self, disk: &str) -> bool {
-        kernel().debug().info(&format!("Setup the hard drive {}", disk));
+        kernel()
+            .debug()
+            .info(&format!("Setup the hard drive {}", disk));
 
         // Create an devstream object
         let mut device = DevFopt::new();
 
         // Open the disk device
         if !device.open(disk) {
-            kernel().debug().error(&format!("hard drive {} open failed", disk));
+            kernel()
+                .debug()
+                .error(&format!("hard drive {} open failed", disk));
             return false;
         }
 
@@ -532,7 +541,11 @@ impl FileSystem for ConcreteFileSystem {
                         // Setup partitions
                         for i in 0..size {
                             // Read partition record
-                            device.read(&mut sector, 1, (gpt.partition_entry_lba as usize).wrapping_add(i as usize));
+                            device.read(
+                                &mut sector,
+                                1,
+                                (gpt.partition_entry_lba as usize).wrapping_add(i as usize),
+                            );
 
                             // Create GPT partition table object
                             if let Some(partition) = GPTPartition::from(&sector) {
@@ -546,7 +559,7 @@ impl FileSystem for ConcreteFileSystem {
                 else {
                     // Set media partition type as MBR
                     media.typ = PartitionType::MBR;
-                    
+
                     // Setup MBR partitions
                     for i in 0..4 {
                         if mbr.partitions[i].is_vaild() {
@@ -569,7 +582,7 @@ impl FileSystem for ConcreteFileSystem {
             device.close();
             return false;
         }
-        
+
         true
     }
 
@@ -599,7 +612,11 @@ impl FileSystem for ConcreteFileSystem {
 
     // Get volume
     fn get_volume(&mut self, name: &str) -> Option<&mut Box<dyn FileVol>> {
-        if let Some(mount) = self.mounts.iter_mut().find(|mount| name.starts_with(&mount.target)) {
+        if let Some(mount) = self
+            .mounts
+            .iter_mut()
+            .find(|mount| name.starts_with(&mount.target))
+        {
             for media in self.medias.iter_mut() {
                 let volume = media.get_volume(&mount.source);
                 if volume.is_some() {

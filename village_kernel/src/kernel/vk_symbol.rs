@@ -4,9 +4,9 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::village::kernel;
 use crate::traits::vk_kernel::Symbol;
 use crate::traits::vk_linkedlist::LinkedList;
+use crate::village::kernel;
 
 // Struct entry
 struct Entry {
@@ -18,23 +18,20 @@ struct Entry {
 impl Entry {
     // New
     const fn new(addr: u32, name: &str) -> Self {
-        Self {
-            name,
-            addr,
-        }
+        Self { name, addr }
     }
 }
 
 // Struct concrete symbol
 pub struct ConcreteSymbol {
-    entrys: LinkedList<Entry>
+    entrys: LinkedList<Entry>,
 }
 
 // Impl concrete symbol
 impl ConcreteSymbol {
     pub const fn new() -> Self {
         Self {
-            entrys: LinkedList::new()
+            entrys: LinkedList::new(),
         }
     }
 }
@@ -48,9 +45,7 @@ impl ConcreteSymbol {
     }
 
     // Exit
-    pub fn exit(&mut self) {
-
-    }
+    pub fn exit(&mut self) {}
 }
 
 // Impl symbol for concrete symbol
@@ -63,11 +58,10 @@ impl Symbol for ConcreteSymbol {
 
     // Unexport
     fn unexport(&mut self, sym_addr: u32, name: &str) {
-        self.entrys.retain_mut(|entry| {
-            !(entry.addr == sym_addr && entry.name == name)
-        });
+        self.entrys
+            .retain_mut(|entry| !(entry.addr == sym_addr && entry.name == name));
     }
-    
+
     // Search
     fn search(&mut self, name: &str) -> u32 {
         if let Some(entry) = self.entrys.iter_mut().find(|t| t.name == name) {

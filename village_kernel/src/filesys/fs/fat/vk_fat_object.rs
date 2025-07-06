@@ -4,12 +4,12 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::vec;
-use alloc::vec::Vec;
-use alloc::boxed::Box;
-use alloc::string::String;
 use super::vk_fat_diskio::DiskIndex;
 use crate::traits::vk_filesys::{FileAttr, FileType};
+use alloc::boxed::Box;
+use alloc::string::String;
+use alloc::vec;
+use alloc::vec::Vec;
 
 // Const members
 const DIR_ENTRY_SIZE: u8 = 32;
@@ -22,15 +22,15 @@ const DIR_VALID_FLAG: u8 = 0x0;
 pub struct EntryAttr;
 
 // Impl EntryAttr
-impl EntryAttr{
-    pub const FILE: u8           = 0x00;
-    pub const READ_ONLY: u8      = 0x01;
-    pub const HIDDEN: u8         = 0x02;
-    pub const SYSTEM: u8         = 0x04;
-    pub const VOLUME_ID: u8      = 0x08;
-    pub const DIRECTORY: u8      = 0x10;
-    pub const ARCHIVE: u8        = 0x20;
-    pub const LONG_NAME: u8      = 0x0f;
+impl EntryAttr {
+    pub const FILE: u8 = 0x00;
+    pub const READ_ONLY: u8 = 0x01;
+    pub const HIDDEN: u8 = 0x02;
+    pub const SYSTEM: u8 = 0x04;
+    pub const VOLUME_ID: u8 = 0x08;
+    pub const DIRECTORY: u8 = 0x10;
+    pub const ARCHIVE: u8 = 0x20;
+    pub const LONG_NAME: u8 = 0x0f;
     pub const LONG_NAME_MASK: u8 = 0x3f;
 }
 
@@ -39,15 +39,15 @@ pub struct NSFlag;
 
 // Impl NSFlag
 impl NSFlag {
-    pub const NOE: u8       = 0x00;
-    pub const LOSS: u8      = 0x01;   /* Out of 8.3 format */
-    pub const LFN: u8       = 0x02;   /* Force to create LFN entry */
-    pub const LAST: u8      = 0x04;   /* Last segment */
-    pub const BODY: u8      = 0x08;   /* Lower case flag (body) */
-    pub const EXT: u8       = 0x10;   /* Lower case flag (ext) */
-    pub const DOT: u8       = 0x20;   /* Dot entry */
-    pub const NOLFN: u8     = 0x40;   /* Do not find LFN */
-    pub const NONAME: u8    = 0x80;   /* Not followed */
+    pub const NOE: u8 = 0x00;
+    pub const LOSS: u8 = 0x01; /* Out of 8.3 format */
+    pub const LFN: u8 = 0x02; /* Force to create LFN entry */
+    pub const LAST: u8 = 0x04; /* Last segment */
+    pub const BODY: u8 = 0x08; /* Lower case flag (body) */
+    pub const EXT: u8 = 0x10; /* Lower case flag (ext) */
+    pub const DOT: u8 = 0x20; /* Dot entry */
+    pub const NOLFN: u8 = 0x40; /* Do not find LFN */
+    pub const NONAME: u8 = 0x80; /* Not followed */
 }
 
 // Struct FatShortEntry
@@ -90,7 +90,7 @@ impl FatShortEntry {
     // From bytes
     pub fn from_bytes(data: &[u8]) -> Self {
         let mut entry = Self::new();
-        
+
         entry.name.copy_from_slice(&data[0..11]);
         entry.attr = data[11];
         entry.nt_res = data[12];
@@ -110,7 +110,7 @@ impl FatShortEntry {
     // As bytes
     pub fn as_bytes(&self) -> [u8; 32] {
         let mut bytes = [0u8; 32];
-        
+
         bytes[0..11].copy_from_slice(&self.name);
         bytes[11] = self.attr;
         bytes[12] = self.nt_res;
@@ -123,7 +123,7 @@ impl FatShortEntry {
         bytes[24..26].copy_from_slice(&self.wrt_date.to_le_bytes());
         bytes[26..28].copy_from_slice(&self.fst_clust_lo.to_le_bytes());
         bytes[28..32].copy_from_slice(&self.file_size.to_le_bytes());
-        
+
         bytes
     }
 }
@@ -165,64 +165,64 @@ impl FatLongEntry {
 
         // Copy name1
         for i in 0..5 {
-            entry.name1[i] = u16::from_le_bytes([data[1 + i*2], data[1 + i*2 + 1]]);
+            entry.name1[i] = u16::from_le_bytes([data[1 + i * 2], data[1 + i * 2 + 1]]);
         }
-        
+
         entry.attr = data[11];
         entry.typ = data[12];
         entry.chksum = data[13];
-        
+
         // Copy name2
         for i in 0..6 {
-            entry.name2[i] = u16::from_le_bytes([data[14 + i*2], data[14 + i*2 + 1]]);
+            entry.name2[i] = u16::from_le_bytes([data[14 + i * 2], data[14 + i * 2 + 1]]);
         }
-        
+
         entry.fst_clust_lo = u16::from_le_bytes([data[26], data[27]]);
-        
+
         // Copy name3
         for i in 0..2 {
-            entry.name3[i] = u16::from_le_bytes([data[28 + i*2], data[28 + i*2 + 1]]);
+            entry.name3[i] = u16::from_le_bytes([data[28 + i * 2], data[28 + i * 2 + 1]]);
         }
-        
+
         entry
     }
 
     // As bytes
     pub fn as_bytes(&self) -> [u8; 32] {
         let mut bytes = [0u8; 32];
-        
+
         bytes[0] = self.ord;
-        
+
         // Copy name1
         for i in 0..5 {
             let bytes_le = self.name1[i].to_le_bytes();
-            bytes[1 + i*2] = bytes_le[0];
-            bytes[1 + i*2 + 1] = bytes_le[1];
+            bytes[1 + i * 2] = bytes_le[0];
+            bytes[1 + i * 2 + 1] = bytes_le[1];
         }
-        
+
         bytes[11] = self.attr;
         bytes[12] = self.typ;
         bytes[13] = self.chksum;
-        
+
         // Copy name2
         for i in 0..6 {
             let bytes_le = self.name2[i].to_le_bytes();
-            bytes[14 + i*2] = bytes_le[0];
-            bytes[14 + i*2 + 1] = bytes_le[1];
+            bytes[14 + i * 2] = bytes_le[0];
+            bytes[14 + i * 2 + 1] = bytes_le[1];
         }
-        
+
         // Copy fst_clust_lo
         let fst_clust_bytes = self.fst_clust_lo.to_le_bytes();
         bytes[26] = fst_clust_bytes[0];
         bytes[27] = fst_clust_bytes[1];
-        
+
         // Copy name3
         for i in 0..2 {
             let bytes_le = self.name3[i].to_le_bytes();
-            bytes[28 + i*2] = bytes_le[0];
-            bytes[28 + i*2 + 1] = bytes_le[1];
+            bytes[28 + i * 2] = bytes_le[0];
+            bytes[28 + i * 2 + 1] = bytes_le[1];
         }
-        
+
         bytes
     }
 }
@@ -238,12 +238,16 @@ pub enum FatEntry {
 impl FatEntry {
     // Is Valid
     fn is_valid(bytes: &[u8]) -> bool {
-        if bytes.len() >= DIR_ENTRY_SIZE as usize && bytes[0] != DIR_FREE_FLAG && bytes[0] > DIR_VALID_FLAG {
+        if bytes.len() >= DIR_ENTRY_SIZE as usize
+            && bytes[0] != DIR_FREE_FLAG
+            && bytes[0] > DIR_VALID_FLAG
+        {
             let attr = bytes[11] & (EntryAttr::DIRECTORY | EntryAttr::VOLUME_ID);
-            if attr == EntryAttr::FILE      ||
-               attr == EntryAttr::DIRECTORY ||
-               attr == EntryAttr::VOLUME_ID ||
-               Self::is_long_entry(bytes) {
+            if attr == EntryAttr::FILE
+                || attr == EntryAttr::DIRECTORY
+                || attr == EntryAttr::VOLUME_ID
+                || Self::is_long_entry(bytes)
+            {
                 return true;
             }
         }
@@ -266,7 +270,7 @@ impl FatEntry {
         if Self::is_long_entry(bytes) {
             return Some(FatEntry::Long(FatLongEntry::from_bytes(bytes)));
         }
-        
+
         // Short Entry
         Some(FatEntry::Short(FatShortEntry::from_bytes(bytes)))
     }
@@ -365,7 +369,7 @@ impl FatObject {
         if long_entries.len() > 0 {
             obj.long_entries = Some(long_entries.into_boxed_slice());
         }
-        
+
         obj
     }
 }
@@ -375,7 +379,7 @@ impl FatObject {
     // Set object free
     pub fn set_object_free(&mut self) {
         self.short_entry.name[0] = DIR_FREE_FLAG;
-        
+
         if let Some(long_entries) = &mut self.long_entries {
             for entry in long_entries.iter_mut() {
                 entry.ord = DIR_FREE_FLAG;
@@ -412,17 +416,17 @@ impl FatObject {
     }
 
     // Get all entries
-    pub fn get_all_entries(&mut self) ->Vec<FatEntry> {
+    pub fn get_all_entries(&mut self) -> Vec<FatEntry> {
         let mut entries = Vec::new();
-        
+
         // Add long name entries
         if let Some(long_entries) = &self.long_entries {
             entries.extend(long_entries.iter().map(|e| FatEntry::Long(*e)));
         }
-        
+
         // Add short name entry
         entries.push(FatEntry::Short(self.short_entry));
-        
+
         entries
     }
 }
@@ -430,19 +434,19 @@ impl FatObject {
 impl FatObject {
     // Set name
     pub fn set_name(&mut self, name: &str) {
-       self.clear_long_name();
-        
+        self.clear_long_name();
+
         if Self::requires_long_name(name) {
             self.set_long_name(name);
         }
-        
+
         self.set_short_name(name)
     }
 
     // Get name
     pub fn get_name(&mut self) -> String {
         if let Some(long_name) = self.get_long_name() {
-            return long_name
+            return long_name;
         }
         self.get_short_name()
     }
@@ -478,7 +482,7 @@ impl FatObject {
 
             self.short_entry.name[i] = c.to_ascii_uppercase();
         }
-        
+
         // Name ext
         for (i, &c) in ext.iter().enumerate() {
             if is_ext_lowed_caset && (c >= b'A' && c <= b'Z') {
@@ -502,18 +506,20 @@ impl FatObject {
     fn get_short_name(&mut self) -> String {
         let mut name = String::new();
         let is_body_lowed_case = (self.short_entry.nt_res & NSFlag::BODY) != 0;
-        let is_ext_lowed_case  = (self.short_entry.nt_res & NSFlag::EXT) != 0;
-        
+        let is_ext_lowed_case = (self.short_entry.nt_res & NSFlag::EXT) != 0;
+
         // 8.3 name body
         for &c in &self.short_entry.name[..8] {
-            if c == b' ' { break; }
+            if c == b' ' {
+                break;
+            }
             if is_body_lowed_case && (c >= b'A' && c <= b'Z') {
                 name.push(c.to_ascii_lowercase() as char);
             } else {
                 name.push(c as char);
             }
         }
-        
+
         if self.short_entry.name[8] != b' ' {
             // 8.3 name dot
             if FileType::Volume == self.get_object_type() {
@@ -524,7 +530,9 @@ impl FatObject {
 
             // 8.3 name ext
             for &c in &self.short_entry.name[8..11] {
-                if c == b' ' { break; }
+                if c == b' ' {
+                    break;
+                }
                 if is_ext_lowed_case && (c >= b'A' && c <= b'Z') {
                     name.push(c.to_ascii_lowercase() as char);
                 } else {
@@ -532,7 +540,7 @@ impl FatObject {
                 }
             }
         }
-        
+
         name
     }
 
@@ -540,35 +548,35 @@ impl FatObject {
     fn set_long_name(&mut self, name: &str) {
         let checksum = Self::calculate_checksum(&self.short_entry.name);
         let entries_needed = Self::calculate_lfn_entries_needed(name);
-        
+
         let mut entries = vec![FatLongEntry::new(); entries_needed].into_boxed_slice();
-        
+
         // Fill long name entries
         let chars = name.encode_utf16().collect::<Vec<_>>();
         let mut pos = 0;
-        
+
         for (i, entry) in entries.iter_mut().rev().enumerate() {
             entry.ord = (entries_needed - i) as u8 | DIR_SEQ_FLAG;
             entry.attr = 0x0F;
             entry.chksum = checksum;
-            
+
             // Fill names
             for j in 0..5 {
                 entry.name1[j] = chars.get(pos).copied().unwrap_or(0);
                 pos += 1;
             }
-            
+
             for j in 0..6 {
                 entry.name2[j] = chars.get(pos).copied().unwrap_or(0);
                 pos += 1;
             }
-            
+
             for j in 0..2 {
                 entry.name3[j] = chars.get(pos).copied().unwrap_or(0);
                 pos += 1;
             }
         }
-        
+
         // Set store size
         entries[0].ord = DIR_SEQ_FLAG + entries.len() as u8;
 
@@ -580,20 +588,26 @@ impl FatObject {
     fn get_long_name(&mut self) -> Option<String> {
         if let Some(long_entries) = &self.long_entries {
             let mut name = String::new();
-        
+
             for entry in long_entries.iter().rev() {
                 for &c in &entry.name1 {
-                    if c == 0 { return Some(name); }
+                    if c == 0 {
+                        return Some(name);
+                    }
                     name.push(char::from_u32(c as u32)?);
                 }
-                
+
                 for &c in &entry.name2 {
-                    if c == 0 { return Some(name); }
+                    if c == 0 {
+                        return Some(name);
+                    }
                     name.push(char::from_u32(c as u32)?);
                 }
-                
+
                 for &c in &entry.name3 {
-                    if c == 0 { return Some(name); }
+                    if c == 0 {
+                        return Some(name);
+                    }
                     name.push(char::from_u32(c as u32)?);
                 }
             }
@@ -628,10 +642,18 @@ impl FatObject {
     fn split_83_name(name: &str) -> (&[u8], &[u8]) {
         let bytes = name.as_bytes();
         let dot_pos = bytes.iter().position(|&b| b == b'.').unwrap_or(bytes.len());
-        
-        let base = if dot_pos > 8 { &bytes[..8] } else { &bytes[..dot_pos] };
-        let ext = if dot_pos < bytes.len() { &bytes[dot_pos+1..] } else { &[] };
-        
+
+        let base = if dot_pos > 8 {
+            &bytes[..8]
+        } else {
+            &bytes[..dot_pos]
+        };
+        let ext = if dot_pos < bytes.len() {
+            &bytes[dot_pos + 1..]
+        } else {
+            &[]
+        };
+
         (base, if ext.len() > 3 { &ext[..3] } else { ext })
     }
 

@@ -4,16 +4,16 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::register_cmd;
+use crate::traits::vk_command::{Cmd, CmdBase};
+use crate::village::kernel;
 use alloc::boxed::Box;
 use alloc::format;
 use alloc::vec::Vec;
-use crate::register_cmd;
-use crate::village::kernel;
-use crate::traits::vk_command::{Cmd, CmdBase};
 
 // Struct cmd mem
 struct CmdMem {
-    base: CmdBase
+    base: CmdBase,
 }
 
 // Impl cmd mem
@@ -38,11 +38,11 @@ impl Cmd for CmdMem {
         if let Some(console) = self.base.get_console() {
             let size = kernel().memory().get_size();
             let used = kernel().memory().get_used();
-            let per  = used as f32 * 100.0 / size as f32;
+            let per = used as f32 * 100.0 / size as f32;
             console.println(&format!("memory size: 0x{:08x} Bytes, memory used: 0x{:08x} Bytes, percentage used: {:0.2} %", size, used, per));
         }
     }
-    
+
     // Help
     fn help(&mut self) {
         if let Some(console) = self.base.get_console() {

@@ -4,16 +4,16 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::vec::Vec;
-use alloc::boxed::Box;
-use alloc::string::{String, ToString};
-use super::vk_command::Cmd;
 use super::vk_callback::Callback;
+use super::vk_command::Cmd;
+use super::vk_driver::{Driver, PlatDevice, PlatDriver};
+use super::vk_executor::{Executor, ExecutorFty};
+use super::vk_filesys::{FileSys, FileVol};
 use super::vk_linkedlist::LinkedList;
 use super::vk_module::Module;
-use super::vk_driver::{Driver, PlatDriver, PlatDevice};
-use super::vk_executor::{Executor, ExecutorFty};
-use super::vk_filesys::{FileVol, FileSys};
+use alloc::boxed::Box;
+use alloc::string::{String, ToString};
+use alloc::vec::Vec;
 
 // System
 pub trait System {
@@ -50,7 +50,7 @@ pub enum DebugLevel {
     Lv2,
     Lv3,
     Lv4,
-    Lv5
+    Lv5,
 }
 
 impl DebugLevel {
@@ -91,7 +91,7 @@ pub trait Debug {
 }
 
 // Interrupt
-pub trait Interrupt  {
+pub trait Interrupt {
     // Set ISR Methods
     fn set_isr_cb(&mut self, irq: isize, callback: Callback);
 
@@ -100,13 +100,13 @@ pub trait Interrupt  {
 
     // Del ISR Methods
     fn del_isr_cb(&mut self, irq: isize, callback: Callback);
-    
+
     // Clear ISR Methods
     fn clear_isr_cb(&mut self, irq: isize);
-    
+
     // Replace Methods
     fn replace(&mut self, irq: isize, handler: usize);
-    
+
     // Feature Methods
     fn handler(&mut self, irq: isize);
 }
@@ -143,7 +143,7 @@ impl ThreadState {
 // Thread task
 pub struct ThreadTask {
     pub name: String,
-    pub id:  i32,
+    pub id: i32,
     pub psp: u32,
     pub ticks: u32,
     pub stack_start: u32,
@@ -157,8 +157,8 @@ impl ThreadTask {
     pub fn default() -> Self {
         ThreadTask {
             name: "None".to_string(),
-            id:   -1,
-            psp:   0,
+            id: -1,
+            psp: 0,
             ticks: 0,
             stack_start: 0,
             stack_end: 0,
@@ -171,7 +171,7 @@ impl ThreadTask {
 pub trait Thread {
     // Create Methods
     fn create_task(&mut self, name: &str, callback: Callback) -> i32;
-    
+
     // Task Methods
     fn start_task(&mut self, tid: i32);
     fn stop_task(&mut self, tid: i32);
@@ -290,7 +290,7 @@ pub enum EventType {
     InputAxis,
     OutputText,
     OutputAxis,
-    AllSizes
+    AllSizes,
 }
 
 // Enum EventOutFormat
@@ -309,10 +309,7 @@ pub struct EventInputKey {
 // Impl EventInputKey
 impl EventInputKey {
     pub const fn new() -> Self {
-        Self {
-            code: 0,
-            status: 0,
-        }
+        Self { code: 0, status: 0 }
     }
 }
 
@@ -437,7 +434,7 @@ pub trait Process {
     // Register Methods
     fn register_exec_factory(&mut self, factory: Box<dyn ExecutorFty>);
     fn unregister_exec_factory(&mut self, name: &str);
-    
+
     // Run Methods
     fn run_with_args(&mut self, behavior: ProcessBehavior, args: &str) -> i32;
     fn run_with_argv(&mut self, behavior: ProcessBehavior, path: &str, argv: Vec<&str>) -> i32;
@@ -451,7 +448,7 @@ pub trait Process {
     fn is_exist_by_pid(&mut self, pid: i32) -> bool;
 
     // Data Methods
-    fn get_processes(&mut self) -> &mut LinkedList<Box<ProcessData>> ;
+    fn get_processes(&mut self) -> &mut LinkedList<Box<ProcessData>>;
 }
 
 // Timer state
@@ -510,7 +507,7 @@ pub trait Terminal {
 #[derive(PartialEq)]
 pub enum Signals {
     None = 0,
-    
+
     Sleep,
     Standby,
     Shutdown,
@@ -561,7 +558,7 @@ pub trait Kernel {
     fn signal(&mut self) -> &mut dyn Signal;
     fn protocol(&mut self) -> &mut dyn Protocol;
     fn build_info(&self) -> &BuildInfo;
-    
+
     fn setup(&mut self);
     fn start(&mut self);
     fn exit(&mut self);

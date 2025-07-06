@@ -4,11 +4,11 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::misc::fopts::vk_dev_fopt::DevFopt;
+use crate::traits::vk_kernel::{Debug, DebugLevel};
+use crate::village::kernel;
 use alloc::format;
 use core::panic::PanicInfo;
-use crate::village::kernel;
-use crate::traits::vk_kernel::{Debug, DebugLevel};
-use crate::misc::fopts::vk_dev_fopt::DevFopt;
 
 // Static const
 static BUF_SIZE: usize = 256;
@@ -25,7 +25,7 @@ pub struct ConcreteDebug {
 // Impl concrete debug
 impl ConcreteDebug {
     pub const fn new() -> Self {
-        Self { 
+        Self {
             transceiver: DevFopt::new(),
             debug_level: DebugLevel::Lv2,
             is_ready: false,
@@ -66,7 +66,7 @@ impl ConcreteDebug {
         // Calculate the string length
         let len = data.as_bytes().len();
 
-        // When the device is not ready and the buffer is full, 
+        // When the device is not ready and the buffer is full,
         // the previous part of the data is discarded.
         if !self.is_ready && ((BUF_SIZE - self.tx_pos) < len) {
             // Calculate how much data needs to be discarded
@@ -136,7 +136,7 @@ impl Debug for ConcreteDebug {
     }
 
     // Set debug level
-    fn set_debug_level(&mut self, level: DebugLevel){
+    fn set_debug_level(&mut self, level: DebugLevel) {
         if level >= DebugLevel::Lv0 && level <= DebugLevel::Lv5 {
             self.debug_level = level;
         } else {
@@ -153,13 +153,16 @@ fn panic(info: &PanicInfo) -> ! {
 
     // print panic location
     if let Some(location) = info.location() {
-        let msg = format!("panic occurred in file '{}' at line {}",
+        let msg = format!(
+            "panic occurred in file '{}' at line {}",
             location.file(),
             location.line(),
         );
         kernel().debug().error(&msg);
     } else {
-        kernel().debug().error("panic occurred but can't get location information...");
+        kernel()
+            .debug()
+            .error("panic occurred but can't get location information...");
     }
 
     loop {}

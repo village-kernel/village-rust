@@ -4,15 +4,15 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use super::vk_prog_decode::Program;
+use crate::misc::fopts::vk_file_fopt::FileFopt;
+use crate::traits::vk_filesys::FileMode;
+use crate::traits::vk_kernel::DebugLevel;
+use crate::village::kernel;
 use alloc::format;
+use alloc::string::{String, ToString};
 use alloc::vec;
 use alloc::vec::Vec;
-use alloc::string::{String, ToString};
-use crate::village::kernel;
-use crate::traits::vk_kernel::DebugLevel;
-use crate::traits::vk_filesys::FileMode;
-use crate::misc::fopts::vk_file_fopt::FileFopt;
-use super::vk_prog_decode::Program;
 
 // Const members
 const SEG_BASE: usize = 16;
@@ -22,11 +22,11 @@ pub struct RecordType;
 
 // Impl RecordType
 impl RecordType {
-    pub const DATA: u8              = 0;
-    pub const END_OF_FILE: u8       = 1;
-    pub const EXT_SEG_ADDR: u8      = 2;
-    pub const START_SEG_ADDR: u8    = 3;
-    pub const EXT_LINEAR_ADDR: u8   = 4;
+    pub const DATA: u8 = 0;
+    pub const END_OF_FILE: u8 = 1;
+    pub const EXT_SEG_ADDR: u8 = 2;
+    pub const START_SEG_ADDR: u8 = 3;
+    pub const EXT_LINEAR_ADDR: u8 = 4;
     pub const START_LINEAR_ADDR: u8 = 4;
 }
 
@@ -45,7 +45,7 @@ impl<'a> Record<'a> {
         Self {
             len: 0,
             addr: 0,
-            typ : 0,
+            typ: 0,
             data: "",
         }
     }
@@ -66,7 +66,9 @@ impl<'a> Record<'a> {
     /// start length address type data                                  check
     ///
     pub fn from(text: &'a str) -> Option<Self> {
-        if !Self::check_sum(text) { return None; }
+        if !Self::check_sum(text) {
+            return None;
+        }
 
         let mut record = Self::new();
 
@@ -82,13 +84,13 @@ impl<'a> Record<'a> {
     // len(1 byte) + addr(2 bype) + type(1 byte) + data(len byte)
     pub fn check_sum(text: &str) -> bool {
         let mut sum: u8 = 0;
-        
-        // Size of the record 
+
+        // Size of the record
         let size = u8::from_str_radix(&text[0..2], 16).unwrap() as usize + 4;
 
         // Sum of all decoded byte values
         for pos in 0..size {
-            sum = sum.wrapping_add(u8::from_str_radix(&text[pos*2..pos*2+2], 16).unwrap());
+            sum = sum.wrapping_add(u8::from_str_radix(&text[pos * 2..pos * 2 + 2], 16).unwrap());
         }
 
         // Two's complement
@@ -96,7 +98,7 @@ impl<'a> Record<'a> {
 
         // Crc of the record
         let crc_offset = size * 2;
-        let crc = u8::from_str_radix(&text[crc_offset..crc_offset+2], 16).unwrap();
+        let crc = u8::from_str_radix(&text[crc_offset..crc_offset + 2], 16).unwrap();
 
         sum == crc
     }
@@ -126,11 +128,18 @@ impl HexLoader {
         self.filename = filename.to_string();
 
         // Load and mapping
-        if !self.load_hex()     { return false; }
-        if !self.load_program() { return false; }
+        if !self.load_hex() {
+            return false;
+        }
+        if !self.load_program() {
+            return false;
+        }
 
         // Output debug info
-        kernel().debug().output(DebugLevel::Lv2, &format!("{} load at 0x{:08x}", self.filename, self.program.base()));
+        kernel().debug().output(
+            DebugLevel::Lv2,
+            &format!("{} load at 0x{:08x}", self.filename, self.program.base()),
+        );
         true
     }
 
@@ -139,7 +148,7 @@ impl HexLoader {
         let mut file = FileFopt::new();
         let mut data = Vec::new();
         let mut result = false;
-        
+
         if file.open(&self.filename, FileMode::READ) {
             let size = file.size();
             data = vec![0u8; size];
@@ -150,9 +159,11 @@ impl HexLoader {
         if result {
             self.text = String::from_utf8(data).unwrap();
         } else {
-            kernel().debug().error(&format!("{} no such file!", self.filename));
+            kernel()
+                .debug()
+                .error(&format!("{} no such file!", self.filename));
         }
-        
+
         result
     }
 
@@ -171,7 +182,9 @@ impl HexLoader {
         // Decode records
         for record_str in record_strs {
             // Skip empty record string
-            if record_str.is_empty() { continue; }
+            if record_str.is_empty() {
+                continue;
+            }
 
             // Decode record
             if let Some(record) = Record::from(&record_str) {
@@ -179,9 +192,10 @@ impl HexLoader {
                 if record.typ == RecordType::DATA {
                     data_size = segment + record.addr as usize + record.len as usize;
                 }
-                // Caclutate segment 
+                // Caclutate segment
                 else if record.typ == RecordType::EXT_SEG_ADDR {
-                    segment += u16::from_str_radix(&record.data[0..4], 16).unwrap() as usize * SEG_BASE;
+                    segment +=
+                        u16::from_str_radix(&record.data[0..4], 16).unwrap() as usize * SEG_BASE;
                 }
                 // Clear segment and break
                 else if record.typ == RecordType::END_OF_FILE {
@@ -194,27 +208,31 @@ impl HexLoader {
             }
             // Reture false when decode failed
             else {
-                kernel().debug().error(&format!("{} hex file pre parser failed", self.filename));
+                kernel()
+                    .debug()
+                    .error(&format!("{} hex file pre parser failed", self.filename));
                 return false;
             }
         }
 
         // Return false when records is empty
         if records.len() == 0 {
-            kernel().debug().error(&format!("{} hex file no valid record", self.filename));
+            kernel()
+                .debug()
+                .error(&format!("{} hex file no valid record", self.filename));
             return false;
         }
 
         // Allocate the memory space required by the program
         let start_addr = records[0].addr as usize;
         let mut data = vec![0u8; data_size - start_addr];
-        
+
         // Load program data
         for record in records.iter_mut() {
             if record.typ == RecordType::DATA {
                 for pos in 0..record.len as usize {
                     let offset = pos * 2;
-                    let value = u8::from_str_radix(&record.data[offset..offset+2], 16).unwrap();
+                    let value = u8::from_str_radix(&record.data[offset..offset + 2], 16).unwrap();
                     let addr = (record.addr as usize + segment + pos) - start_addr;
                     data[addr] = value;
                 }
@@ -225,7 +243,9 @@ impl HexLoader {
 
         // Init program
         if !self.program.init(data) {
-            kernel().debug().error(&format!("{} program load failed", self.filename));
+            kernel()
+                .debug()
+                .error(&format!("{} program load failed", self.filename));
             return false;
         }
 
@@ -237,11 +257,15 @@ impl HexLoader {
         let result = self.program.execute(argv);
 
         if result {
-            kernel().debug().output(DebugLevel::Lv2, &format!("{} exit", self.filename));
+            kernel()
+                .debug()
+                .output(DebugLevel::Lv2, &format!("{} exit", self.filename));
         } else {
-            kernel().debug().error(&format!("{} execute failed!", self.filename));
+            kernel()
+                .debug()
+                .error(&format!("{} execute failed!", self.filename));
         }
-        
+
         result
     }
 

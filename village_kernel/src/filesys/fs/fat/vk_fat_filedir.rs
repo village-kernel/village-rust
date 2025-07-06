@@ -4,11 +4,11 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::vec::Vec;
 use super::vk_fat_diskio::FatDiskio;
-use super::vk_fat_object::FatObject;
 use super::vk_fat_folder::FatFolder;
+use super::vk_fat_object::FatObject;
 use crate::traits::vk_filesys::{FileDir, FileMode};
+use alloc::vec::Vec;
 
 // Struct FatFile
 pub struct FatFile {
@@ -50,7 +50,7 @@ impl FatFile {
 }
 
 // Impl FatFile
-impl FatFile  {
+impl FatFile {
     // Open
     pub fn open(&mut self, diskio: &mut FatDiskio, mut fatobj: FatObject, mode: FileMode) {
         let bytes_per_sec = diskio.get_info().bytes_per_sec;
@@ -63,11 +63,12 @@ impl FatFile  {
             self.fst_clust = fatobj.get_first_cluster();
             self.sector_size = (self.file_size + bytes_per_sec - 1) / bytes_per_sec;
             self.clust_size = (self.sector_size + sec_per_clust - 1) / sec_per_clust;
-            
+
             let buf_len = (self.clust_size * sec_per_clust * bytes_per_sec) as usize;
             self.buffer.resize(buf_len, 0);
-            
-            self.clust_size = diskio.read_cluster(&mut self.buffer, self.fst_clust, self.clust_size);
+
+            self.clust_size =
+                diskio.read_cluster(&mut self.buffer, self.fst_clust, self.clust_size);
         }
 
         self.myself = fatobj;
@@ -84,7 +85,7 @@ impl FatFile  {
         }
 
         let new_size = wrt_offset + size;
-        
+
         if new_size > self.buffer.len() {
             self.buffer.resize(new_size, 0);
         }
@@ -100,13 +101,12 @@ impl FatFile  {
     // Read
     pub fn read(&mut self, data: &mut [u8], mut size: usize, offset: usize) -> usize {
         if self.file_size > 0 {
-
-            if (self.file_size as usize) < offset + size  {
+            if (self.file_size as usize) < offset + size {
                 size = self.file_size as usize - offset;
             }
 
-            data.copy_from_slice(&self.buffer[offset..offset+size]);
-            
+            data.copy_from_slice(&self.buffer[offset..offset + size]);
+
             size
         } else {
             0
@@ -133,7 +133,7 @@ impl FatFile  {
 }
 
 // Struct FatDir
-pub struct FatDir  {
+pub struct FatDir {
     myself: FatObject,
     dir_id: usize,
     dir_mode: FileMode,
@@ -142,7 +142,7 @@ pub struct FatDir  {
 }
 
 // Impl FatDir
-impl FatDir  {
+impl FatDir {
     // New
     pub const fn new() -> Self {
         Self {
@@ -153,7 +153,7 @@ impl FatDir  {
             sub_objs: Vec::new(),
         }
     }
-    
+
     // Set id
     pub fn set_id(&mut self, id: usize) {
         self.dir_id = id;
@@ -170,16 +170,16 @@ impl FatDir {
     // Open
     pub fn open(&mut self, diskio: &mut FatDiskio, fatobj: FatObject, mode: FileMode) {
         let mut folder = FatFolder::new(diskio, fatobj.clone());
-        
+
         self.myself = fatobj;
         self.dir_mode = mode;
         self.sub_size = folder.size();
         self.sub_objs.resize(self.sub_size, FatObject::new());
-        
+
         if self.sub_size > 0 {
             folder.read(&mut self.sub_objs);
         }
-        
+
         folder.close();
     }
 
@@ -190,14 +190,14 @@ impl FatDir {
         } else {
             size
         };
-        
+
         for i in 0..resize as usize {
             let obj = &mut self.sub_objs[offset + i];
             dirs[i].name = obj.get_object_name();
             dirs[i].attr = obj.get_object_attr();
             dirs[i].typid = obj.get_object_type();
         }
-        
+
         resize
     }
 

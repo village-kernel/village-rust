@@ -4,10 +4,10 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::vec::Vec;
+use crate::village::kernel;
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
-use crate::village::kernel;
+use alloc::vec::Vec;
 
 // Struct executor info
 pub struct ExecInfo {
@@ -34,7 +34,7 @@ pub trait Executor {
     fn base(&mut self) -> &mut ExecInfo;
     fn initiate(&mut self) -> i32;
     fn release(&mut self) -> bool;
-    
+
     // Run
     fn run(&mut self, path: &str, argv: Vec<&str>) -> i32 {
         // Set path and argv
@@ -54,7 +54,7 @@ pub trait Executor {
     fn wait(&mut self) {
         kernel().thread().wait_for_task(self.base().tid);
     }
-    
+
     // Kill
     fn kill(&mut self) {
         kernel().thread().stop_task(self.base().tid);

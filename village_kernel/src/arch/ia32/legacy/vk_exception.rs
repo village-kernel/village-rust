@@ -4,12 +4,12 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use super::vk_registers::Registers;
+use crate::traits::vk_callback::Callback;
+use crate::vendor::ia32legacy::core::i686::*;
+use crate::village::kernel;
 use alloc::format;
 use core::arch::asm;
-use crate::village::kernel;
-use super::vk_registers::Registers;
-use crate::vendor::ia32legacy::core::i686::*;
-use crate::traits::vk_callback::Callback;
 
 // Constant members
 pub const ISR_NUM: usize = 48;
@@ -46,12 +46,12 @@ impl ConcreteException {
     pub const fn new() -> Self {
         ConcreteException {
             idt: [IdtGate {
-                    low_offset: 0,
-                    sel: 0,
-                    rsvd: 0,
-                    flags: 0,
-                    high_offset: 0,
-                }; ISR_NUM],
+                low_offset: 0,
+                sel: 0,
+                rsvd: 0,
+                flags: 0,
+                high_offset: 0,
+            }; ISR_NUM],
             idt_reg: IdtRegister { limit: 0, base: 0 },
         }
     }
@@ -70,7 +70,7 @@ impl ConcreteException {
         // Calculate the size of isr vector
         let count = unsafe { _evector.as_ptr() as usize - _svector.as_ptr() as usize };
         let count = count / core::mem::size_of::<unsafe extern "C" fn()>();
-    
+
         // Set interrupt handler
         for i in 1..count {
             unsafe {
@@ -125,7 +125,7 @@ impl ConcreteException {
     fn set_idt(&mut self) {
         self.idt_reg.base = self.idt.as_ptr() as u32;
         self.idt_reg.limit = (IDT_ENTRIES * core::mem::size_of::<IdtGate>() as u32) as u16 - 1;
-        
+
         unsafe {
             asm!("lidt [{}]", in(reg) &self.idt_reg as *const _ as u32);
         }
@@ -164,10 +164,9 @@ impl ConcreteException {
     fn install_handlers(&mut self) {
         macro_rules! install_handler {
             ($irq:expr, $handler:expr) => {
-                kernel().interrupt().add_isr_cb(
-                    $irq,
-                    Callback::new($handler as u32)
-                );
+                kernel()
+                    .interrupt()
+                    .add_isr_cb($irq, Callback::new($handler as u32));
             };
         }
 
@@ -196,10 +195,9 @@ impl ConcreteException {
     fn uninstall_handlers(&mut self) {
         macro_rules! uninstall_handler {
             ($irq:expr, $handler:expr) => {
-                kernel().interrupt().del_isr_cb(
-                    $irq,
-                    Callback::new($handler as u32)
-                );
+                kernel()
+                    .interrupt()
+                    .del_isr_cb($irq, Callback::new($handler as u32));
             };
         }
 
@@ -360,7 +358,9 @@ fn stacked_info(regs: &Registers) {
     kernel.debug().error(&format!("esi:    0x{:08x}", regs.esi));
     kernel.debug().error(&format!("edi:    0x{:08x}", regs.edi));
     kernel.debug().error(&format!("eip:    0x{:08x}", regs.eip));
-    kernel.debug().error(&format!("eflags: 0x{:08x}", regs.eflags));
+    kernel
+        .debug()
+        .error(&format!("eflags: 0x{:08x}", regs.eflags));
 
     kernel.debug().error(&format!("Segs:"));
     kernel.debug().error(&format!("cs:     0x{:08x}", regs.cs));
@@ -370,7 +370,6 @@ fn stacked_info(regs: &Registers) {
     kernel.debug().error(&format!("fs:     0x{:08x}", regs.fs));
     kernel.debug().error(&format!("gs:     0x{:08x}", regs.gs));
 }
-
 
 // IRQ handler
 #[unsafe(no_mangle)]

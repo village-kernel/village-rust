@@ -4,12 +4,12 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::vec::Vec;
-use crate::village::kernel;
-use crate::traits::vk_kernel::Loader;
 use crate::binutils::tool::vk_library_tool::LibraryTool;
 use crate::binutils::tool::vk_module_tool::ModuleTool;
 use crate::misc::parser::vk_rc_parser::RcParser;
+use crate::traits::vk_kernel::Loader;
+use crate::village::kernel;
+use alloc::vec::Vec;
 
 // Struct concrete loader
 pub struct ConcreteLoader {
@@ -20,7 +20,7 @@ pub struct ConcreteLoader {
 // Impl concrete loader
 impl ConcreteLoader {
     pub const fn new() -> Self {
-        Self { 
+        Self {
             libtool: LibraryTool::new(),
             modtool: ModuleTool::new(),
         }
@@ -56,7 +56,7 @@ impl ConcreteLoader {
     // Load libs
     fn load_libs(&mut self, filename: &str) {
         let mut parser = RcParser::new();
-        
+
         if parser.load(filename) {
             let mut run_cmds = parser.get_run_cmds();
 
@@ -69,7 +69,7 @@ impl ConcreteLoader {
     // Unload libs
     fn unload_libs(&mut self, filename: &str) {
         let mut parser = RcParser::new();
-        
+
         if parser.load(filename) {
             let mut run_cmds = parser.get_run_cmds();
 
@@ -82,7 +82,7 @@ impl ConcreteLoader {
     // Load mods
     fn load_mods(&mut self, filename: &str) {
         let mut parser = RcParser::new();
-        
+
         if parser.load(filename) {
             let mut run_cmds = parser.get_run_cmds();
 
@@ -95,7 +95,7 @@ impl ConcreteLoader {
     // Unload mods
     fn unload_mods(&mut self, filename: &str) {
         let mut parser = RcParser::new();
-        
+
         if parser.load(filename) {
             let mut run_cmds = parser.get_run_cmds();
 
@@ -135,11 +135,19 @@ impl Loader for ConcreteLoader {
 
     // Get libraries
     fn get_libraries(&mut self) -> Vec<&str> {
-        self.libtool.get_libraries().iter_mut().map(|l| l.get_filename()).collect()
+        self.libtool
+            .get_libraries()
+            .iter_mut()
+            .map(|l| l.get_filename())
+            .collect()
     }
 
     // Get modules
     fn get_modules(&mut self) -> Vec<&str> {
-        self.modtool.get_modules().iter_mut().map(|m| m.get_filename()).collect()
+        self.modtool
+            .get_modules()
+            .iter_mut()
+            .map(|m| m.get_filename())
+            .collect()
     }
 }

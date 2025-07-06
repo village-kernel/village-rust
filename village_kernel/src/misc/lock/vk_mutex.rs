@@ -27,12 +27,7 @@ impl Mutex {
     pub fn lock(&self) {
         while self
             .lock
-            .compare_exchange(
-                false,
-                true,
-                Ordering::Acquire,
-                Ordering::Relaxed,
-            )
+            .compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed)
             .is_err()
         {
             let ticks = self.ticks.load(Ordering::Acquire);

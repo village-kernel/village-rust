@@ -27,19 +27,13 @@ impl ModLoader {
     }
 
     // Fill bss zero
-    pub fn fill_bss_zero(&mut self) {
-
-    }
+    pub fn fill_bss_zero(&mut self) {}
 
     // Init array
-    pub fn init_array(&mut self) {
-
-    }
+    pub fn init_array(&mut self) {}
 
     // Fini array
-    pub fn fini_array(&mut self) {
-
-    }
+    pub fn fini_array(&mut self) {}
 
     // Exit
     pub fn exit(&mut self) -> bool {

@@ -4,12 +4,12 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use super::vk_cmdmsg::CmdMsg;
+use super::vk_cmdmsg::CmdMsgMgr;
+use crate::village::kernel;
 use alloc::format;
 use alloc::string::String;
 use alloc::string::ToString;
-use crate::village::kernel;
-use super::vk_cmdmsg::CmdMsg;
-use super::vk_cmdmsg::CmdMsgMgr;
 
 // Console welcome string
 const VK_WELCOME: &[&str] = &[
@@ -53,7 +53,7 @@ impl Console {
 
         // Set default path
         self.path = "/".to_string();
-        
+
         // Set msg mgr
         self.msg_mgr.setup(driver);
 
@@ -95,20 +95,22 @@ impl Console {
             return;
         }
 
-        self.msg_mgr.write(&format!("{}: command not found\r\n", msg.cmd));
+        self.msg_mgr
+            .write(&format!("{}: command not found\r\n", msg.cmd));
         self.show_user_and_path();
     }
 
     // Show welcome msg
     fn show_welcome_msg(&mut self) {
         for line in VK_WELCOME.iter() {
-            self.msg_mgr.write(&format!("{}\r\n",line));
+            self.msg_mgr.write(&format!("{}\r\n", line));
         }
     }
 
     // Show user and path
     fn show_user_and_path(&mut self) {
-        self.msg_mgr.write(&format!("{}@{} {} # ", self.user, self.mach, self.path));
+        self.msg_mgr
+            .write(&format!("{}@{} {} # ", self.user, self.mach, self.path));
     }
 }
 
@@ -130,7 +132,7 @@ impl Console {
 
         if !path.starts_with('/') {
             abs_path.push_str(&self.path);
-            
+
             if !abs_path.ends_with('/') && !abs_path.is_empty() {
                 abs_path.push('/');
             }
@@ -151,17 +153,20 @@ impl Console {
 
     // Info
     pub fn info(&mut self, info: &str) {
-        self.msg_mgr.write(&format!("\x1b[36m[Info] {} \r\n\x1b[39m", info));
+        self.msg_mgr
+            .write(&format!("\x1b[36m[Info] {} \r\n\x1b[39m", info));
     }
 
     // Error
     pub fn error(&mut self, error: &str) {
-        self.msg_mgr.write(&format!("\x1b[31m[Error] {} \r\n\x1b[39m", error));
+        self.msg_mgr
+            .write(&format!("\x1b[31m[Error] {} \r\n\x1b[39m", error));
     }
 
     // Warn
     pub fn warn(&mut self, warn: &str) {
-        self.msg_mgr.write(&format!("\x1b[33m[Warning] {} \r\n\x1b[39m", warn));
+        self.msg_mgr
+            .write(&format!("\x1b[33m[Warning] {} \r\n\x1b[39m", warn));
     }
 
     // print

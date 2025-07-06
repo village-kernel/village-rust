@@ -13,13 +13,13 @@ pub struct FileMode(u32);
 
 // Impl FileMode
 impl FileMode {
-    pub const OPEN_EXISTING: Self  = FileMode(0x00);
-    pub const READ: Self           = FileMode(0x01);
-    pub const WRITE: Self          = FileMode(0x02);
-    pub const READ_WRITE: Self     = FileMode(0x03);
-    pub const CREATE_NEW: Self     = FileMode(0x04);
-    pub const CREATE_ALWAYS: Self  = FileMode(0x10);
-    pub const OPEN_APPEND: Self    = FileMode(0x30);
+    pub const OPEN_EXISTING: Self = FileMode(0x00);
+    pub const READ: Self = FileMode(0x01);
+    pub const WRITE: Self = FileMode(0x02);
+    pub const READ_WRITE: Self = FileMode(0x03);
+    pub const CREATE_NEW: Self = FileMode(0x04);
+    pub const CREATE_ALWAYS: Self = FileMode(0x10);
+    pub const OPEN_APPEND: Self = FileMode(0x30);
 
     // Contains
     pub fn contains(self, flag: Self) -> bool {
@@ -34,22 +34,20 @@ impl FileMode {
 
 // Enum FileType
 #[derive(PartialEq, Clone)]
-pub enum FileType
-{
-    Unknown   = 0x00,
-    File      = 0x01,
+pub enum FileType {
+    Unknown = 0x00,
+    File = 0x01,
     Directory = 0x02,
-    Volume    = 0x04,
+    Volume = 0x04,
 }
 
 // Enum FileAttr
 #[derive(PartialEq, Clone)]
-pub enum FileAttr
-{
-    None    = 0x00,
+pub enum FileAttr {
+    None = 0x00,
     Visible = 0x04,
-    Hidden  = 0x08,
-    System  = 0x10,
+    Hidden = 0x08,
+    System = 0x10,
 }
 
 // Struct FileDir

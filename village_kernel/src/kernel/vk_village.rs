@@ -6,96 +6,96 @@
 //###########################################################################
 use alloc::boxed::Box;
 
-use crate::traits::vk_kernel::Kernel;
-use crate::traits::vk_kernel::System;
-use crate::traits::vk_kernel::Memory;
+use crate::traits::vk_kernel::BuildInfo;
 use crate::traits::vk_kernel::Debug;
-use crate::traits::vk_kernel::Interrupt;
-use crate::traits::vk_kernel::Scheduler;
-use crate::traits::vk_kernel::Thread;
-use crate::traits::vk_kernel::WorkQueue;
-use crate::traits::vk_kernel::Event;
-use crate::traits::vk_kernel::Symbol;
 use crate::traits::vk_kernel::Device;
+use crate::traits::vk_kernel::Event;
 use crate::traits::vk_kernel::Feature;
 use crate::traits::vk_kernel::FileSystem;
+use crate::traits::vk_kernel::Interrupt;
+use crate::traits::vk_kernel::Kernel;
 use crate::traits::vk_kernel::Loader;
+use crate::traits::vk_kernel::Memory;
 use crate::traits::vk_kernel::Process;
-use crate::traits::vk_kernel::Timer;
-use crate::traits::vk_kernel::Terminal;
-use crate::traits::vk_kernel::Signal;
 use crate::traits::vk_kernel::Protocol;
-use crate::traits::vk_kernel::BuildInfo;
+use crate::traits::vk_kernel::Scheduler;
+use crate::traits::vk_kernel::Signal;
+use crate::traits::vk_kernel::Symbol;
+use crate::traits::vk_kernel::System;
+use crate::traits::vk_kernel::Terminal;
+use crate::traits::vk_kernel::Thread;
+use crate::traits::vk_kernel::Timer;
+use crate::traits::vk_kernel::WorkQueue;
 
 use super::vk_debug::ConcreteDebug;
 use super::vk_device::ConcreteDevice;
 use super::vk_event::ConcreteEvent;
 use super::vk_feature::ConcreteFeature;
+use super::vk_interrupt::ConcreteInterrupt;
 use super::vk_loader::ConcreteLoader;
 use super::vk_memory::ConcreteMemory;
-use super::vk_interrupt::ConcreteInterrupt;
 use super::vk_process::ConcreteProcess;
 use super::vk_signal::ConcreteSignal;
 use super::vk_symbol::ConcreteSymbol;
 use super::vk_thread::ConcreteThread;
 use super::vk_timer::ConcreteTimer;
 use super::vk_workqueue::ConcreteWorkQueue;
+use crate::arch::ia32::legacy::vk_scheduler::ConcreteScheduler;
+use crate::arch::ia32::legacy::vk_system::ConcreteSystem;
 use crate::filesys::vk_filesystem::ConcreteFileSystem;
 use crate::protocol::vk_protocol::ConcreteProtocol;
 use crate::terminal::vk_terminal::ConcreteTerminal;
-use crate::arch::ia32::legacy::vk_system::ConcreteSystem;
-use crate::arch::ia32::legacy::vk_scheduler::ConcreteScheduler;
 
 // Struct village
 pub struct Village {
-    memory:    Box<ConcreteMemory>,
-    debug:     Box<ConcreteDebug>,
+    memory: Box<ConcreteMemory>,
+    debug: Box<ConcreteDebug>,
     interrupt: Box<ConcreteInterrupt>,
-    system:    Box<ConcreteSystem>,
+    system: Box<ConcreteSystem>,
     scheduler: Box<ConcreteScheduler>,
-    thread:    Box<ConcreteThread>,
+    thread: Box<ConcreteThread>,
     workqueue: Box<ConcreteWorkQueue>,
-    event:     Box<ConcreteEvent>,
-    symbol:    Box<ConcreteSymbol>,
-    device:    Box<ConcreteDevice>,
-    feature:   Box<ConcreteFeature>,
-    filesys:   Box<ConcreteFileSystem>,
-    loader:    Box<ConcreteLoader>,
-    process:   Box<ConcreteProcess>,
-    timer:     Box<ConcreteTimer>,
-    terminal:  Box<ConcreteTerminal>,
-    signal:    Box<ConcreteSignal>,
-    protocol:  Box<ConcreteProtocol>,
+    event: Box<ConcreteEvent>,
+    symbol: Box<ConcreteSymbol>,
+    device: Box<ConcreteDevice>,
+    feature: Box<ConcreteFeature>,
+    filesys: Box<ConcreteFileSystem>,
+    loader: Box<ConcreteLoader>,
+    process: Box<ConcreteProcess>,
+    timer: Box<ConcreteTimer>,
+    terminal: Box<ConcreteTerminal>,
+    signal: Box<ConcreteSignal>,
+    protocol: Box<ConcreteProtocol>,
 }
 
-// Impl village 
+// Impl village
 impl Village {
     // New village object
     pub fn new() -> Self {
         Self {
-            memory:    Box::new(ConcreteMemory::new()),
-            debug:     Box::new(ConcreteDebug::new()),
+            memory: Box::new(ConcreteMemory::new()),
+            debug: Box::new(ConcreteDebug::new()),
             interrupt: Box::new(ConcreteInterrupt::new()),
-            system:    Box::new(ConcreteSystem::new()),
+            system: Box::new(ConcreteSystem::new()),
             scheduler: Box::new(ConcreteScheduler::new()),
-            thread:    Box::new(ConcreteThread::new()),
+            thread: Box::new(ConcreteThread::new()),
             workqueue: Box::new(ConcreteWorkQueue::new()),
-            event:     Box::new(ConcreteEvent::new()),
-            symbol:    Box::new(ConcreteSymbol::new()),
-            device:    Box::new(ConcreteDevice::new()),
-            feature:   Box::new(ConcreteFeature::new()),
-            filesys:   Box::new(ConcreteFileSystem::new()),
-            loader:    Box::new(ConcreteLoader::new()),
-            process:   Box::new(ConcreteProcess::new()),
-            timer:     Box::new(ConcreteTimer::new()),
-            terminal:  Box::new(ConcreteTerminal::new()),
-            signal:    Box::new(ConcreteSignal::new()),
-            protocol:  Box::new(ConcreteProtocol::new()),
+            event: Box::new(ConcreteEvent::new()),
+            symbol: Box::new(ConcreteSymbol::new()),
+            device: Box::new(ConcreteDevice::new()),
+            feature: Box::new(ConcreteFeature::new()),
+            filesys: Box::new(ConcreteFileSystem::new()),
+            loader: Box::new(ConcreteLoader::new()),
+            process: Box::new(ConcreteProcess::new()),
+            timer: Box::new(ConcreteTimer::new()),
+            terminal: Box::new(ConcreteTerminal::new()),
+            signal: Box::new(ConcreteSignal::new()),
+            protocol: Box::new(ConcreteProtocol::new()),
         }
     }
 }
 
-// Impl kernel for village 
+// Impl kernel for village
 impl Kernel for Village {
     // Setup
     fn setup(&mut self) {
@@ -224,7 +224,7 @@ impl Kernel for Village {
     fn system(&mut self) -> &mut dyn System {
         self.system.as_mut()
     }
-    
+
     // Memory
     fn memory(&mut self) -> &mut dyn Memory {
         self.memory.as_mut()

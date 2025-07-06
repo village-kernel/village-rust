@@ -4,15 +4,15 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::register_cmd;
+use crate::traits::vk_command::{Cmd, CmdBase};
+use crate::village::kernel;
 use alloc::boxed::Box;
 use alloc::vec::Vec;
-use crate::register_cmd;
-use crate::village::kernel;
-use crate::traits::vk_command::{Cmd, CmdBase};
 
 // Struct cmd null
 struct CmdNull {
-    base: CmdBase
+    base: CmdBase,
 }
 
 // Impl cmd null
@@ -33,14 +33,10 @@ impl Cmd for CmdNull {
     }
 
     // Execute
-    fn execute(&mut self, _argv: Vec<&str>) {
+    fn execute(&mut self, _argv: Vec<&str>) {}
 
-    }
-    
     // Help
-    fn help(&mut self) {
-
-    }
+    fn help(&mut self) {}
 }
 
 // Register cmd

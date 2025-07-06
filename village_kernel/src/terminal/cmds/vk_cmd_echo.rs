@@ -4,17 +4,17 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::vec::Vec;
-use alloc::boxed::Box;
+use crate::misc::fopts::vk_file_fopt::FileFopt;
 use crate::register_cmd;
-use crate::village::kernel;
 use crate::traits::vk_command::{Cmd, CmdBase};
 use crate::traits::vk_filesys::FileMode;
-use crate::misc::fopts::vk_file_fopt::FileFopt;
+use crate::village::kernel;
+use alloc::boxed::Box;
+use alloc::vec::Vec;
 
 // Struct cmd echo
 struct CmdEcho {
-    base: CmdBase
+    base: CmdBase,
 }
 
 // Impl cmd echo
@@ -52,7 +52,6 @@ impl CmdEcho {
                 let mut file = FileFopt::new();
 
                 if file.open(&filepath, filemode) {
-
                     if file.size() != 0 && mode == ">>" {
                         file.write("\r\n".as_bytes(), 3, 0);
                     }
@@ -62,7 +61,7 @@ impl CmdEcho {
                         file.write(" ".as_bytes(), 1, 0);
                     }
 
-                    file.flush();                   
+                    file.flush();
                     file.close();
                 }
             } else {
@@ -88,13 +87,18 @@ impl Cmd for CmdEcho {
             }
 
             if argv.len() >= 4 {
-                self.echo(argv.len() - 3, argv[1..].to_vec(), argv[argv.len() - 2], argv[argv.len() - 1]);
+                self.echo(
+                    argv.len() - 3,
+                    argv[1..].to_vec(),
+                    argv[argv.len() - 2],
+                    argv[argv.len() - 1],
+                );
             } else {
                 self.echo(argv.len() - 1, argv[1..].to_vec(), "", "");
             }
         }
     }
-    
+
     // Help
     fn help(&mut self) {
         if let Some(console) = self.base.get_console() {

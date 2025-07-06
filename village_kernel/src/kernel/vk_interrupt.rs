@@ -4,12 +4,12 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::format;
-use crate::village::kernel;
-use crate::traits::vk_kernel::Interrupt;
-use crate::traits::vk_callback::Callback;
-use crate::traits::vk_linkedlist::LinkedList;
 use crate::arch::ia32::legacy::vk_exception::{ConcreteException, ISR_NUM, RSVD_ISR_SIZE};
+use crate::traits::vk_callback::Callback;
+use crate::traits::vk_kernel::Interrupt;
+use crate::traits::vk_linkedlist::LinkedList;
+use crate::village::kernel;
+use alloc::format;
 
 // Struct concrete interrupt
 pub struct ConcreteInterrupt {
@@ -78,8 +78,9 @@ impl Interrupt for ConcreteInterrupt {
     fn del_isr_cb(&mut self, irq: isize, callback: Callback) {
         let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
         let isrs = &mut self.isr_tabs[irq_idx];
-        isrs.retain_mut(|cb|{
-            !(cb.instance == callback.instance && core::ptr::fn_addr_eq(cb.callback , callback.callback))
+        isrs.retain_mut(|cb| {
+            !(cb.instance == callback.instance
+                && core::ptr::fn_addr_eq(cb.callback, callback.callback))
         });
     }
 
@@ -88,32 +89,39 @@ impl Interrupt for ConcreteInterrupt {
         let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
         self.isr_tabs[irq_idx].clear();
     }
-    
+
     // Replace ISR handler
     fn replace(&mut self, irq: isize, handler: usize) {
         let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
         self.exception.install(irq_idx, handler);
     }
-    
+
     // Interrupt handler
     fn handler(&mut self, irq: isize) {
-        if !self.is_ready { return; }
-        
+        if !self.is_ready {
+            return;
+        }
+
         let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
         let isrs = &mut self.isr_tabs[irq_idx];
-        
+
         if isrs.is_empty() {
             if self.warnings[irq_idx] >= 10 {
-                kernel().debug().error(&format!("IRQ {} no being handled correctly, system will halt on here", irq));
+                kernel().debug().error(&format!(
+                    "IRQ {} no being handled correctly, system will halt on here",
+                    irq
+                ));
                 loop {}
             }
-            kernel().debug().warn(&format!("IRQ {} has no interrupt service function", irq));
+            kernel()
+                .debug()
+                .warn(&format!("IRQ {} has no interrupt service function", irq));
             self.warnings[irq_idx] += 1;
             return;
         } else {
             self.warnings[irq_idx] = 0;
         }
-        
+
         for callback in isrs.iter_mut() {
             callback.call();
         }

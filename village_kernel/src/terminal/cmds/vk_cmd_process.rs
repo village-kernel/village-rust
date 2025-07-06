@@ -4,16 +4,16 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::register_cmd;
+use crate::traits::vk_command::{Cmd, CmdBase};
+use crate::village::kernel;
 use alloc::boxed::Box;
 use alloc::format;
 use alloc::vec::Vec;
-use crate::register_cmd;
-use crate::village::kernel;
-use crate::traits::vk_command::{Cmd, CmdBase};
 
 // Struct cmd process
 struct CmdProcess {
-    base: CmdBase
+    base: CmdBase,
 }
 
 // Impl cmd process
@@ -37,15 +37,14 @@ impl Cmd for CmdProcess {
     fn execute(&mut self, _argv: Vec<&str>) {
         if let Some(console) = self.base.get_console() {
             for process in kernel().process().get_processes().iter_mut() {
-                console.println(&format!("pid {:<2}, pid {:<2}, path {}",
-                    process.pid, 
-                    process.tid,
-                    process.path,
+                console.println(&format!(
+                    "pid {:<2}, pid {:<2}, path {}",
+                    process.pid, process.tid, process.path,
                 ));
             }
         }
     }
-    
+
     // Help
     fn help(&mut self) {
         if let Some(console) = self.base.get_console() {

@@ -4,12 +4,12 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::boxed::Box;
-use crate::village::kernel;
-use crate::register_plat_device;
-use crate::traits::vk_driver::{DriverID, DrvInfo, PlatData, PlatDevice};
 use crate::drivers::platdrv::block::vk_ata_lba_disk::AtaLbaDiskConfig;
 use crate::drivers::platdrv::serial::vk_pic32_uart::Pic32UartConfig;
+use crate::register_plat_device;
+use crate::traits::vk_driver::{DriverID, DrvInfo, PlatData, PlatDevice};
+use crate::village::kernel;
+use alloc::boxed::Box;
 
 // Struct ata lba disk dev
 struct AtaLbaDiskDev {
@@ -40,9 +40,7 @@ impl PlatDevice for AtaLbaDiskDev {
     }
 
     fn config(&mut self) {
-        self.config = AtaLbaDiskConfig {
-            drv: 1
-        };
+        self.config = AtaLbaDiskConfig { drv: 1 };
         self.plat.set_data(&self.config);
         self.plat.set_id(DriverID::Block);
         self.plat.set_name("disk0");
@@ -51,7 +49,6 @@ impl PlatDevice for AtaLbaDiskDev {
 
 // Register plat device
 register_plat_device!(AtaLbaDiskDev::new(), ataLbaDisk, ata_lba_disk_dev);
-
 
 // Struct pic32 uart dev
 struct Pic32UartDev {
@@ -82,9 +79,7 @@ impl PlatDevice for Pic32UartDev {
     }
 
     fn config(&mut self) {
-        self.config = Pic32UartConfig {
-            port: 0
-        };
+        self.config = Pic32UartConfig { port: 0 };
         self.plat.set_data(&self.config);
         self.plat.set_id(DriverID::Char);
         self.plat.set_name("serial0");

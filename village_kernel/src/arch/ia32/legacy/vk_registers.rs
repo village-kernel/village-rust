@@ -26,7 +26,7 @@ pub struct Registers {
     // Interrupt number and error code
     pub irq: u32,
     pub err: u32,
-    
+
     // Pushed by the processor automatically
     pub eip: u32,
     pub cs: u32,
@@ -45,7 +45,7 @@ impl Registers {
         esp: u32,
         ebp: u32,
         esi: u32,
-        edi: u32
+        edi: u32,
     ) -> Self {
         Self {
             edi,
@@ -87,13 +87,7 @@ pub struct TaskContext {
 }
 
 impl TaskContext {
-    pub const fn new(
-        eip: u32,
-        arg0: u32,
-        arg1: u32,
-        arg2: u32,
-        arg3: u32
-    ) -> Self {
+    pub const fn new(eip: u32, arg0: u32, arg1: u32, arg2: u32, arg3: u32) -> Self {
         Self {
             edi: 0,
             esi: 0,

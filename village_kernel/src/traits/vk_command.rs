@@ -4,9 +4,9 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::vec::Vec;
-use alloc::string::{String, ToString};
 use crate::terminal::vk_console::Console;
+use alloc::string::{String, ToString};
+use alloc::vec::Vec;
 
 // Struct cmd base
 pub struct CmdBase {
@@ -49,7 +49,7 @@ impl CmdBase {
 pub trait Cmd {
     // Base
     fn base(&mut self) -> &mut CmdBase;
-    
+
     // Setup
     fn setup(&mut self, console: &mut Console) {
         self.base().set_console(console);

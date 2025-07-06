@@ -4,9 +4,9 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::misc::fopts::vk_dev_fopt::DevFopt;
 use alloc::vec;
 use alloc::vec::Vec;
-use crate::{misc::fopts::vk_dev_fopt::DevFopt};
 
 // Const mebers
 const DIR_ENTRY_SIZE: u8 = 32;
@@ -188,7 +188,7 @@ impl Fat32 {
     // From
     pub fn from(data: &[u8]) -> Self {
         let mut fat = Self::new();
-        
+
         fat.fat_sz_32 = u32::from_le_bytes([data[0], data[1], data[2], data[3]]);
         fat.ext_flags = u16::from_le_bytes([data[4], data[5]]);
         fat.fs_ver = u16::from_le_bytes([data[6], data[7]]);
@@ -245,7 +245,7 @@ impl DBR {
         dbr.bpb = BiosParameterBlock::from(&data[11..36]);
         dbr.fat1216 = Fat1216::from(&data[36..90]);
         dbr.fat32 = Fat32::from(&data[36..90]);
-        
+
         // Reserved
         //dbr.reserved = vec![0u8; 420];
         //dbr.reserved.copy_from_slice(&data[90..510]);
@@ -366,12 +366,11 @@ impl FatDiskio {
     }
 }
 
-
 // Impl FatDiskio
 impl FatDiskio {
     // Check file system
     fn check_file_system(&mut self) -> bool {
-        // Read dbr sector        
+        // Read dbr sector
         let mut sector = vec![0u8; 512];
         self.read_sector(&mut sector, 0, 1);
 
@@ -383,7 +382,7 @@ impl FatDiskio {
             } else {
                 self.info.fat_size = dbr.fat32.fat_sz_32;
             }
-        
+
             // Calc total sectors
             if 0 != dbr.bpb.tot_sec_16 {
                 self.info.total_sectors = dbr.bpb.tot_sec_16 as u32;
@@ -396,15 +395,25 @@ impl FatDiskio {
 
             // Calc the sector number of start/ended of FAT
             self.info.fat_start_sector = dbr.bpb.reserved_sec_cnt as u32;
-            self.info.fat_end_sector = dbr.bpb.reserved_sec_cnt as u32 + (dbr.bpb.num_fats as u32 * self.info.fat_size) - 1;
+            self.info.fat_end_sector = dbr.bpb.reserved_sec_cnt as u32
+                + (dbr.bpb.num_fats as u32 * self.info.fat_size)
+                - 1;
 
             // Calc fat12/16 root dir sector
-            self.info.root_start_sector = dbr.bpb.reserved_sec_cnt as u32 + (dbr.bpb.num_fats as u32 * self.info.fat_size);
-            self.info.root_sector_count = ((dbr.bpb.root_ent_cnt as u32 * DIR_ENTRY_SIZE as u32) + (dbr.bpb.bytes_per_sec as u32 - 1)) / dbr.bpb.bytes_per_sec as u32;
-            
+            self.info.root_start_sector =
+                dbr.bpb.reserved_sec_cnt as u32 + (dbr.bpb.num_fats as u32 * self.info.fat_size);
+            self.info.root_sector_count = ((dbr.bpb.root_ent_cnt as u32 * DIR_ENTRY_SIZE as u32)
+                + (dbr.bpb.bytes_per_sec as u32 - 1))
+                / dbr.bpb.bytes_per_sec as u32;
+
             // Calc fat data sector
-            self.info.data_start_sector = dbr.bpb.reserved_sec_cnt as u32 + (dbr.bpb.num_fats as u32 * self.info.fat_size) + self.info.root_sector_count;
-            self.info.data_sector_count = self.info.total_sectors - (dbr.bpb.reserved_sec_cnt as u32 + (dbr.bpb.num_fats as u32 * self.info.fat_size) - self.info.root_sector_count);
+            self.info.data_start_sector = dbr.bpb.reserved_sec_cnt as u32
+                + (dbr.bpb.num_fats as u32 * self.info.fat_size)
+                + self.info.root_sector_count;
+            self.info.data_sector_count = self.info.total_sectors
+                - (dbr.bpb.reserved_sec_cnt as u32
+                    + (dbr.bpb.num_fats as u32 * self.info.fat_size)
+                    - self.info.root_sector_count);
 
             // Calc counts of clusters
             self.info.cluster_count = self.info.data_sector_count / dbr.bpb.sec_per_clust as u32;
@@ -477,11 +486,7 @@ impl FatDiskio {
             }
         }
 
-        if is_eoc {
-            0
-        } else {
-            fat_cluster
-        }
+        if is_eoc { 0 } else { fat_cluster }
     }
 
     // Set next cluster
@@ -524,7 +529,7 @@ impl FatDiskio {
                     return 0;
                 }
             }
-            
+
             if self.info.fat_type == FatType::Fat16 {
                 let ptr = sec_buff.as_ptr() as *const u16;
                 clust = unsafe { *ptr.add(next_fat_ent_offset as usize) } as u32;
@@ -547,7 +552,7 @@ impl FatDiskio {
                     let ptr = sec_buff.as_mut_ptr() as *mut u16;
                     unsafe { *ptr.add(this_fat_ent_offset as usize) = fat_cluster as u16 };
                 }
-                
+
                 let ptr = sec_buff.as_mut_ptr() as *mut u16;
                 unsafe { *ptr.add(next_fat_ent_offset as usize) = FAT16_EOC_FLAG };
                 self.write_sector(&sec_buff, next_fat_sec_num, 1);
@@ -567,30 +572,30 @@ impl FatDiskio {
             if next_fat_sec_num == this_fat_sec_num {
                 if !is_alloc_mode {
                     let ptr = sec_buff.as_mut_ptr() as *mut u32;
-                    unsafe { 
+                    unsafe {
                         *ptr.add(this_fat_ent_offset as usize) &= 0xf0000000;
                         *ptr.add(this_fat_ent_offset as usize) |= fat_cluster;
                     }
                 }
 
                 let ptr = sec_buff.as_mut_ptr() as *mut u32;
-                unsafe { 
+                unsafe {
                     *ptr.add(next_fat_ent_offset as usize) &= 0xf0000000;
                     *ptr.add(next_fat_ent_offset as usize) |= FAT32_EOC_FLAG;
                 }
                 self.write_sector(&sec_buff, next_fat_sec_num, 1);
             } else {
                 let ptr = sec_buff.as_mut_ptr() as *mut u32;
-                unsafe { 
+                unsafe {
                     *ptr.add(next_fat_ent_offset as usize) &= 0xf0000000;
                     *ptr.add(next_fat_ent_offset as usize) |= FAT32_EOC_FLAG;
                 }
                 self.write_sector(&sec_buff, next_fat_sec_num, 1);
-                
+
                 if !is_alloc_mode {
                     self.read_sector(&mut sec_buff, this_fat_sec_num, 1);
                     let ptr = sec_buff.as_mut_ptr() as *mut u32;
-                    unsafe { 
+                    unsafe {
                         *ptr.add(this_fat_ent_offset as usize) &= 0xf0000000;
                         *ptr.add(this_fat_ent_offset as usize) |= fat_cluster;
                     }
@@ -643,7 +648,7 @@ impl FatDiskio {
             } else {
                 prev_fat_ent_offset -= 1;
             }
-            
+
             if self.info.fat_type == FatType::Fat16 {
                 let ptr = sec_buff.as_ptr() as *const u16;
                 fat_cluster = unsafe { *ptr.add(prev_fat_ent_offset as usize) } as u32;
@@ -663,7 +668,7 @@ impl FatDiskio {
         if self.info.fat_type == FatType::Fat16 {
             if prev_fat_sec_num == this_fat_sec_num {
                 let ptr = sec_buff.as_mut_ptr() as *mut u16;
-                unsafe { 
+                unsafe {
                     *ptr.add(this_fat_ent_offset as usize) = 0;
                     *ptr.add(prev_fat_ent_offset as usize) = FAT16_EOC_FLAG;
                 }
@@ -681,7 +686,7 @@ impl FatDiskio {
         } else if self.info.fat_type == FatType::Fat32 {
             if prev_fat_sec_num == this_fat_sec_num {
                 let ptr = sec_buff.as_mut_ptr() as *mut u32;
-                unsafe { 
+                unsafe {
                     *ptr.add(this_fat_ent_offset as usize) &= 0xf0000000;
                     *ptr.add(this_fat_ent_offset as usize) |= 0;
                     *ptr.add(prev_fat_ent_offset as usize) &= 0xf0000000;
@@ -690,15 +695,15 @@ impl FatDiskio {
                 self.write_sector(&sec_buff, prev_fat_sec_num, 1);
             } else {
                 let ptr = sec_buff.as_mut_ptr() as *mut u32;
-                unsafe { 
+                unsafe {
                     *ptr.add(prev_fat_ent_offset as usize) &= 0xf0000000;
                     *ptr.add(prev_fat_ent_offset as usize) |= FAT32_EOC_FLAG;
                 }
                 self.write_sector(&sec_buff, prev_fat_sec_num, 1);
-                
+
                 self.read_sector(&mut sec_buff, this_fat_sec_num, 1);
                 let ptr = sec_buff.as_mut_ptr() as *mut u32;
-                unsafe { 
+                unsafe {
                     *ptr.add(this_fat_ent_offset as usize) &= 0xf0000000;
                     *ptr.add(this_fat_ent_offset as usize) |= 0;
                 }
@@ -720,14 +725,14 @@ impl FatDiskio {
 
         if fst_clust < 2 {
             if self.info.fat_type == FatType::Fat16 {
-                index.clust  = 0;
+                index.clust = 0;
                 index.sector = self.info.root_start_sector;
             } else if self.info.fat_type == FatType::Fat32 {
-                index.clust  = self.info.root_cluster;
+                index.clust = self.info.root_cluster;
                 index.sector = self.cluster_to_sector(index.clust);
             }
         } else {
-            index.clust  = fst_clust;
+            index.clust = fst_clust;
             index.sector = self.cluster_to_sector(fst_clust);
         }
 
@@ -736,7 +741,7 @@ impl FatDiskio {
 
     // Get next index
     pub fn get_next_index(&mut self, mut index: DiskIndex) -> DiskIndex {
-       // FAT16 root dir
+        // FAT16 root dir
         if index.clust < 2 {
             let dir_ended_sec = self.info.root_start_sector + self.info.root_sector_count;
             index.sector = if index.sector + 1 < dir_ended_sec {
@@ -767,12 +772,20 @@ impl FatDiskio {
 impl FatDiskio {
     // Write sector
     pub fn write_sector(&mut self, data: &[u8], sector: u32, sec_size: u32) -> u32 {
-        self.device.write(data, sec_size as usize, (sector + self.starting_lba) as usize) as u32
+        self.device.write(
+            data,
+            sec_size as usize,
+            (sector + self.starting_lba) as usize,
+        ) as u32
     }
 
     // Read Sector
     pub fn read_sector(&mut self, data: &mut [u8], sector: u32, sec_size: u32) -> u32 {
-        self.device.read(data, sec_size as usize, (sector + self.starting_lba)as usize) as u32
+        self.device.read(
+            data,
+            sec_size as usize,
+            (sector + self.starting_lba) as usize,
+        ) as u32
     }
 }
 
@@ -788,7 +801,7 @@ impl FatDiskio {
             let sector = self.cluster_to_sector(cluster);
             let offset = i * bytes_per_sec * sec_per_clust;
 
-            if sec_per_clust != self.write_sector(&data[offset as usize ..], sector, sec_per_clust) {
+            if sec_per_clust != self.write_sector(&data[offset as usize..], sector, sec_per_clust) {
                 return i + 1;
             }
 
@@ -813,8 +826,10 @@ impl FatDiskio {
         for i in 0..clust_size {
             let sector = self.cluster_to_sector(cluster);
             let offset = i * bytes_per_sec * sec_per_clust;
-            
-            if sec_per_clust != self.read_sector(&mut data[offset as usize ..], sector, sec_per_clust) {
+
+            if sec_per_clust
+                != self.read_sector(&mut data[offset as usize..], sector, sec_per_clust)
+            {
                 return i + 1;
             }
 
@@ -846,8 +861,8 @@ impl FatDiskio {
 
             if clust_size > 1 {
                 let next_cluster = self.get_next_cluster(cluster);
-                if next_cluster == 0 { 
-                    return i + 1; 
+                if next_cluster == 0 {
+                    return i + 1;
                 }
                 cluster = next_cluster;
             }
@@ -862,11 +877,11 @@ impl FatDiskio {
         let mut first_cluster = 0;
         for _ in 0..clust_size {
             cluster = self.set_next_cluster(cluster);
-            if first_cluster == 0 { 
-                first_cluster = cluster; 
+            if first_cluster == 0 {
+                first_cluster = cluster;
             }
-            if cluster == 0 { 
-                return 0; 
+            if cluster == 0 {
+                return 0;
             }
             self.clear_cluster(cluster, 1);
         }
@@ -878,8 +893,8 @@ impl FatDiskio {
         let mut cluster = clust;
         for _ in 0..clust_size {
             cluster = self.clear_prev_cluster(cluster);
-            if cluster == 0 { 
-                return 0; 
+            if cluster == 0 {
+                return 0;
             }
         }
         cluster

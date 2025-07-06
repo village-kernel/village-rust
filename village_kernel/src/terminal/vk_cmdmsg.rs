@@ -4,8 +4,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::string::{String, ToString};
 use crate::misc::fopts::vk_dev_fopt::DevFopt;
+use alloc::string::{String, ToString};
 
 // Static const
 const CMD_HISTORY_SIZE: usize = 10;
@@ -81,7 +81,7 @@ impl CmdMsgMgr {
             }
 
             //Wait for Enter
-            let mut key = [0u8;1];
+            let mut key = [0u8; 1];
             loop {
                 let size = self.transceiver.read(&mut key, 1, 0);
                 if size > 0 && key[0] == 0x0d {
@@ -139,7 +139,7 @@ impl CmdMsgMgr {
 
         while {
             br_size = self.transceiver.read(&mut br_buff, BR_BUF_SIZE as usize, 0) as u8;
-            br_size > 0 
+            br_size > 0
         } {
             for i in 0..br_size {
                 let byte = br_buff[i as usize];
@@ -191,7 +191,7 @@ impl CmdMsgMgr {
                     self.tx_buf.push(self.rx_buf.chars().nth(i).unwrap());
                     back += 1;
                 }
-                
+
                 // Move cursor back
                 for _ in 0..back {
                     self.tx_buf.push('\x08');
@@ -199,7 +199,6 @@ impl CmdMsgMgr {
             }
             return true;
         }
-
         // ASCII DEL
         else if 0x7f == byte || b'\x08' == byte {
             if self.rx_pos > 0 && !self.rx_buf.is_empty() {
@@ -218,7 +217,7 @@ impl CmdMsgMgr {
                 }
                 self.tx_buf.push(' ');
                 back += 1;
-                
+
                 // Move cursor back
                 for _ in 0..back {
                     self.tx_buf.push('\x08');
@@ -237,7 +236,6 @@ impl CmdMsgMgr {
         if b'\x1b' == byte {
             self.input_mode = InputMode::Ansi;
         }
-
         // ASCII 32(space) ~ 126(~)
         else if byte >= 0x20 && byte <= 0x7e {
             // Control not to exceed the maximum length.
@@ -247,7 +245,6 @@ impl CmdMsgMgr {
                 self.rx_pos += 1;
             }
         }
-
         // ASCII DEL
         else if 0x7f == byte || b'\x08' == byte {
             if self.rx_pos > 0 {
@@ -257,15 +254,14 @@ impl CmdMsgMgr {
                     // Remove the last character
                     self.rx_buf.pop();
                 }
-                
+
                 // Backspace character on terminal
                 self.tx_buf.push_str("\x08 \x08");
             }
         }
-
         // ASCII CR
         else if 0x0d == byte {
-            // Check is null cmd 
+            // Check is null cmd
             if self.rx_buf.is_empty() {
                 self.rx_msg.cmd = "null".to_string();
                 self.has_message = true;
@@ -303,14 +299,14 @@ impl CmdMsgMgr {
     // ANSI mode
     fn ansi_mode(&mut self, byte: u8) {
         match byte {
-            b'N' => {} //ESC N | 0x8e | SS2 – Single Shift Two
-            b'O' => {} //ESC O | 0x8f | SS3 – Single Shift Three
+            b'N' => {}                                //ESC N | 0x8e | SS2 – Single Shift Two
+            b'O' => {}                                //ESC O | 0x8f | SS3 – Single Shift Three
             b'P' => self.input_mode = InputMode::Dcs, //ESC P | 0x90 | DCS – Device Control String
             b'[' => self.input_mode = InputMode::Csi, //ESC [ | 0x9b | CSI - Control Sequence Introducer
-            b'\\' => {} //ESC \ | 0x9c | ST – String Terminator
+            b'\\' => {}                               //ESC \ | 0x9c | ST – String Terminator
             b']' => self.input_mode = InputMode::Osc, //ESC ] | 0x9d | OSC – Operating System Command
-            b'X' => {} //ESC X | 0x98 | SOS – Start of String
-            b'^' => {} //ESC ^ | 0x9e | PM – Privacy Message
+            b'X' => {}                                //ESC X | 0x98 | SOS – Start of String
+            b'^' => {}                                //ESC ^ | 0x9e | PM – Privacy Message
             b'_' => {} //ESC _ | 0x9f | APC – Application Program Command
             b'c' => {} //ESC c |      | RIS – Reset to Initial State
             _ => {}
@@ -337,28 +333,35 @@ impl CmdMsgMgr {
         // Final byte
         if byte >= 0x40 && byte <= 0x7e {
             match byte {
-                b'A' => { // up
+                b'A' => {
+                    // up
                     if self.history > 0 && self.cmd_history[self.history - 1].is_some() {
                         self.record_temp_cmd();
                         self.history -= 1;
                         self.restored_history();
                     }
                 }
-                b'B' => { // down
-                    if self.history < CMD_HISTORY_SIZE - 1 && self.cmd_history[self.history + 1].is_some() {
+                b'B' => {
+                    // down
+                    if self.history < CMD_HISTORY_SIZE - 1
+                        && self.cmd_history[self.history + 1].is_some()
+                    {
                         self.history += 1;
                         self.restored_history();
                     }
                 }
-                b'C' => { // right
+                b'C' => {
+                    // right
                     if self.rx_pos < self.rx_buf.len() {
-                        self.tx_buf.push(self.rx_buf.chars().nth(self.rx_pos).unwrap());
+                        self.tx_buf
+                            .push(self.rx_buf.chars().nth(self.rx_pos).unwrap());
                         self.rx_pos += 1;
                     }
                     self.input_mode = InputMode::Insert;
                     return;
                 }
-                b'D' => { // left
+                b'D' => {
+                    // left
                     if self.rx_pos > 0 {
                         self.rx_pos -= 1;
                         self.tx_buf.push('\x08');
@@ -399,7 +402,7 @@ impl CmdMsgMgr {
             return;
         }
 
-        // Copy rx_buf string to history cmd 
+        // Copy rx_buf string to history cmd
         let history_cmd = self.rx_buf.clone();
 
         // Set the history cmd as the last history
@@ -408,9 +411,9 @@ impl CmdMsgMgr {
 
     /// Record history
     fn record_history(&mut self) {
-        // Copy rx_buf string to historyCmd 
+        // Copy rx_buf string to historyCmd
         let history_cmd = self.rx_buf.clone();
-        
+
         // Move cmd_history[i+1] to cmd_history[i]
         for i in 0..(CMD_HISTORY_SIZE - 2) {
             self.cmd_history[i] = self.cmd_history[i + 1].take();

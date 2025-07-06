@@ -4,11 +4,11 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use spin::Once;
+use crate::kernel::vk_village::Village;
+use crate::traits::vk_kernel::Kernel;
 use alloc::boxed::Box;
 use core::cell::UnsafeCell;
-use crate::traits::vk_kernel::Kernel;
-use crate::kernel::vk_village::Village;
+use spin::Once;
 
 /// Village kernel
 pub struct VillageKernel {
@@ -28,20 +28,15 @@ impl VillageKernel {
 
     // get village kernel
     pub fn get(&'static self) -> &'static mut dyn Kernel {
-        self.initialized.call_once(|| {
-            unsafe { *self.inner.get() = Some(Box::new(Village::new())); }
+        self.initialized.call_once(|| unsafe {
+            *self.inner.get() = Some(Box::new(Village::new()));
         });
-        unsafe {
-            (*self.inner.get())
-                .as_mut()
-                .unwrap()
-                .as_mut() as &'static mut dyn Kernel
-        }
+        unsafe { (*self.inner.get()).as_mut().unwrap().as_mut() as &'static mut dyn Kernel }
     }
 }
 
 // Impl sync for village kernel
-unsafe impl Sync for VillageKernel{}
+unsafe impl Sync for VillageKernel {}
 
 // Static village kernel
 static VILLAGE_KERNEL: VillageKernel = VillageKernel::new();

@@ -4,15 +4,15 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use super::vk_prog_decode::Program;
+use crate::misc::fopts::vk_file_fopt::FileFopt;
+use crate::traits::vk_filesys::FileMode;
+use crate::traits::vk_kernel::DebugLevel;
+use crate::village::kernel;
 use alloc::format;
+use alloc::string::{String, ToString};
 use alloc::vec;
 use alloc::vec::Vec;
-use alloc::string::{String, ToString};
-use crate::village::kernel;
-use crate::traits::vk_kernel::DebugLevel;
-use crate::traits::vk_filesys::FileMode;
-use crate::misc::fopts::vk_file_fopt::FileFopt;
-use super::vk_prog_decode::Program;
 
 // Struct BinLoader
 pub struct BinLoader {
@@ -36,10 +36,15 @@ impl BinLoader {
         self.filename = filename.to_string();
 
         // Load and mapping
-        if !self.load_bin() { return false; }
+        if !self.load_bin() {
+            return false;
+        }
 
         // Output debug info
-        kernel().debug().output(DebugLevel::Lv2, &format!("{} load at 0x{:08x}", self.filename, self.program.base()));
+        kernel().debug().output(
+            DebugLevel::Lv2,
+            &format!("{} load at 0x{:08x}", self.filename, self.program.base()),
+        );
         true
     }
 
@@ -59,13 +64,17 @@ impl BinLoader {
 
         // Return false when read bin file failed
         if !result {
-            kernel().debug().error(&format!("{} no such file!", self.filename));
+            kernel()
+                .debug()
+                .error(&format!("{} no such file!", self.filename));
             return false;
         }
-        
+
         // Init program
         if !self.program.init(data) {
-            kernel().debug().error(&format!("{} load failed!", self.filename));
+            kernel()
+                .debug()
+                .error(&format!("{} load failed!", self.filename));
             return false;
         }
 
@@ -77,11 +86,15 @@ impl BinLoader {
         let result = self.program.execute(argv);
 
         if result {
-            kernel().debug().output(DebugLevel::Lv2, &format!("{} exit", self.filename));
+            kernel()
+                .debug()
+                .output(DebugLevel::Lv2, &format!("{} exit", self.filename));
         } else {
-            kernel().debug().error(&format!("{} execute failed!", self.filename));
+            kernel()
+                .debug()
+                .error(&format!("{} execute failed!", self.filename));
         }
-        
+
         result
     }
 

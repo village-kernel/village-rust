@@ -4,8 +4,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::village::kernel;
 use crate::traits::vk_kernel::{Signal, Signals};
+use crate::village::kernel;
 
 // Struct concrete signal
 pub struct ConcreteSignal;
@@ -13,7 +13,7 @@ pub struct ConcreteSignal;
 // Impl concrete signal
 impl ConcreteSignal {
     pub const fn new() -> Self {
-        Self { }
+        Self {}
     }
 }
 
@@ -26,9 +26,7 @@ impl ConcreteSignal {
     }
 
     // Exit
-    pub fn exit(&mut self) {
-
-    }
+    pub fn exit(&mut self) {}
 }
 
 // Impl signal for concrete signal

@@ -4,20 +4,20 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::vec;
-use alloc::vec::Vec;
-use alloc::boxed::Box;
-use alloc::string::String;
-use alloc::format;
+use crate::misc::fopts::vk_file_fopt::FileFopt;
 use crate::register_cmd;
-use crate::village::kernel;
 use crate::traits::vk_command::{Cmd, CmdBase};
 use crate::traits::vk_filesys::FileMode;
-use crate::misc::fopts::vk_file_fopt::FileFopt;
+use crate::village::kernel;
+use alloc::boxed::Box;
+use alloc::format;
+use alloc::string::String;
+use alloc::vec;
+use alloc::vec::Vec;
 
 // Struct cmd cat
 struct CmdCat {
-    base: CmdBase
+    base: CmdBase,
 }
 
 // Impl cmd cat
@@ -44,7 +44,7 @@ impl CmdCat {
                 if file.read(&mut data, size, 0) == size {
                     console.println(&String::from_utf8_lossy(&data));
                 }
-                
+
                 file.close();
             } else {
                 console.println(&format!("File {} not found", path));
@@ -72,7 +72,7 @@ impl Cmd for CmdCat {
             self.cat(&path);
         }
     }
-    
+
     // Help
     fn help(&mut self) {
         if let Some(console) = self.base.get_console() {

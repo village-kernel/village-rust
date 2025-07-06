@@ -4,12 +4,12 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::boxed::Box;
-use crate::village::kernel;
-use crate::register_plat_driver;
 use crate::misc::lock::vk_mutex::Mutex;
+use crate::register_plat_driver;
+use crate::traits::vk_driver::{Driver, DriverID, DrvInfo, PlatDevice, PlatDriver};
 use crate::vendor::ia32legacy::core::i686::*;
-use crate::traits::vk_driver::{DriverID, DrvInfo, Driver, PlatDevice, PlatDriver};
+use crate::village::kernel;
+use alloc::boxed::Box;
 
 // Struct AtaLbaDiskConfig
 pub struct AtaLbaDiskConfig {
@@ -19,10 +19,8 @@ pub struct AtaLbaDiskConfig {
 // Impl AtaLbaDiskConfig
 impl AtaLbaDiskConfig {
     pub const fn new() -> Self {
-        Self {
-            drv: 0,
-        }
-    }   
+        Self { drv: 0 }
+    }
 }
 
 // Struct AtaLbaDisk
@@ -70,7 +68,7 @@ impl Driver for AtaLbaDisk {
     // Write data
     fn write(&mut self, data: &[u8], count: usize, blk: usize) -> usize {
         self.mutex.lock();
-        
+
         let mut blk = blk;
 
         for cnt in 0..count {
@@ -82,13 +80,13 @@ impl Driver for AtaLbaDisk {
             port_byte_out(ATA_SECTOR_CNT, 1);
 
             // Set block address
-            port_byte_out(ATA_SECTOR_0_7_BITS,   (blk >>  0) as u8);
-            port_byte_out(ATA_SECTOR_8_15_BITS,  (blk >>  8) as u8);
+            port_byte_out(ATA_SECTOR_0_7_BITS, (blk >> 0) as u8);
+            port_byte_out(ATA_SECTOR_8_15_BITS, (blk >> 8) as u8);
             port_byte_out(ATA_SECTOR_16_23_BITS, (blk >> 16) as u8);
 
             // Write cmd
             port_byte_out(ATA_CMD, ATA_CMD_WRITE);
-            
+
             // Wait
             while ATA_STATUS_BSY_MSK == (port_byte_in(ATA_STATUS) & ATA_STATUS_BSY_MSK) {}
             while ATA_STATUS_RDY_MSK != (port_byte_in(ATA_STATUS) & ATA_STATUS_RDY_MSK) {}
@@ -111,7 +109,7 @@ impl Driver for AtaLbaDisk {
             // Add blk
             blk += 1;
         }
-        
+
         self.mutex.unlock();
 
         count
@@ -120,7 +118,7 @@ impl Driver for AtaLbaDisk {
     // Read data
     fn read(&mut self, data: &mut [u8], count: usize, blk: usize) -> usize {
         self.mutex.lock();
-        
+
         let mut blk = blk;
 
         for cnt in 0..count {
@@ -130,10 +128,10 @@ impl Driver for AtaLbaDisk {
 
             // Read one sector
             port_byte_out(ATA_SECTOR_CNT, 1);
-            
+
             // Set block address
-            port_byte_out(ATA_SECTOR_0_7_BITS,   (blk >>  0) as u8);
-            port_byte_out(ATA_SECTOR_8_15_BITS,  (blk >>  8) as u8);
+            port_byte_out(ATA_SECTOR_0_7_BITS, (blk >> 0) as u8);
+            port_byte_out(ATA_SECTOR_8_15_BITS, (blk >> 8) as u8);
             port_byte_out(ATA_SECTOR_16_23_BITS, (blk >> 16) as u8);
 
             // Read cmd
@@ -163,9 +161,7 @@ impl Driver for AtaLbaDisk {
     }
 
     // Close
-    fn close(&mut self) {
-
-    }
+    fn close(&mut self) {}
 }
 
 // Struct ata lba disk drv
@@ -175,7 +171,7 @@ struct AtaLbaDiskDrv {
 
 // Impl ata lba disk driver
 impl AtaLbaDiskDrv {
-    pub const fn new() ->Self {
+    pub const fn new() -> Self {
         Self {
             data: DrvInfo::new(),
         }

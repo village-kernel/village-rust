@@ -28,15 +28,16 @@ impl ObserverModel {
 
     // Detach
     pub fn detach(&mut self, callback: Callback) {
-        self.observers.retain_mut(|cb|{
-            !(cb.instance == callback.instance && core::ptr::fn_addr_eq(cb.callback , callback.callback))
+        self.observers.retain_mut(|cb| {
+            !(cb.instance == callback.instance
+                && core::ptr::fn_addr_eq(cb.callback, callback.callback))
         });
     }
 
     // Notify
     pub fn notify<T>(&mut self, argv: &mut T) {
         for observer in self.observers.iter_mut() {
-            observer.userdata = argv as *mut T as *mut();
+            observer.userdata = argv as *mut T as *mut ();
             observer.call();
         }
     }

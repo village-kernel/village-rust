@@ -4,10 +4,10 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::village::kernel;
 use crate::traits::vk_callback::Callback;
+use crate::traits::vk_kernel::{Work, WorkQueue, WorkState};
 use crate::traits::vk_linkedlist::LinkedList;
-use crate::traits::vk_kernel::{WorkState, Work, WorkQueue};
+use crate::village::kernel;
 
 // Struct concrete work queue
 pub struct ConcreteWorkQueue {
@@ -18,7 +18,7 @@ pub struct ConcreteWorkQueue {
 // Impl concrete work queue
 impl ConcreteWorkQueue {
     pub const fn new() -> Self {
-        Self { 
+        Self {
             works: LinkedList::new(),
             id_cnt: 0,
         }
@@ -31,7 +31,9 @@ impl ConcreteWorkQueue {
     pub fn setup(&mut self) {
         // Create work queue task
         let execute_cb = Callback::new(Self::execute as u32).with_instance(self);
-        kernel().thread().create_task("WorkQueue::execute", execute_cb);
+        kernel()
+            .thread()
+            .create_task("WorkQueue::execute", execute_cb);
 
         //output debug info
         kernel().debug().info("Work queue setup completed!");
@@ -55,12 +57,12 @@ impl ConcreteWorkQueue {
                     if work.ticks > 0 {
                         kernel().thread().sleep(work.ticks);
                     }
-                    
+
                     work.callback.call();
                     work.state = WorkState::Terminated;
                 }
             }
-            
+
             kernel().thread().sleep(1);
         }
     }
@@ -79,11 +81,10 @@ impl WorkQueue for ConcreteWorkQueue {
     }
 
     // Delete
-    fn delete(&mut self, work: &mut Work) -> bool{
+    fn delete(&mut self, work: &mut Work) -> bool {
         if work.state == WorkState::Terminated {
-            self.works.retain_mut(|w|{
-                !(w.id == work.id && w.callback == work.callback)
-            });
+            self.works
+                .retain_mut(|w| !(w.id == work.id && w.callback == work.callback));
             return true;
         }
         false

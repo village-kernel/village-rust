@@ -4,15 +4,15 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::terminal::vk_console::Console;
+use crate::traits::vk_callback::Callback;
+use crate::traits::vk_command::Cmd;
+use crate::traits::vk_kernel::Terminal;
+use crate::traits::vk_linkedlist::LinkedList;
+use crate::village::kernel;
 use alloc::boxed::Box;
 use alloc::format;
 use alloc::string::{String, ToString};
-use crate::village::kernel;
-use crate::traits::vk_kernel::Terminal;
-use crate::traits::vk_command::Cmd;
-use crate::traits::vk_callback::Callback;
-use crate::traits::vk_linkedlist::LinkedList;
-use crate::terminal::vk_console::Console;
 
 // Struct sandbox
 pub struct Sandbox {
@@ -60,7 +60,9 @@ impl ConcreteTerminal {
     pub fn setup(&mut self) {
         // Create terminal execute
         let execute_cb = Callback::new(Self::execute as u32).with_instance(self);
-        kernel().thread().create_task("Terminal::execute", execute_cb);
+        kernel()
+            .thread()
+            .create_task("Terminal::execute", execute_cb);
 
         // Output debug info
         kernel().debug().info("Terminal setup completed!");
@@ -91,9 +93,8 @@ impl Terminal for ConcreteTerminal {
 
     // Unregister cmd
     fn unregister_cmd(&mut self, name: &str) {
-        self.commands.retain_mut(|cmd|
-            !(cmd.base().get_name() == name)
-        );
+        self.commands
+            .retain_mut(|cmd| !(cmd.base().get_name() == name));
     }
 
     // Get cmd
@@ -132,7 +133,7 @@ impl Terminal for ConcreteTerminal {
             .with_instance(self)
             .with_userdata(&mut sandbox.cid);
         let tid = kernel().thread().create_task(&sandbox_na, sandbox_cb);
-        
+
         // Set sandbox tid
         sandbox.tid = tid;
 
@@ -171,7 +172,7 @@ impl ConcreteTerminal {
     }
 
     // Console sandbox
-    fn console_sandbox(&mut self, userdata: *mut()) {
+    fn console_sandbox(&mut self, userdata: *mut ()) {
         // get cid form userdata
         let cid = unsafe { *(userdata as *const i32) };
 
@@ -186,8 +187,6 @@ impl ConcreteTerminal {
         }
 
         // Delete console
-        self.sandboxes.retain_mut(|sandbox| {
-            !(sandbox.cid == cid)
-        });
+        self.sandboxes.retain_mut(|sandbox| !(sandbox.cid == cid));
     }
 }

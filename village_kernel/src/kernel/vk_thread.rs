@@ -4,14 +4,14 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use core::ptr;
-use core::arch::asm;
-use alloc::string::ToString;
-use crate::village::kernel;
-use crate::traits::vk_kernel::{ThreadState, ThreadTask, Thread};
-use crate::traits::vk_callback::{FnCallback, Callback};
-use crate::traits::vk_linkedlist::LinkedList;
 use crate::arch::ia32::legacy::vk_registers::TaskContext;
+use crate::traits::vk_callback::{Callback, FnCallback};
+use crate::traits::vk_kernel::{Thread, ThreadState, ThreadTask};
+use crate::traits::vk_linkedlist::LinkedList;
+use crate::village::kernel;
+use alloc::string::ToString;
+use core::arch::asm;
+use core::ptr;
 
 // Static constants
 const TASK_STACK_SIZE: u32 = 8192;
@@ -64,8 +64,8 @@ impl ConcreteThread {
         self.tasks.clear();
     }
 
-    // Task function handler 
-    fn task_handler(&mut self, callback: FnCallback, instance: *mut(), userdata: *mut()) {
+    // Task function handler
+    fn task_handler(&mut self, callback: FnCallback, instance: *mut (), userdata: *mut ()) {
         callback(instance, userdata);
         self.terminated();
         loop {}
@@ -91,7 +91,7 @@ impl ConcreteThread {
 impl Thread for ConcreteThread {
     // Create task fn
     fn create_task(&mut self, name: &str, callback: Callback) -> i32 {
-       // Create a new task and allocate stack space
+        // Create a new task and allocate stack space
         let stack_start = kernel().memory().alloc(TASK_STACK_SIZE);
         let stack_end = stack_start + TASK_STACK_SIZE;
         let psp = stack_end - PSP_FRAME_SIZE;
@@ -104,7 +104,9 @@ impl Thread for ConcreteThread {
             callback.instance as u32,
             callback.userdata as u32,
         );
-        unsafe { ptr::write(psp as *mut TaskContext, context); }
+        unsafe {
+            ptr::write(psp as *mut TaskContext, context);
+        }
 
         // Create an new task with unique TID
         let tid = self.id_cnt;
@@ -124,7 +126,7 @@ impl Thread for ConcreteThread {
         self.tasks.push(task);
         tid
     }
-    
+
     // Start task
     fn start_task(&mut self, tid: i32) {
         if let Some(task) = self.tasks.iter_mut().find(|t| t.id == tid) {
@@ -169,7 +171,8 @@ impl Thread for ConcreteThread {
 
     // Thread check task is alive
     fn is_task_alive(&mut self, tid: i32) -> bool {
-        self.tasks.iter_mut()
+        self.tasks
+            .iter_mut()
             .find(|t| t.id == tid)
             .map(|t| t.state != ThreadState::Terminated)
             .unwrap_or(false)
@@ -249,11 +252,13 @@ impl Thread for ConcreteThread {
     fn select_next_task(&mut self) {
         loop {
             // Set next task as current task
-            self.tasks.next(); if self.tasks.is_end() { self.tasks.begin(); }
+            self.tasks.next();
+            if self.tasks.is_end() {
+                self.tasks.begin();
+            }
 
             // Get current task
             if let Some(task) = self.tasks.item() {
-
                 //Check current task state
                 if task.state == ThreadState::Ready {
                     if kernel().system().get_sysclk_counts() >= task.ticks {
@@ -273,7 +278,9 @@ impl Thread for ConcreteThread {
     // Idle task
     fn idle_task(&mut self) {
         loop {
-            unsafe { asm!("nop");}
+            unsafe {
+                asm!("nop");
+            }
         }
     }
 }

@@ -4,17 +4,17 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::vec;
-use alloc::vec::Vec;
-use alloc::boxed::Box;
-use alloc::string::{String, ToString};
 use super::vk_fat_diskio::DiskIndex;
 use super::vk_fat_diskio::FatDiskio;
-use super::vk_fat_object::FatObject;
-use super::vk_fat_object::FatEntry;
 use super::vk_fat_object::EntryAttr;
+use super::vk_fat_object::FatEntry;
+use super::vk_fat_object::FatObject;
 use crate::traits::vk_filesys::FileType;
 use crate::traits::vk_linkedlist::LinkedList;
+use alloc::boxed::Box;
+use alloc::string::{String, ToString};
+use alloc::vec;
+use alloc::vec::Vec;
 
 // Const mebers
 const DIR_ENTRY_SIZE: usize = 32;
@@ -63,7 +63,7 @@ impl FatFolder {
         diskio.read_sector(&mut self.buffer, self.entidx.sector, 1);
     }
 
-    // Next 
+    // Next
     fn next(&mut self, diskio: &mut FatDiskio, wrt_mode: bool) -> bool {
         self.entidx.index += 1;
 
@@ -109,7 +109,7 @@ impl FatFolder {
     fn find_space(&mut self, diskio: &mut FatDiskio, req_size: usize) -> bool {
         let mut start_idx = DiskIndex::new();
         let mut free_cnt = 0;
-        
+
         self.begin(diskio);
 
         while !self.is_end() {
@@ -119,7 +119,7 @@ impl FatFolder {
                 if free_cnt == 1 {
                     start_idx = self.entidx.clone();
                 }
-                
+
                 if free_cnt >= req_size {
                     self.entidx = start_idx;
                     return true;
@@ -127,10 +127,10 @@ impl FatFolder {
             } else {
                 free_cnt = 0;
             }
-            
+
             self.next(diskio, false);
         }
-        
+
         false
     }
 
@@ -155,7 +155,7 @@ impl FatFolder {
 }
 
 // Impl FatFolder
-impl FatFolder{
+impl FatFolder {
     // Open
     pub fn open(&mut self, diskio: &mut FatDiskio, selfobj: FatObject) {
         self.myself = selfobj;
@@ -168,9 +168,8 @@ impl FatFolder{
             let mut entries = Vec::new();
 
             self.begin(diskio);
-            
-            while !self.is_end() {
 
+            while !self.is_end() {
                 if let Some(entry) = self.get_item() {
                     // Record entry index
                     if entries.len() == 0 {
@@ -188,7 +187,7 @@ impl FatFolder{
                         entries.clear();
                     }
                 }
-                
+
                 self.next(diskio, false);
             }
         }
@@ -244,7 +243,7 @@ impl Drop for FatFolder {
 }
 
 // Impl FatFolder
-impl FatFolder{
+impl FatFolder {
     // Set volume label
     pub fn set_volume_label(diskio: &mut FatDiskio, label: &str) {
         let mut folder = Self::root(diskio);
@@ -299,10 +298,15 @@ impl FatFolder{
     }
 
     // Create
-    pub fn create(diskio: &mut FatDiskio, mut parent: FatObject, name: &str, attr: u8) -> Option<FatObject> {
+    pub fn create(
+        diskio: &mut FatDiskio,
+        mut parent: FatObject,
+        name: &str,
+        attr: u8,
+    ) -> Option<FatObject> {
         let parent_clust = parent.get_first_cluster();
         let newobj_clust = diskio.alloc_cluster(1);
-        
+
         let mut newobj = vec![FatObject::new(); 1];
         newobj[0].set_name(name);
         newobj[0].set_attribute(attr);
@@ -315,7 +319,7 @@ impl FatFolder{
                 dotobjs[1] = FatObject::new_dot_dot_dir(parent_clust);
                 Self::new(diskio, newobj[0].clone()).write(diskio, &mut dotobjs);
             }
-            return Some(newobj[0].clone())
+            return Some(newobj[0].clone());
         }
 
         None

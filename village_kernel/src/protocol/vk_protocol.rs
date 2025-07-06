@@ -4,8 +4,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::village::kernel;
 use crate::traits::vk_kernel::Protocol;
+use crate::village::kernel;
 
 // struct concrete protocol
 pub struct ConcreteProtocol;
@@ -13,7 +13,7 @@ pub struct ConcreteProtocol;
 // impl concrete protocol
 impl ConcreteProtocol {
     pub const fn new() -> Self {
-        Self { }
+        Self {}
     }
 }
 
@@ -26,20 +26,14 @@ impl ConcreteProtocol {
     }
 
     // exit
-    pub fn exit(&mut self) {
-
-    }
+    pub fn exit(&mut self) {}
 }
 
 // impl protocol for concrete protocol
 impl Protocol for ConcreteProtocol {
     // register stack
-    fn register_stack(&mut self) {
-
-    }
+    fn register_stack(&mut self) {}
 
     // unregister stack
-    fn unregister_stack(&mut self) {
-        
-    }
+    fn unregister_stack(&mut self) {}
 }

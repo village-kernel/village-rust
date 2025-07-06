@@ -4,15 +4,15 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::traits::vk_callback::Callback;
+use crate::traits::vk_executor::{Executor, ExecutorFty};
+use crate::traits::vk_kernel::{Process, ProcessBehavior, ProcessData};
+use crate::traits::vk_linkedlist::LinkedList;
+use crate::village::kernel;
+use alloc::boxed::Box;
 use alloc::format;
 use alloc::string::ToString;
 use alloc::vec::Vec;
-use alloc::boxed::Box;
-use crate::village::kernel;
-use crate::traits::vk_callback::Callback;
-use crate::traits::vk_linkedlist::LinkedList;
-use crate::traits::vk_executor::{Executor, ExecutorFty};
-use crate::traits::vk_kernel::{Process, ProcessBehavior, ProcessData};
 
 // Struct concrete process
 pub struct ConcreteProcess {
@@ -42,7 +42,9 @@ impl ConcreteProcess {
 
         // Create a monitor thread alive task
         let monitor_cb = Callback::new(Self::monitor as u32).with_instance(self);
-        kernel().thread().create_task("Process::monitor", monitor_cb);
+        kernel()
+            .thread()
+            .create_task("Process::monitor", monitor_cb);
 
         // Output debug info
         kernel().debug().info("Process setup completed!");
@@ -65,16 +67,17 @@ impl ConcreteProcess {
         let taichi = "/services/taichi.exec";
 
         if self.run_with_args(ProcessBehavior::Background, taichi) < 0 {
-            kernel().debug().error(&format!("{} execute failed!", taichi));
+            kernel()
+                .debug()
+                .error(&format!("{} execute failed!", taichi));
         }
     }
 
     // Monitor
     fn monitor(&mut self) {
         loop {
-            self.processes.retain_mut(|data| {
-                kernel().thread().is_task_alive(data.tid)
-            });
+            self.processes
+                .retain_mut(|data| kernel().thread().is_task_alive(data.tid));
             kernel().thread().sleep(10);
         }
     }
@@ -98,8 +101,10 @@ impl ConcreteProcess {
                 }
             }
         }
-        
-        kernel().debug().error(&format!("file type: \"*{}\" executor no found!", suffix));
+
+        kernel()
+            .debug()
+            .error(&format!("file type: \"*{}\" executor no found!", suffix));
         None
     }
 }
@@ -110,19 +115,18 @@ impl Process for ConcreteProcess {
     fn register_exec_factory(&mut self, factory: Box<dyn ExecutorFty>) {
         self.factories.push(factory);
     }
-    
+
     // Unregister executor
     fn unregister_exec_factory(&mut self, name: &str) {
-        self.factories.retain_mut(|factory|
-            !(factory.info().get_name() == name)
-        );
+        self.factories
+            .retain_mut(|factory| !(factory.info().get_name() == name));
     }
 
     // Run with args
     fn run_with_args(&mut self, behavior: ProcessBehavior, args: &str) -> i32 {
         // Split args
         let argv: Vec<&str> = args.split_whitespace().collect();
-        
+
         // Run with argv
         self.run_with_argv(behavior, argv[0], argv)
     }
@@ -154,7 +158,11 @@ impl Process for ConcreteProcess {
 
         // Wait for task done
         if behavior == ProcessBehavior::Foreground {
-            if let Some(process) = self.processes.iter_mut().find(|p| p.pid == (self.pid_cnt - 1)) {
+            if let Some(process) = self
+                .processes
+                .iter_mut()
+                .find(|p| p.pid == (self.pid_cnt - 1))
+            {
                 if let Some(executor) = &mut process.exec {
                     executor.wait();
                 }
@@ -200,6 +208,6 @@ impl Process for ConcreteProcess {
 
     // Get processes
     fn get_processes(&mut self) -> &mut LinkedList<Box<ProcessData>> {
-       &mut self.processes
+        &mut self.processes
     }
 }

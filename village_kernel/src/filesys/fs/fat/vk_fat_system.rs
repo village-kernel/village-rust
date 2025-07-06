@@ -4,17 +4,17 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::vec::Vec;
+use super::vk_fat_diskio::FatDiskio;
+use super::vk_fat_filedir::{FatDir, FatFile};
+use super::vk_fat_folder::FatFolder;
+use super::vk_fat_object::{EntryAttr, FatObject};
+use crate::register_filesys;
+use crate::traits::vk_filesys::{FileDir, FileMode, FileSys, FileSysInfo, FileType, FileVol};
+use crate::traits::vk_linkedlist::LinkedList;
+use crate::village::kernel;
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
-use super::vk_fat_diskio::FatDiskio;
-use super::vk_fat_folder::FatFolder;
-use super::vk_fat_filedir::{FatDir, FatFile};
-use super::vk_fat_object::{EntryAttr, FatObject};
-use crate::village::kernel;
-use crate::register_filesys;
-use crate::traits::vk_linkedlist::LinkedList;
-use crate::traits::vk_filesys::{FileDir, FileMode, FileSys, FileSysInfo, FileType, FileVol};
+use alloc::vec::Vec;
 
 // Struct FatVolume
 struct FatVolume {
@@ -27,7 +27,7 @@ struct FatVolume {
 }
 
 // Impl FatVolume
-impl FatVolume{
+impl FatVolume {
     // New
     pub const fn new() -> Self {
         Self {
@@ -76,15 +76,17 @@ impl FatVolume {
             if let Some(fatobj) = someobj {
                 someobj = FatFolder::search(&mut self.diskio, fatobj, names[i]);
             }
-            
-            if someobj.is_none() { break; }
+
+            if someobj.is_none() {
+                break;
+            }
         }
 
         someobj
     }
 
     // Create path
-    fn create_path(&mut self, path: &str, attr: u8) ->  Option<FatObject> {
+    fn create_path(&mut self, path: &str, attr: u8) -> Option<FatObject> {
         if let Some(mut parent) = self.search_path(path, 1) {
             if parent.get_object_type() == FileType::Directory {
                 let name = self.base_name(path);
@@ -97,8 +99,9 @@ impl FatVolume {
     // Delete path
     fn delete_path(&mut self, path: &str) -> bool {
         if let Some(mut fatobj) = self.search_path(path, 0) {
-            if fatobj.get_object_type() == FileType::File ||
-                fatobj.get_object_type() == FileType::Directory {
+            if fatobj.get_object_type() == FileType::File
+                || fatobj.get_object_type() == FileType::Directory
+            {
                 FatFolder::remove(&mut self.diskio, fatobj);
                 return true;
             }
@@ -181,7 +184,7 @@ impl FileVol for FatVolume {
     }
 
     // Size
-    fn size(&mut self, fd: usize) -> usize{
+    fn size(&mut self, fd: usize) -> usize {
         if let Some(file) = self.files.iter_mut().find(|f| f.get_id() == fd) {
             return file.size();
         }
@@ -197,14 +200,14 @@ impl FileVol for FatVolume {
 
     // Close
     fn close(&mut self, fd: usize) {
-       self.files.retain_mut(|file| {
+        self.files.retain_mut(|file| {
             if file.get_id() == fd {
                 file.close();
                 false
             } else {
                 true
             }
-       });
+        });
     }
 
     // Open dir
@@ -212,14 +215,16 @@ impl FileVol for FatVolume {
         // Search or create path
         let someobj = match self.search_path(name, 0) {
             Some(obj) => Some(obj),
-            None if mode.contains(FileMode::CREATE_NEW) => self.create_path(name, EntryAttr::DIRECTORY),
+            None if mode.contains(FileMode::CREATE_NEW) => {
+                self.create_path(name, EntryAttr::DIRECTORY)
+            }
             None => None,
         };
 
         // Open dir
         if let Some(fatobj) = someobj {
             let fd = self.assign_dir_id();
-            
+
             let mut dir = FatDir::new();
             dir.set_id(fd);
             dir.open(&mut self.diskio, fatobj, mode);

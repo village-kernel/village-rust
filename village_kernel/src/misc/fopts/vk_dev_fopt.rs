@@ -13,7 +13,7 @@ pub struct DevFopt {
 }
 
 // Imp DevFopt
-impl DevFopt  {
+impl DevFopt {
     // New
     pub const fn new() -> Self {
         Self {
@@ -23,7 +23,7 @@ impl DevFopt  {
 }
 
 // Impl DevFopt
-impl DevFopt  {
+impl DevFopt {
     // Open
     pub fn open(&mut self, name: &str) -> bool {
         self.name = name.to_string();
@@ -40,7 +40,7 @@ impl DevFopt  {
         }
         0
     }
-    
+
     // Read
     pub fn read(&mut self, data: &mut [u8], size: usize, offset: usize) -> usize {
         if let Some(driver) = kernel().device().get_driver(&self.name) {
