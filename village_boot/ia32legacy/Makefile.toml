@@ -1,0 +1,31 @@
+###########################################################################
+# Makefile
+# The Makefile of ia32legacy boot
+#
+# usage: BUILD=build TARGET=ia32legacy PROFILE=debug cargo make
+#
+# $Copyright: Copyright (C) village
+############################################################################
+
+[config]
+skip_core_tasks = true
+
+[env]
+BUILD = "${BUILD:target}"
+TARGET = "${TARGET:ia32legacy}"
+PROFILE = "${PROFILE:debug}"
+PROGRAM = "${BUILD}/${PROFILE}/village_boot"
+
+ASFLAGS = "-g -gdwarf-2 -DDEBUG"
+LDFLAGS = "-T boot.lds -ffreestanding -nostdlib -Wl,--no-warn-rwx-segment -Wl,-m,elf_i386"
+TARGET_DIR = "${BUILD}/${PROFILE}"
+
+[tasks.default]
+script = """
+	mkdir -p ${TARGET_DIR}
+	i686-elf-gcc -x assembler-with-cpp -c ${ASFLAGS} boot.s -o  ${TARGET_DIR}/boot.o
+	i686-elf-gcc ${LDFLAGS}   ${TARGET_DIR}/boot.o -o  ${PROGRAM}
+    rust-objcopy -O ihex      ${PROGRAM} ${PROGRAM}.hex
+    rust-objcopy -O binary -S ${PROGRAM} ${PROGRAM}.bin
+    cp -rf ${PROGRAM}         ${PROGRAM}.elf
+"""
