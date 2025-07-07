@@ -4,40 +4,26 @@
 #
 # $Copyright: Copyright (C) village
 ############################################################################
-VERSION        = 0.1.0
 
+#######################################
+# rust env
+#######################################
+TARGET             := ia32legacy
+PROFILE            := debug
+Q                  := @
 
 #######################################
 # paths
 #######################################
-WORKSPACE     := $(PWD)
-BUILD_DIR     := $(WORKSPACE)/build
-BOOT_DIR      := $(BUILD_DIR)/village_boot/ia32legacy/debug
-KERNEL_DIR    := $(BUILD_DIR)/village_kernel/ia32legacy/debug
-
-INSTALL_DIR   := $(BUILD_DIR)/output
-MODS_DIR      := $(INSTALL_DIR)/modules
-LIBS_DIR      := $(INSTALL_DIR)/libraries
-APPS_DIR      := $(INSTALL_DIR)/programs
-SVCS_DIR      := $(INSTALL_DIR)/services
-ROOTFS_DIR    := '/Volumes/VILLAGE OS'
+BUILD_OUT_DIR      := $(PWD)/build
+CRATE_OUT_DIR       = $(BUILD_OUT_DIR)/$(CRATE)/${TARGET}/${PROFILE}
+ROOTFS_OUT_DIR      = $(BUILD_OUT_DIR)/village_rootfs
+INSTALL_DIR        := '/Volumes/VILLAGE OS'
 
 
-######################################
-# building variables
-######################################
-# silence build
-ifeq ($(CONFIG_VERBOSE_MODE), y)
-  Q = 
-else
-  Q = @
-endif
-
-
-#######################################
-# tasks
 #######################################
 # default action: build all
+#######################################
 all:
 	$(Q)$(MAKE) boot
 	$(Q)$(MAKE) kernel
@@ -47,62 +33,67 @@ all:
 
 
 #######################################
+# build the crate
+#######################################
+%.cargo: FORCE
+	$(Q)cd $(@:.cargo=) && \
+	BUILD=$(BUILD_OUT_DIR)/$(@:.cargo=) TARGET=$(TARGET) PROFILE=$(PROFILE) \
+	cargo make || exit 1;
+
+
+#######################################
 # build the bootloader
 #######################################
+boot: CRATE = village_boot
 boot:
-	$(Q)$(MAKE) -C village_boot/legacy/ia32bios BUILD_DIR=$(BOOT_DIR)
-	$(Q)cp -rf $(BOOT_DIR)/village_boot $(BUILD_DIR)/village_boot.elf 
-	$(Q)i686-elf-objcopy -O binary -S $(BUILD_DIR)/village_boot.elf $(BUILD_DIR)/village_boot.bin
+	$(Q)$(MAKE) $(CRATE)/$(TARGET).cargo
+	$(Q)cp -rf $(CRATE_OUT_DIR)/*.{elf,hex,bin} $(BUILD_OUT_DIR)/
 
 
 #######################################
 # build the kernel
 #######################################
+kernel: CRATE = village_kernel
 kernel:
-	$(Q)cd village_kernel && cargo build
-	$(Q)cp -rf $(KERNEL_DIR)/village_kernel $(BUILD_DIR)/village_kernel.elf
-	$(Q)i686-elf-objcopy -O binary -S $(BUILD_DIR)/village_kernel.elf $(BUILD_DIR)/village_kernel.bin
+	$(Q)$(MAKE) $(CRATE).cargo
+	$(Q)cp -rf $(CRATE_OUT_DIR)/*.{elf,hex,bin} $(BUILD_OUT_DIR)/
 
 
 #######################################
 # build the osbone
 #######################################
 osbone:
-	$(Q)cd village_osbone/services/taichi && cargo build
-	$(Q)mkdir -p $(SVCS_DIR)/
-	$(Q)cp village_osbone/services/taichi/target/ia32legacy/debug/taichi $(SVCS_DIR)/taichi.elf
-	$(Q)i686-elf-objcopy -O ihex $(SVCS_DIR)/taichi.elf $(SVCS_DIR)/taichi.hex
-	$(Q)i686-elf-objcopy -O binary -S $(SVCS_DIR)/taichi.elf $(SVCS_DIR)/taichi.bin
-	$(Q)cp $(SVCS_DIR)/taichi.bin $(SVCS_DIR)/taichi.exec
+	@$(foreach CRATE, $(shell find village_osbone -name Makefile.toml -exec dirname {} \; ), \
+		$(MAKE) $(CRATE).cargo;                                                              \
+		SED_DIR=$$(echo '$(CRATE)' | sed 's:^village_osbone/\(.*\)/[^/]*$$:\1:');            \
+		mkdir -p  $(ROOTFS_OUT_DIR)/$$SED_DIR/;                                              \
+		cp    -rf $(CRATE_OUT_DIR)/*.{rlib,elf,hex,bin,exec}                                 \
+				  $(ROOTFS_OUT_DIR)/$$SED_DIR/ 2>/dev/null || :;                             \
+	)
 
 
 #######################################
 # generate the os image
 #######################################
 osImage:
-	$(Q)dd if=/dev/zero                       of=$(BUILD_DIR)/village_os.img bs=512 count=2880
-	$(Q)dd if=$(BUILD_DIR)/village_boot.bin   of=$(BUILD_DIR)/village_os.img bs=512 seek=0 conv=notrunc
-	$(Q)dd if=$(BUILD_DIR)/village_kernel.bin of=$(BUILD_DIR)/village_os.img bs=512 seek=1 conv=notrunc
+	$(Q)dd if=/dev/zero                           of=$(BUILD_OUT_DIR)/village_os.img bs=512 count=2880
+	$(Q)dd if=$(BUILD_OUT_DIR)/village_boot.bin   of=$(BUILD_OUT_DIR)/village_os.img bs=512 seek=0 conv=notrunc
+	$(Q)dd if=$(BUILD_OUT_DIR)/village_kernel.bin of=$(BUILD_OUT_DIR)/village_os.img bs=512 seek=1 conv=notrunc
 
 
 #######################################
 # copy to rootfs
 #######################################
 rootfs:
-	$(Q)cp -rf $(BUILD_DIR)/output/*    $(ROOTFS_DIR)/
-	$(Q)cp -rf rootfs.img               $(BUILD_DIR)/village_fs.img
+	$(Q)cp -rf $(ROOTFS_OUT_DIR)/* $(INSTALL_DIR)/
+	$(Q)cp -rf rootfs.img          $(BUILD_OUT_DIR)/village_fs.img
 
 
 #######################################
 # clean up
 #######################################
 clean:
-	$(Q)$(MAKE) -C village_boot/legacy/ia32bios BUILD_DIR=$(BOOT_DIR) clean
-	$(Q)cd village_kernel && cargo clean
-	$(Q)cd village_osbone/services/taichi && cargo clean
-
-distclean:
-	$(Q)rm -rf $(BUILD_DIR)
+	$(Q)rm -rf $(BUILD_OUT_DIR)
 
 
 #######################################
@@ -111,6 +102,5 @@ distclean:
 PHONY += FORCE
 FORCE:
 
-PHONY += all boot kernel osbone osImage 
-PHONY += clean distclean
+PHONY += all boot kernel osbone osImage clean
 .PHONY: $(PHONY)
