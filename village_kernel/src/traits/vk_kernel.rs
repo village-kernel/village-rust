@@ -6,7 +6,7 @@
 //###########################################################################
 use super::vk_callback::Callback;
 use super::vk_command::CmdWrapper;
-use super::vk_driver::{Driver, PlatDevice, PlatDriver};
+use super::vk_driver::{DriverWrapper, PlatDevWrapper, PlatDrvWrapper};
 use super::vk_executor::{BaseExecutor, ExecutorWrapper};
 use super::vk_filesys::{FileSysWrapper, FileVol};
 use super::vk_linkedlist::LinkedList;
@@ -205,20 +205,20 @@ pub trait Symbol {
 // Device
 pub trait Device {
     // Register driver methods
-    fn register_driver(&mut self, driver: Box<dyn Driver>);
+    fn register_driver(&mut self, driver: Box<DriverWrapper>);
     fn unregister_driver(&mut self, name: &str);
 
     // Platform driver methods
-    fn register_plat_driver(&mut self, driver: Box<dyn PlatDriver>);
+    fn register_plat_driver(&mut self, driver: Box<PlatDrvWrapper>);
     fn unregister_plat_driver(&mut self, name: &str);
 
     // Platform device methods
-    fn register_plat_device(&mut self, device: Box<dyn PlatDevice>);
+    fn register_plat_device(&mut self, device: Box<PlatDevWrapper>);
     fn unregister_plat_device(&mut self, name: &str);
 
     // Data methods
-    fn get_driver(&mut self, name: &str) -> Option<&mut Box<dyn Driver>>;
-    fn get_drivers(&mut self) -> &mut LinkedList<Box<dyn Driver>>;
+    fn get_driver(&mut self, name: &str) -> Option<&mut Box<DriverWrapper>>;
+    fn get_drivers(&mut self) -> &mut LinkedList<Box<DriverWrapper>>;
 }
 
 // Feature

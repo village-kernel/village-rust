@@ -5,15 +5,15 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::register_plat_driver;
-use crate::traits::vk_driver::{Driver, DriverID, DrvInfo, PlatDevice, PlatDriver};
+use crate::traits::vk_driver::{Driver, PlatDriver, PlatDevWrapper};
 use crate::vendor::ia32legacy::core::i686::*;
-use crate::village::kernel;
 use alloc::boxed::Box;
 
 // Constants
 const COMX: [u16; 7] = [COM1, COM2, COM3, COM4, COM5, COM6, COM7];
 
 // Struct Pic32UartConfig
+#[derive(Clone)]
 pub struct Pic32UartConfig {
     pub port: usize,
 }
@@ -27,16 +27,22 @@ impl Pic32UartConfig {
 
 // Struct Pic32Uart
 pub struct Pic32Uart {
-    info: DrvInfo,
-    port: usize,
+    config: Pic32UartConfig,
 }
 
 // Impl Pic32Uart
 impl Pic32Uart {
+    // New
     pub const fn new() -> Self {
         Self {
-            info: DrvInfo::new(),
-            port: 0,
+            config: Pic32UartConfig::new(),
+        }
+    }
+
+    // Set config
+    fn set_config(&mut self, data: *mut ()) {
+        if !data.is_null() {
+            self.config = unsafe { (*(data as *mut Pic32UartConfig)).clone() };
         }
     }
 }
@@ -45,34 +51,26 @@ impl Pic32Uart {
 impl Pic32Uart {
     // Check if the send register is empty
     fn is_tx_register_empty(&self) -> bool {
-        let status = port_byte_in(COMX[self.port as usize] + COM_LINE_STATUS_POS);
+        let status = port_byte_in(COMX[self.config.port as usize] + COM_LINE_STATUS_POS);
         (status & COM_LINE_STATUS_THRE_MSK) != 0
     }
 
     // Check if the read date register not empty
     fn is_read_data_reg_not_empty(&self) -> bool {
-        let status = port_byte_in(COMX[self.port as usize] + COM_LINE_STATUS_POS);
+        let status = port_byte_in(COMX[self.config.port as usize] + COM_LINE_STATUS_POS);
         (status & COM_LINE_STATUS_DR_MSK) != 0
     }
 }
 
 // Impl Pic32Uart
 impl Driver for Pic32Uart {
-    // Info
-    fn info(&mut self) -> &mut DrvInfo {
-        &mut self.info
-    }
-
     // Open
-    fn open(&mut self) -> bool {
-        // Get config
-        let config = self.info.get_data::<Pic32UartConfig>().unwrap();
-
-        // Set port
-        self.port = config.port;
+    fn open(&mut self, data: *mut ()) -> bool {
+        // Set config
+        self.set_config(data);
 
         // Get base
-        let base = COMX[self.port as usize];
+        let base = COMX[self.config.port as usize];
 
         // Setup serial
         port_byte_out(base + 1, 0x00); // Disable all interrupts
@@ -104,7 +102,7 @@ impl Driver for Pic32Uart {
         for byte in data {
             while !self.is_tx_register_empty() {}
 
-            port_byte_out(COMX[self.port as usize], *byte);
+            port_byte_out(COMX[self.config.port as usize], *byte);
 
             count += 1;
 
@@ -125,7 +123,7 @@ impl Driver for Pic32Uart {
                 break;
             }
 
-            *byte = port_byte_in(COMX[self.port as usize]);
+            *byte = port_byte_in(COMX[self.config.port as usize]);
 
             count += 1;
 
@@ -142,35 +140,22 @@ impl Driver for Pic32Uart {
 }
 
 // Struct pic32 uart drv
-struct Pic32UartDrv {
-    data: DrvInfo,
-}
-
-// Impl pic32 uart driver
-impl Pic32UartDrv {
-    pub const fn new() -> Self {
-        Self {
-            data: DrvInfo::new(),
-        }
-    }
-}
+struct Pic32UartDrv;
 
 // Impl plat driver for pic32 uart driver
 impl PlatDriver for Pic32UartDrv {
-    fn info(&mut self) -> &mut DrvInfo {
-        &mut self.data
-    }
-
-    fn probe(&mut self, device: &mut dyn PlatDevice) -> bool {
+    // Probe
+    fn probe(&mut self, device: &mut PlatDevWrapper) -> bool {
         device.plat().attach(Box::new(Pic32Uart::new()));
         true
     }
 
-    fn remove(&mut self, device: &mut dyn PlatDevice) -> bool {
+    // Remove
+    fn remove(&mut self, device: &mut PlatDevWrapper) -> bool {
         device.plat().detach();
         true
     }
 }
 
 // Register plat driver
-register_plat_driver!(Pic32UartDrv::new(), pic32uart, pic32_uart_drv);
+register_plat_driver!(Pic32UartDrv, pic32uart, pic32_uart_drv);

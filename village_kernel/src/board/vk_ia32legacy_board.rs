@@ -7,13 +7,11 @@
 use crate::drivers::platdrv::block::vk_ata_lba_disk::AtaLbaDiskConfig;
 use crate::drivers::platdrv::serial::vk_pic32_uart::Pic32UartConfig;
 use crate::register_plat_device;
-use crate::traits::vk_driver::{DriverID, DrvInfo, PlatData, PlatDevice};
-use crate::village::kernel;
-use alloc::boxed::Box;
+use crate::traits::vk_driver::{DriverID, PlatData, PlatDevice};
+use crate::alloc::boxed::Box;
 
 // Struct ata lba disk dev
 struct AtaLbaDiskDev {
-    info: DrvInfo,
     plat: PlatData,
     config: AtaLbaDiskConfig,
 }
@@ -22,7 +20,6 @@ struct AtaLbaDiskDev {
 impl AtaLbaDiskDev {
     pub const fn new() -> Self {
         Self {
-            info: DrvInfo::new(),
             plat: PlatData::new(),
             config: AtaLbaDiskConfig::new(),
         }
@@ -31,10 +28,6 @@ impl AtaLbaDiskDev {
 
 // Impl plat device for ata lba disk dev
 impl PlatDevice for AtaLbaDiskDev {
-    fn info(&mut self) -> &mut DrvInfo {
-        &mut self.info
-    }
-
     fn plat(&mut self) -> &mut PlatData {
         &mut self.plat
     }
@@ -52,7 +45,6 @@ register_plat_device!(AtaLbaDiskDev::new(), ataLbaDisk, ata_lba_disk_dev);
 
 // Struct pic32 uart dev
 struct Pic32UartDev {
-    info: DrvInfo,
     plat: PlatData,
     config: Pic32UartConfig,
 }
@@ -61,7 +53,6 @@ struct Pic32UartDev {
 impl Pic32UartDev {
     pub const fn new() -> Self {
         Self {
-            info: DrvInfo::new(),
             plat: PlatData::new(),
             config: Pic32UartConfig::new(),
         }
@@ -70,10 +61,6 @@ impl Pic32UartDev {
 
 // Impl plat device for pic32 uart dev
 impl PlatDevice for Pic32UartDev {
-    fn info(&mut self) -> &mut DrvInfo {
-        &mut self.info
-    }
-
     fn plat(&mut self) -> &mut PlatData {
         &mut self.plat
     }

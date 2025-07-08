@@ -393,8 +393,8 @@ impl VillageFileSystem {
     pub fn setup(&mut self) {
         // Initialize all hard disk
         for block in kernel().device().get_drivers().iter_mut() {
-            if block.info().get_id() == DriverID::Block {
-                self.mount_hard_drive(block.info().get_name());
+            if block.get_id() == DriverID::Block {
+                self.mount_hard_drive(block.get_name());
             }
         }
 

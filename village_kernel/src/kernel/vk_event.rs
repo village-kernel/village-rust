@@ -49,8 +49,8 @@ impl VillageEvent {
     pub fn setup(&mut self) {
         // Init all input devices
         for device in kernel().device().get_drivers().iter_mut() {
-            if device.info().get_id() == DriverID::Input {
-                self.init_input_device(device.info().get_name());
+            if device.get_id() == DriverID::Input {
+                self.init_input_device(device.get_name());
             }
         }
 
@@ -65,8 +65,8 @@ impl VillageEvent {
     pub fn exit(&mut self) {
         // Exit all input devices
         for device in kernel().device().get_drivers().rev_iter_mut() {
-            if device.info().get_id() == DriverID::Input {
-                self.exit_input_device(device.info().get_name());
+            if device.get_id() == DriverID::Input {
+                self.exit_input_device(device.get_name());
             }
         }
 

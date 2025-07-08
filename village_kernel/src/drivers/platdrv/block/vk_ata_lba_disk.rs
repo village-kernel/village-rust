@@ -6,12 +6,12 @@
 //###########################################################################
 use crate::misc::lock::vk_mutex::Mutex;
 use crate::register_plat_driver;
-use crate::traits::vk_driver::{Driver, DriverID, DrvInfo, PlatDevice, PlatDriver};
+use crate::traits::vk_driver::{Driver, PlatDevWrapper, PlatDriver};
 use crate::vendor::ia32legacy::core::i686::*;
-use crate::village::kernel;
 use alloc::boxed::Box;
 
 // Struct AtaLbaDiskConfig
+#[derive(Clone)]
 pub struct AtaLbaDiskConfig {
     pub drv: usize,
 }
@@ -26,8 +26,7 @@ impl AtaLbaDiskConfig {
 // Struct AtaLbaDisk
 pub struct AtaLbaDisk {
     mutex: Mutex,
-    info: DrvInfo,
-    drv: usize,
+    config: AtaLbaDiskConfig,
 }
 
 // Impl AtaLbaDisk
@@ -35,26 +34,24 @@ impl AtaLbaDisk {
     pub const fn new() -> Self {
         Self {
             mutex: Mutex::new(),
-            info: DrvInfo::new(),
-            drv: 0,
+            config: AtaLbaDiskConfig::new(),
+        }
+    }
+
+    // Set config
+    fn set_config(&mut self, data: *mut ()) {
+        if !data.is_null() {
+            self.config = unsafe { (*(data as *mut AtaLbaDiskConfig)).clone() }
         }
     }
 }
 
 // Impl AtaLbaDisk
 impl Driver for AtaLbaDisk {
-    // Info
-    fn info(&mut self) -> &mut DrvInfo {
-        &mut self.info
-    }
-
     // Open
-    fn open(&mut self) -> bool {
+    fn open(&mut self, data: *mut ()) -> bool {
         // Get config
-        let config = self.info.get_data::<AtaLbaDiskConfig>().unwrap();
-
-        // Set drv
-        self.drv = config.drv;
+        self.set_config(data);
 
         // Stop device from sending interrupts
         self.mutex.lock();
@@ -73,7 +70,7 @@ impl Driver for AtaLbaDisk {
 
         for cnt in 0..count {
             // LBA 28 mode
-            let val = (self.drv << ATA_MODE_DRV_POS) | ((blk >> 24) & 0x0f);
+            let val = (self.config.drv << ATA_MODE_DRV_POS) | ((blk >> 24) & 0x0f);
             port_byte_out(ATA_MODE, ATA_MODE_LBA | (val as u8));
 
             // Write one sector
@@ -123,7 +120,7 @@ impl Driver for AtaLbaDisk {
 
         for cnt in 0..count {
             // LBA 28 mode
-            let val = (self.drv << ATA_MODE_DRV_POS) | ((blk >> 24) & 0x0f);
+            let val = (self.config.drv << ATA_MODE_DRV_POS) | ((blk >> 24) & 0x0f);
             port_byte_out(ATA_MODE, ATA_MODE_LBA | (val as u8));
 
             // Read one sector
@@ -165,35 +162,22 @@ impl Driver for AtaLbaDisk {
 }
 
 // Struct ata lba disk drv
-struct AtaLbaDiskDrv {
-    data: DrvInfo,
-}
-
-// Impl ata lba disk driver
-impl AtaLbaDiskDrv {
-    pub const fn new() -> Self {
-        Self {
-            data: DrvInfo::new(),
-        }
-    }
-}
+struct AtaLbaDiskDrv;
 
 // Impl plat driver for ata lba disk driver
 impl PlatDriver for AtaLbaDiskDrv {
-    fn info(&mut self) -> &mut DrvInfo {
-        &mut self.data
-    }
-
-    fn probe(&mut self, device: &mut dyn PlatDevice) -> bool {
+    // Probe
+    fn probe(&mut self, device: &mut PlatDevWrapper) -> bool {
         device.plat().attach(Box::new(AtaLbaDisk::new()));
         true
     }
 
-    fn remove(&mut self, device: &mut dyn PlatDevice) -> bool {
+    // Remove
+    fn remove(&mut self, device: &mut PlatDevWrapper) -> bool {
         device.plat().detach();
         true
     }
 }
 
 // Register plat driver
-register_plat_driver!(AtaLbaDiskDrv::new(), ataLbaDisk, ata_lba_disk_drv);
+register_plat_driver!(AtaLbaDiskDrv, ataLbaDisk, ata_lba_disk_drv);
