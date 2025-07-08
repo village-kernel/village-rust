@@ -30,15 +30,16 @@ pub trait Cmd {
     fn help(&mut self, console: &mut dyn Console);
 }
 
-// Struct Command
-pub struct Command {
+// Struct CmdWrapper
+pub struct CmdWrapper {
     name: String,
     inner: Box<dyn Cmd>,
 }
 
-// Impl Command
-impl Command {
+// Impl CmdWrapper
+impl CmdWrapper {
     // New
+    #[inline]
     pub const fn new(inner: Box<dyn Cmd>) -> Self {
         Self {
             name: String::new(),
@@ -46,15 +47,25 @@ impl Command {
         }
     }
 
+    // New with name
+    #[inline]
+    pub fn with_name(inner: Box<dyn Cmd>, name: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            inner,
+        }
+    }
+
     // Set name
     #[inline]
-    pub fn set_name(&mut self, name: &str) {
+    pub fn set_name(&mut self, name: &str) -> &mut Self {
         self.name = name.to_string();
+        self
     }
 
     // Get name
     #[inline]
-    pub fn get_name(&mut self) -> &str {
+    pub fn get_name(&self) -> &str {
         &self.name
     }
 
@@ -85,12 +96,11 @@ macro_rules! register_cmd {
             static [<EXIT_ $name:upper>]: fn() = [<$name _exit>];
 
             fn [<$name _init>]() {
-                let mut command = Box::new(
-                    crate::traits::vk_command::Command::new(
-                        Box::new($cmd)
+                let command = Box::new(
+                    crate::traits::vk_command::CmdWrapper::with_name(
+                        Box::new($cmd), stringify!($name)
                     )
                 );
-                command.set_name(stringify!($name));
                 kernel().terminal().register_cmd(command);
             }
 
