@@ -6,7 +6,6 @@
 //###########################################################################
 use crate::register_cmd;
 use crate::traits::vk_command::{Cmd, Console};
-use crate::village::kernel;
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 

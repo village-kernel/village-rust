@@ -101,11 +101,11 @@ macro_rules! register_cmd {
                         Box::new($cmd), stringify!($name)
                     )
                 );
-                kernel().terminal().register_cmd(command);
+                crate::village::kernel().terminal().register_cmd(command);
             }
 
             fn [<$name _exit>]() {
-                kernel().terminal().unregister_cmd(stringify!($name));
+                crate::village::kernel().terminal().unregister_cmd(stringify!($name));
             }
         }
     };
