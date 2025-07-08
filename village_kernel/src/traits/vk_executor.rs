@@ -4,99 +4,85 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::village::kernel;
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 
-// Struct executor info
-pub struct ExecInfo {
-    pub path: String,
-    pub argv: Vec<String>,
-    pub tid: i32,
+// BaseLoader
+pub trait BaseLoader {
+    fn load(&mut self, filename: &str) -> bool;
+    fn exec(&mut self, argv: Vec<&str>) -> bool;
+    fn exit(&mut self) -> bool;
 }
 
-// Impl executor info
-impl ExecInfo {
-    // New
-    pub const fn new() -> Self {
-        Self {
-            path: String::new(),
-            argv: Vec::new(),
-            tid: 0,
-        }
-    }
+// BaseExecutor
+pub trait BaseExecutor {
+    fn run(&mut self, path: &str, argv: Vec<&str>) -> i32;
+    fn wait(&mut self);
+    fn kill(&mut self);
 }
 
 // Executor
 pub trait Executor {
-    // trait methods
-    fn base(&mut self) -> &mut ExecInfo;
-    fn initiate(&mut self) -> i32;
-    fn release(&mut self) -> bool;
-
-    // Run
-    fn run(&mut self, path: &str, argv: Vec<&str>) -> i32 {
-        // Set path and argv
-        self.base().path = path.to_string();
-        self.base().argv = argv.into_iter().map(|s| s.to_string()).collect();
-
-        // Load, parser file and create task
-        self.base().tid = self.initiate();
-
-        // Start task
-        kernel().thread().start_task(self.base().tid);
-
-        self.base().tid
-    }
-
-    // Wait
-    fn wait(&mut self) {
-        kernel().thread().wait_for_task(self.base().tid);
-    }
-
-    // Kill
-    fn kill(&mut self) {
-        kernel().thread().stop_task(self.base().tid);
-        self.release();
-    }
+    fn suffixes(&self) -> Vec<&str>;
+    fn create(&self) -> Box<dyn BaseExecutor>;
 }
 
-// Struct executor factory info
-pub struct ExecFtyInfo {
+// Struct ExecutorWrapper
+pub struct ExecutorWrapper {
     name: String,
+    inner: Box<dyn Executor>,
 }
 
-// Impl executor factory info
-impl ExecFtyInfo {
+// Impl ExecutorWrapper
+impl ExecutorWrapper {
     // New
-    pub const fn new() -> Self {
+    #[inline]
+    pub const fn new(inner: Box<dyn Executor>) -> Self {
         Self {
             name: String::new(),
+            inner,
+        }
+    }
+
+    // New with name
+    #[inline]
+    pub fn with_name(inner: Box<dyn Executor>, name: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            inner,
         }
     }
 
     // Set name
-    pub fn set_name(&mut self, name: &str) {
+    #[inline]
+    pub fn set_name(&mut self, name: &str) -> &mut Self {
         self.name = name.to_string();
+        self
     }
 
     // Get name
+    #[inline]
     pub fn get_name(&self) -> &str {
         &self.name
     }
+
+    // get_suffixes
+    #[inline]
+    pub fn get_suffixes(&self) -> Vec<&str> {
+        self.inner.suffixes()
+    }
+
+    // create
+    #[inline]
+    pub fn create(&self) -> Box<dyn BaseExecutor> {
+        self.inner.create()
+    }
 }
 
-// Executor factory
-pub trait ExecutorFty {
-    fn info(&mut self) -> &mut ExecFtyInfo;
-    fn get_suffixes(&mut self) -> Vec<&str>;
-    fn create(&mut self) -> Box<dyn Executor>;
-}
-
-// Register exec factory macro
+// Register executor macro
 #[macro_export]
-macro_rules! register_exec_factory {
+macro_rules! register_executor {
     ($fty:expr, $name:ident) => {
         paste::paste! {
             #[used]
@@ -108,13 +94,16 @@ macro_rules! register_exec_factory {
             static [<EXIT_ $name:upper>]: fn() = [<$name _exit>];
 
             fn [<$name _init>]() {
-                let mut factory = Box::new($fty);
-                factory.info().set_name(stringify!($name));
-                kernel().process().register_exec_factory(factory);
+                let factory = Box::new(
+                    crate::traits::vk_executor::ExecutorWrapper::with_name(
+                        Box::new($fty), stringify!($name)
+                    )
+                );
+                crate::village::kernel().process().register_executor(factory);
             }
 
             fn [<$name _exit>]() {
-                kernel().process().unregister_exec_factory(stringify!($name));
+                crate::village::kernel().process().unregister_executor(stringify!($name));
             }
         }
     };

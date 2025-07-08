@@ -32,6 +32,7 @@ pub mod binutils {
         pub mod vk_bin_executor;
         pub mod vk_elf_executor;
         pub mod vk_hex_executor;
+        pub mod vk_prog_executor;
     }
     pub mod loader {
         pub mod vk_bin_loader;

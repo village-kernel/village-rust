@@ -7,7 +7,7 @@
 use super::vk_callback::Callback;
 use super::vk_command::CmdWrapper;
 use super::vk_driver::{Driver, PlatDevice, PlatDriver};
-use super::vk_executor::{Executor, ExecutorFty};
+use super::vk_executor::{BaseExecutor, ExecutorWrapper};
 use super::vk_filesys::{FileSysWrapper, FileVol};
 use super::vk_linkedlist::LinkedList;
 use super::vk_module::Module;
@@ -413,7 +413,7 @@ pub struct ProcessData {
     pub path: String,
     pub pid: i32,
     pub tid: i32,
-    pub exec: Option<Box<dyn Executor>>,
+    pub exec: Option<Box<dyn BaseExecutor>>,
 }
 
 // Process data
@@ -432,8 +432,8 @@ impl ProcessData {
 // Process
 pub trait Process {
     // Register Methods
-    fn register_exec_factory(&mut self, factory: Box<dyn ExecutorFty>);
-    fn unregister_exec_factory(&mut self, name: &str);
+    fn register_executor(&mut self, factory: Box<ExecutorWrapper>);
+    fn unregister_executor(&mut self, name: &str);
 
     // Run Methods
     fn run_with_args(&mut self, behavior: ProcessBehavior, args: &str) -> i32;

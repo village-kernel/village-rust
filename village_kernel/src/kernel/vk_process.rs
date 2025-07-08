@@ -5,7 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::traits::vk_callback::Callback;
-use crate::traits::vk_executor::{Executor, ExecutorFty};
+use crate::traits::vk_executor::{BaseExecutor, ExecutorWrapper};
 use crate::traits::vk_kernel::{Process, ProcessBehavior, ProcessData};
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
@@ -18,7 +18,7 @@ use alloc::vec::Vec;
 pub struct VillageProcess {
     pid_cnt: i32,
     processes: LinkedList<Box<ProcessData>>,
-    factories: LinkedList<Box<dyn ExecutorFty>>,
+    executors: LinkedList<Box<ExecutorWrapper>>,
 }
 
 // Impl village process
@@ -27,7 +27,7 @@ impl VillageProcess {
         Self {
             pid_cnt: 0,
             processes: LinkedList::new(),
-            factories: LinkedList::new(),
+            executors: LinkedList::new(),
         }
     }
 }
@@ -56,7 +56,7 @@ impl VillageProcess {
         self.processes.clear();
 
         // Clear factories
-        self.factories.clear();
+        self.executors.clear();
     }
 }
 
@@ -86,18 +86,18 @@ impl VillageProcess {
 // Impl village process
 impl VillageProcess {
     // Create executor
-    fn create_executor(&mut self, path: &str) -> Option<Box<dyn Executor>> {
+    fn create_executor(&mut self, path: &str) -> Option<Box<dyn BaseExecutor>> {
         let suffix = match path.rfind('.') {
             Some(pos) => &path[pos..],
             None => return None,
         };
 
-        for factory in self.factories.iter_mut() {
-            let suffixes = factory.get_suffixes();
+        for executor in self.executors.iter_mut() {
+            let suffixes = executor.get_suffixes();
 
             for supported_suffix in suffixes {
                 if suffix == supported_suffix {
-                    return Some(factory.create());
+                    return Some(executor.create());
                 }
             }
         }
@@ -112,14 +112,14 @@ impl VillageProcess {
 // Impl process for village process
 impl Process for VillageProcess {
     // Register executor
-    fn register_exec_factory(&mut self, factory: Box<dyn ExecutorFty>) {
-        self.factories.push(factory);
+    fn register_executor(&mut self, executor: Box<ExecutorWrapper>) {
+        self.executors.push(executor);
     }
 
     // Unregister executor
-    fn unregister_exec_factory(&mut self, name: &str) {
-        self.factories
-            .retain_mut(|factory| !(factory.info().get_name() == name));
+    fn unregister_executor(&mut self, name: &str) {
+        self.executors
+            .retain_mut(|executor| !(executor.get_name() == name));
     }
 
     // Run with args
@@ -151,9 +151,14 @@ impl Process for VillageProcess {
             return -1;
         }
 
-        // Add to process list
-        process.pid = self.pid_cnt;
+        // Get process id
+        let pid: i32 = self.pid_cnt;
         self.pid_cnt += 1;
+
+        // Set process id
+        process.pid = pid;
+        
+        // Add into list
         self.processes.push(process);
 
         // Wait for task done
@@ -169,7 +174,7 @@ impl Process for VillageProcess {
             }
         }
 
-        self.pid_cnt - 1
+        pid
     }
 
     // Kill by path

@@ -7,6 +7,7 @@
 use super::vk_elf_defines::*;
 use super::vk_prog_decode::Program;
 use crate::misc::fopts::vk_file_fopt::FileFopt;
+use crate::traits::vk_executor::BaseLoader;
 use crate::traits::vk_filesys::FileMode;
 use crate::traits::vk_kernel::DebugLevel;
 use crate::village::kernel;
@@ -33,30 +34,6 @@ impl ElfLoader {
             filename: String::new(),
             program: Program::new(),
         }
-    }
-
-    // Load
-    pub fn load(&mut self, filename: &str) -> bool {
-        // Save filename in local
-        self.filename = filename.to_string();
-
-        // Load and mapping
-        if !self.load_elf() {
-            return false;
-        }
-        if !self.check_elf() {
-            return false;
-        }
-        if !self.load_program() {
-            return false;
-        }
-
-        // Output debug info
-        kernel().debug().output(
-            DebugLevel::Lv2,
-            &format!("{} load at 0x{:08x}", self.filename, self.program.base()),
-        );
-        true
     }
 
     // Load elf
@@ -191,9 +168,36 @@ impl ElfLoader {
 
         true
     }
+}
+
+// Impl ProgLoader for ELFLoader
+impl BaseLoader for ElfLoader {
+    // Load
+    fn load(&mut self, filename: &str) -> bool {
+        // Save filename in local
+        self.filename = filename.to_string();
+
+        // Load and mapping
+        if !self.load_elf() {
+            return false;
+        }
+        if !self.check_elf() {
+            return false;
+        }
+        if !self.load_program() {
+            return false;
+        }
+
+        // Output debug info
+        kernel().debug().output(
+            DebugLevel::Lv2,
+            &format!("{} load at 0x{:08x}", self.filename, self.program.base()),
+        );
+        true
+    }
 
     // Execute
-    pub fn execute(&mut self, argv: Vec<&str>) -> bool {
+    fn exec(&mut self, argv: Vec<&str>) -> bool {
         let result = self.program.execute(argv);
 
         if result {
@@ -210,7 +214,7 @@ impl ElfLoader {
     }
 
     // Exit
-    pub fn exit(&mut self) -> bool {
+    fn exit(&mut self) -> bool {
         self.program.exit()
     }
 }

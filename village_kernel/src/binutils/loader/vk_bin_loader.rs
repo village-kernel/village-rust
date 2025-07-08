@@ -6,6 +6,7 @@
 //###########################################################################
 use super::vk_prog_decode::Program;
 use crate::misc::fopts::vk_file_fopt::FileFopt;
+use crate::traits::vk_executor::BaseLoader;
 use crate::traits::vk_filesys::FileMode;
 use crate::traits::vk_kernel::DebugLevel;
 use crate::village::kernel;
@@ -28,24 +29,6 @@ impl BinLoader {
             filename: String::new(),
             program: Program::new(),
         }
-    }
-
-    // Load
-    pub fn load(&mut self, filename: &str) -> bool {
-        // Save filename in local
-        self.filename = filename.to_string();
-
-        // Load and mapping
-        if !self.load_bin() {
-            return false;
-        }
-
-        // Output debug info
-        kernel().debug().output(
-            DebugLevel::Lv2,
-            &format!("{} load at 0x{:08x}", self.filename, self.program.base()),
-        );
-        true
     }
 
     // Load bin
@@ -80,9 +63,30 @@ impl BinLoader {
 
         true
     }
+}
+
+// Impl ProgLoader for BinLoader
+impl BaseLoader for BinLoader {
+    // Load
+    fn load(&mut self, filename: &str) -> bool {
+        // Save filename in local
+        self.filename = filename.to_string();
+
+        // Load and mapping
+        if !self.load_bin() {
+            return false;
+        }
+
+        // Output debug info
+        kernel().debug().output(
+            DebugLevel::Lv2,
+            &format!("{} load at 0x{:08x}", self.filename, self.program.base()),
+        );
+        true
+    }
 
     // Execute
-    pub fn execute(&mut self, argv: Vec<&str>) -> bool {
+    fn exec(&mut self, argv: Vec<&str>) -> bool {
         let result = self.program.execute(argv);
 
         if result {
@@ -99,7 +103,7 @@ impl BinLoader {
     }
 
     // Exit
-    pub fn exit(&mut self) -> bool {
+    fn exit(&mut self) -> bool {
         self.program.exit()
     }
 }

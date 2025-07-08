@@ -6,6 +6,7 @@
 //###########################################################################
 use super::vk_prog_decode::Program;
 use crate::misc::fopts::vk_file_fopt::FileFopt;
+use crate::traits::vk_executor::BaseLoader;
 use crate::traits::vk_filesys::FileMode;
 use crate::traits::vk_kernel::DebugLevel;
 use crate::village::kernel;
@@ -122,27 +123,6 @@ impl HexLoader {
         }
     }
 
-    // Load
-    pub fn load(&mut self, filename: &str) -> bool {
-        //Save filename in local
-        self.filename = filename.to_string();
-
-        // Load and mapping
-        if !self.load_hex() {
-            return false;
-        }
-        if !self.load_program() {
-            return false;
-        }
-
-        // Output debug info
-        kernel().debug().output(
-            DebugLevel::Lv2,
-            &format!("{} load at 0x{:08x}", self.filename, self.program.base()),
-        );
-        true
-    }
-
     // Load hex
     fn load_hex(&mut self) -> bool {
         let mut file = FileFopt::new();
@@ -251,9 +231,33 @@ impl HexLoader {
 
         true
     }
+}
+
+// Imol ProgLoader for HexLoader
+impl BaseLoader for HexLoader {
+    // Load
+    fn load(&mut self, filename: &str) -> bool {
+        //Save filename in local
+        self.filename = filename.to_string();
+
+        // Load and mapping
+        if !self.load_hex() {
+            return false;
+        }
+        if !self.load_program() {
+            return false;
+        }
+
+        // Output debug info
+        kernel().debug().output(
+            DebugLevel::Lv2,
+            &format!("{} load at 0x{:08x}", self.filename, self.program.base()),
+        );
+        true
+    }
 
     // Execute
-    pub fn execute(&mut self, argv: Vec<&str>) -> bool {
+    fn exec(&mut self, argv: Vec<&str>) -> bool {
         let result = self.program.execute(argv);
 
         if result {
@@ -270,7 +274,7 @@ impl HexLoader {
     }
 
     // Exit
-    pub fn exit(&mut self) -> bool {
+    fn exit(&mut self) -> bool {
         self.program.exit()
     }
 }
