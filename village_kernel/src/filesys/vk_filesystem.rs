@@ -368,15 +368,15 @@ impl DiskMedia {
     }
 }
 
-// Struct concrete file system
-pub struct ConcreteFileSystem {
+// Struct village file system
+pub struct VillageFileSystem {
     filesyses: LinkedList<Box<dyn FileSys>>,
     medias: LinkedList<DiskMedia>,
     mounts: LinkedList<MountNode>,
 }
 
-// Impl concrete file system
-impl ConcreteFileSystem {
+// Impl village file system
+impl VillageFileSystem {
     // New
     pub const fn new() -> Self {
         Self {
@@ -387,8 +387,8 @@ impl ConcreteFileSystem {
     }
 }
 
-// Impl concrete file system
-impl ConcreteFileSystem {
+// Impl village file system
+impl VillageFileSystem {
     // Setup
     pub fn setup(&mut self) {
         // Initialize all hard disk
@@ -432,8 +432,8 @@ impl ConcreteFileSystem {
     }
 }
 
-// Impl concrete file system
-impl ConcreteFileSystem {
+// Impl village file system
+impl VillageFileSystem {
     // Mount root node
     fn mount_root_node(&mut self) -> bool {
         // Create root mount node
@@ -481,8 +481,8 @@ impl ConcreteFileSystem {
     }
 }
 
-// Impl file system for concrete file system
-impl FileSystem for ConcreteFileSystem {
+// Impl file system for village file system
+impl FileSystem for VillageFileSystem {
     // Register fs
     fn register_fs(&mut self, fs: Box<dyn FileSys>) {
         self.filesyses.push(fs);

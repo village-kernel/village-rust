@@ -7,18 +7,18 @@
 use crate::traits::vk_kernel::Protocol;
 use crate::village::kernel;
 
-// struct concrete protocol
-pub struct ConcreteProtocol;
+// struct village protocol
+pub struct VillageProtocol;
 
-// impl concrete protocol
-impl ConcreteProtocol {
+// impl village protocol
+impl VillageProtocol {
     pub const fn new() -> Self {
         Self {}
     }
 }
 
-// impl concrete protocol
-impl ConcreteProtocol {
+// impl village protocol
+impl VillageProtocol {
     // setup
     pub fn setup(&mut self) {
         //output debug info
@@ -29,8 +29,8 @@ impl ConcreteProtocol {
     pub fn exit(&mut self) {}
 }
 
-// impl protocol for concrete protocol
-impl Protocol for ConcreteProtocol {
+// impl protocol for village protocol
+impl Protocol for VillageProtocol {
     // register stack
     fn register_stack(&mut self) {}
 

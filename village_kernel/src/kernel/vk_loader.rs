@@ -11,14 +11,14 @@ use crate::traits::vk_kernel::Loader;
 use crate::village::kernel;
 use alloc::vec::Vec;
 
-// Struct concrete loader
-pub struct ConcreteLoader {
+// Struct village loader
+pub struct VillageLoader {
     libtool: LibraryTool,
     modtool: ModuleTool,
 }
 
-// Impl concrete loader
-impl ConcreteLoader {
+// Impl village loader
+impl VillageLoader {
     pub const fn new() -> Self {
         Self {
             libtool: LibraryTool::new(),
@@ -27,8 +27,8 @@ impl ConcreteLoader {
     }
 }
 
-// Impl concrete loader
-impl ConcreteLoader {
+// Impl village loader
+impl VillageLoader {
     // Setup
     pub fn setup(&mut self) {
         // Loading libraries
@@ -51,8 +51,8 @@ impl ConcreteLoader {
     }
 }
 
-// Impl concrete loader
-impl ConcreteLoader {
+// Impl village loader
+impl VillageLoader {
     // Load libs
     fn load_libs(&mut self, filename: &str) {
         let mut parser = RcParser::new();
@@ -106,8 +106,8 @@ impl ConcreteLoader {
     }
 }
 
-// Impl loader for concrete loader
-impl Loader for ConcreteLoader {
+// Impl loader for village loader
+impl Loader for VillageLoader {
     // Install lib
     fn install_lib(&mut self, name: &str) -> bool {
         self.libtool.install(name)

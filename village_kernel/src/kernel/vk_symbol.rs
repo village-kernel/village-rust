@@ -22,13 +22,13 @@ impl Entry {
     }
 }
 
-// Struct concrete symbol
-pub struct ConcreteSymbol {
+// Struct village symbol
+pub struct VillageSymbol {
     entrys: LinkedList<Entry>,
 }
 
-// Impl concrete symbol
-impl ConcreteSymbol {
+// Impl village symbol
+impl VillageSymbol {
     pub const fn new() -> Self {
         Self {
             entrys: LinkedList::new(),
@@ -36,8 +36,8 @@ impl ConcreteSymbol {
     }
 }
 
-// Impl concrete symbol
-impl ConcreteSymbol {
+// Impl village symbol
+impl VillageSymbol {
     // Setup
     pub fn setup(&mut self) {
         // Output debug info
@@ -48,8 +48,8 @@ impl ConcreteSymbol {
     pub fn exit(&mut self) {}
 }
 
-// Impl symbol for concrete symbol
-impl Symbol for ConcreteSymbol {
+// Impl symbol for village symbol
+impl Symbol for VillageSymbol {
     // Export
     fn export(&mut self, sym_addr: u32, name: &str) {
         let entry = Entry::new(sym_addr, name);

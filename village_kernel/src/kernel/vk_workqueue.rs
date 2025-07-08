@@ -9,14 +9,14 @@ use crate::traits::vk_kernel::{Work, WorkQueue, WorkState};
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
 
-// Struct concrete work queue
-pub struct ConcreteWorkQueue {
+// Struct village work queue
+pub struct VillageWorkQueue {
     works: LinkedList<Work>,
     id_cnt: u32,
 }
 
-// Impl concrete work queue
-impl ConcreteWorkQueue {
+// Impl village work queue
+impl VillageWorkQueue {
     pub const fn new() -> Self {
         Self {
             works: LinkedList::new(),
@@ -25,8 +25,8 @@ impl ConcreteWorkQueue {
     }
 }
 
-// Impl concrete work queue
-impl ConcreteWorkQueue {
+// Impl village work queue
+impl VillageWorkQueue {
     // Setup
     pub fn setup(&mut self) {
         // Create work queue task
@@ -45,8 +45,8 @@ impl ConcreteWorkQueue {
     }
 }
 
-// Impl concrete work queue
-impl ConcreteWorkQueue {
+// Impl village work queue
+impl VillageWorkQueue {
     // Execute
     fn execute(&mut self) {
         loop {
@@ -68,8 +68,8 @@ impl ConcreteWorkQueue {
     }
 }
 
-// Impl work queue for concrete work queue
-impl WorkQueue for ConcreteWorkQueue {
+// Impl work queue for village work queue
+impl WorkQueue for VillageWorkQueue {
     // Create
     fn create(&mut self, callback: Callback, ticks: u32) -> Option<&mut Work> {
         let id = self.id_cnt;

@@ -10,20 +10,20 @@ use crate::vendor::ia32legacy::core::i686::*;
 use crate::village::kernel;
 use core::arch::asm;
 
-// Struct concrete system
-pub struct ConcreteSystem {
+// Struct village system
+pub struct VillageSystem {
     systicks: u32,
 }
 
-// Impl concrete system
-impl ConcreteSystem {
+// Impl village system
+impl VillageSystem {
     pub const fn new() -> Self {
         Self { systicks: 0 }
     }
 }
 
-// Impl concrete system
-impl ConcreteSystem {
+// Impl village system
+impl VillageSystem {
     // Setup
     pub fn setup(&mut self) {
         // Set interrupt handler
@@ -67,8 +67,8 @@ impl ConcreteSystem {
     }
 }
 
-// Impl system for concrete system
-impl System for ConcreteSystem {
+// Impl system for village system
+impl System for VillageSystem {
     // Systick counter
     fn systick_counter(&mut self) {
         self.systicks = self.systicks + 1;

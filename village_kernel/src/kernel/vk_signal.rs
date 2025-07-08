@@ -7,18 +7,18 @@
 use crate::traits::vk_kernel::{Signal, Signals};
 use crate::village::kernel;
 
-// Struct concrete signal
-pub struct ConcreteSignal;
+// Struct village signal
+pub struct VillageSignal;
 
-// Impl concrete signal
-impl ConcreteSignal {
+// Impl village signal
+impl VillageSignal {
     pub const fn new() -> Self {
         Self {}
     }
 }
 
-// Impl concrete signal
-impl ConcreteSignal {
+// Impl village signal
+impl VillageSignal {
     // Setup
     pub fn setup(&mut self) {
         // output debug info
@@ -29,8 +29,8 @@ impl ConcreteSignal {
     pub fn exit(&mut self) {}
 }
 
-// Impl signal for concrete signal
-impl Signal for ConcreteSignal {
+// Impl signal for village signal
+impl Signal for VillageSignal {
     // Raising
     fn raising(&mut self, signal: Signals) {
         kernel().system().disable_irq();

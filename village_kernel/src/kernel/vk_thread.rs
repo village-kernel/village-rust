@@ -17,16 +17,17 @@ use core::ptr;
 const TASK_STACK_SIZE: u32 = 8192;
 const PSP_FRAME_SIZE: u32 = core::mem::size_of::<TaskContext>() as u32;
 
-// ConcreteThread implementation
-pub struct ConcreteThread {
+// Struct village thread
+pub struct VillageThread {
     tasks: LinkedList<ThreadTask>,
     id_cnt: i32,
 }
 
-impl ConcreteThread {
+// Impl village thread
+impl VillageThread {
     // New
     pub const fn new() -> Self {
-        ConcreteThread {
+        VillageThread {
             tasks: LinkedList::new(),
             id_cnt: 0,
         }
@@ -87,8 +88,8 @@ impl ConcreteThread {
     }
 }
 
-// Impl thread for concrete thread
-impl Thread for ConcreteThread {
+// Impl thread for village thread
+impl Thread for VillageThread {
     // Create task fn
     fn create_task(&mut self, name: &str, callback: Callback) -> i32 {
         // Create a new task and allocate stack space

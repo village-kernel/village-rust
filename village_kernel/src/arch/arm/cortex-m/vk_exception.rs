@@ -5,18 +5,18 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 
-/// struct concrete exception
-pub struct ConcreteException;
+/// struct village exception
+pub struct VillageException;
 
-/// impl concrete exception
-impl ConcreteException {  
+/// impl village exception
+impl VillageException {  
     pub const fn new() -> Self {
         Self { }
     }
 }
 
-/// impl concrete exception
-impl ConcreteException {
+/// impl village exception
+impl VillageException {
     /// setup
     pub fn setup(&mut self) {
 

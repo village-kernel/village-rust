@@ -13,8 +13,8 @@ use core::panic::PanicInfo;
 // Static const
 static BUF_SIZE: usize = 256;
 
-// Struct concrete debug
-pub struct ConcreteDebug {
+// Struct village debug
+pub struct VillageDebug {
     transceiver: DevFopt,
     debug_level: DebugLevel,
     is_ready: bool,
@@ -22,8 +22,8 @@ pub struct ConcreteDebug {
     tx_buf: [u8; BUF_SIZE],
 }
 
-// Impl concrete debug
-impl ConcreteDebug {
+// Impl village debug
+impl VillageDebug {
     pub const fn new() -> Self {
         Self {
             transceiver: DevFopt::new(),
@@ -35,8 +35,8 @@ impl ConcreteDebug {
     }
 }
 
-// Impl concrete debug
-impl ConcreteDebug {
+// Impl village debug
+impl VillageDebug {
     // Setup
     pub fn setup(&mut self) {
         // Open transceiver
@@ -59,8 +59,8 @@ impl ConcreteDebug {
     }
 }
 
-// Impl concrete debug
-impl ConcreteDebug {
+// Impl village debug
+impl VillageDebug {
     // Write
     fn write(&mut self, data: &str) {
         // Calculate the string length
@@ -106,8 +106,8 @@ impl ConcreteDebug {
     }
 }
 
-// Impl debug for concrete debug
-impl Debug for ConcreteDebug {
+// Impl debug for village debug
+impl Debug for VillageDebug {
     // Log
     fn log(&mut self, log: &str) {
         self.write(&format!("Log: {} \r\n", log));

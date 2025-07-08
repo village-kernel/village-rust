@@ -13,16 +13,16 @@ use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
 use alloc::boxed::Box;
 
-// Struct concrete device
-pub struct ConcreteDevice {
+// Struct village device
+pub struct VillageDevice {
     is_runtime: bool,
     base_devs: LinkedList<Box<dyn Driver>>,
     plat_devs: LinkedList<Box<dyn PlatDevice>>,
     plat_drvs: LinkedList<Box<dyn PlatDriver>>,
 }
 
-// Impl concrete device
-impl ConcreteDevice {
+// Impl village device
+impl VillageDevice {
     pub const fn new() -> Self {
         Self {
             is_runtime: false,
@@ -33,8 +33,8 @@ impl ConcreteDevice {
     }
 }
 
-// Impl concrete device
-impl ConcreteDevice {
+// Impl village device
+impl VillageDevice {
     // Setup
     pub fn setup(&mut self) {
         // Clear the flag
@@ -60,8 +60,8 @@ impl ConcreteDevice {
     }
 }
 
-// Impl concrete device
-impl ConcreteDevice {
+// Impl village device
+impl VillageDevice {
     // Platform match
     fn platform_match(device: &mut dyn PlatDevice, driver: &mut dyn PlatDriver) -> bool {
         device.info().get_name() == driver.info().get_name()
@@ -154,8 +154,8 @@ impl ConcreteDevice {
     }
 }
 
-// Impl deivce for concrete device
-impl Device for ConcreteDevice {
+// Impl deivce for village device
+impl Device for VillageDevice {
     // Register driver
     fn register_driver(&mut self, mut driver: Box<dyn Driver>) {
         if self.is_runtime {

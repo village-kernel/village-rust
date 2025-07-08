@@ -10,14 +10,14 @@ use crate::traits::vk_module::{Module, ModuleID};
 use crate::village::kernel;
 use alloc::boxed::Box;
 
-// Struct concrete feature
-pub struct ConcreteFeature {
+// Struct village feature
+pub struct VillageFeature {
     modules: LinkedList<Box<dyn Module>>,
     is_runtime: bool,
 }
 
-// Impl concrete feature
-impl ConcreteFeature {
+// Impl village feature
+impl VillageFeature {
     // New
     pub const fn new() -> Self {
         Self {
@@ -27,8 +27,8 @@ impl ConcreteFeature {
     }
 }
 
-// Impl concrete feature
-impl ConcreteFeature {
+// Impl village feature
+impl VillageFeature {
     // Setup
     pub fn setup(&mut self) {
         // Clear the runtime flag
@@ -69,8 +69,8 @@ impl ConcreteFeature {
     }
 }
 
-// iImpl feature for concrete feature
-impl Feature for ConcreteFeature {
+// iImpl feature for village feature
+impl Feature for VillageFeature {
     // Register module
     fn register_module(&mut self, mut module: Box<dyn Module>) {
         if self.is_runtime {
@@ -104,8 +104,8 @@ impl Feature for ConcreteFeature {
     }
 }
 
-// Impl drop for concrete feature
-impl Drop for ConcreteFeature {
+// Impl drop for village feature
+impl Drop for VillageFeature {
     fn drop(&mut self) {
         self.exit();
     }

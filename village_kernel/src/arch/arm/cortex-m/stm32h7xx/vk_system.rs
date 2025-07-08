@@ -6,18 +6,18 @@
 //###########################################################################
 use crate::kernel::traits::vk_kernel::System;
 
-/// struct concrete system
-pub struct ConcreteSystem;
+/// struct village system
+pub struct VillageSystem;
 
-// impl concrete system
-impl ConcreteSystem {    
+// impl village system
+impl VillageSystem {    
     pub const fn new() -> Self {
         Self { }
     }
 }
 
-/// impl concrete system
-impl ConcreteSystem {
+/// impl village system
+impl VillageSystem {
     /// setup
     pub fn setup(&mut self) {
 
@@ -29,8 +29,8 @@ impl ConcreteSystem {
     }
 }
 
-/// impl system for concrete system
-impl System for ConcreteSystem {
+/// impl system for village system
+impl System for VillageSystem {
     /// systick counter
     fn systick_counter(&mut self) {
 

@@ -7,18 +7,18 @@
 use crate::village::kernel;
 use crate::traits::vk_kernel::Scheduler;
 
-/// struct concrete scheduler
-pub struct ConcreteScheduler;
+/// struct village scheduler
+pub struct VillageScheduler;
 
-// impl concrete scheduler
-impl ConcreteScheduler {    
+// impl village scheduler
+impl VillageScheduler {    
     pub const fn new() -> Self {
         Self { }
     }
 }
 
-/// impl concrete scheduler
-impl ConcreteScheduler {
+/// impl village scheduler
+impl VillageScheduler {
     /// setup
     pub fn setup(&mut self) {
         //output debug info
@@ -31,8 +31,8 @@ impl ConcreteScheduler {
     }
 }
 
-/// impl scheduler for concrete scheduler
-impl Scheduler for ConcreteScheduler {
+/// impl scheduler for village scheduler
+impl Scheduler for VillageScheduler {
     /// start
     fn start(&mut self) {
 

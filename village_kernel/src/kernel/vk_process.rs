@@ -14,15 +14,15 @@ use alloc::format;
 use alloc::string::ToString;
 use alloc::vec::Vec;
 
-// Struct concrete process
-pub struct ConcreteProcess {
+// Struct village process
+pub struct VillageProcess {
     pid_cnt: i32,
     processes: LinkedList<Box<ProcessData>>,
     factories: LinkedList<Box<dyn ExecutorFty>>,
 }
 
-// Impl concrete process
-impl ConcreteProcess {
+// Impl village process
+impl VillageProcess {
     pub const fn new() -> Self {
         Self {
             pid_cnt: 0,
@@ -32,8 +32,8 @@ impl ConcreteProcess {
     }
 }
 
-// Impl concrete process
-impl ConcreteProcess {
+// Impl village process
+impl VillageProcess {
     // Setup
     pub fn setup(&mut self) {
         // Create a running taichi application task
@@ -60,8 +60,8 @@ impl ConcreteProcess {
     }
 }
 
-// Impl concrete process
-impl ConcreteProcess {
+// Impl village process
+impl VillageProcess {
     // Taichi
     fn taichi(&mut self) {
         let taichi = "/services/taichi.exec";
@@ -83,8 +83,8 @@ impl ConcreteProcess {
     }
 }
 
-// Impl concrete process
-impl ConcreteProcess {
+// Impl village process
+impl VillageProcess {
     // Create executor
     fn create_executor(&mut self, path: &str) -> Option<Box<dyn Executor>> {
         let suffix = match path.rfind('.') {
@@ -109,8 +109,8 @@ impl ConcreteProcess {
     }
 }
 
-// Impl process for concrete process
-impl Process for ConcreteProcess {
+// Impl process for village process
+impl Process for VillageProcess {
     // Register executor
     fn register_exec_factory(&mut self, factory: Box<dyn ExecutorFty>) {
         self.factories.push(factory);

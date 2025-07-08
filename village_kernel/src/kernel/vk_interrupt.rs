@@ -4,26 +4,26 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::arch::ia32::legacy::vk_exception::{ConcreteException, ISR_NUM, RSVD_ISR_SIZE};
+use crate::arch::ia32::legacy::vk_exception::{VillageException, ISR_NUM, RSVD_ISR_SIZE};
 use crate::traits::vk_callback::Callback;
 use crate::traits::vk_kernel::Interrupt;
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
 use alloc::format;
 
-// Struct concrete interrupt
-pub struct ConcreteInterrupt {
-    exception: ConcreteException,
+// Struct village interrupt
+pub struct VillageInterrupt {
+    exception: VillageException,
     warnings: [u8; ISR_NUM],
     isr_tabs: [LinkedList<Callback>; ISR_NUM],
     is_ready: bool,
 }
 
-// Impl concrete interrupt
-impl ConcreteInterrupt {
+// Impl village interrupt
+impl VillageInterrupt {
     pub const fn new() -> Self {
         Self {
-            exception: ConcreteException::new(),
+            exception: VillageException::new(),
             warnings: [0; ISR_NUM],
             isr_tabs: [const { LinkedList::new() }; ISR_NUM],
             is_ready: false,
@@ -31,8 +31,8 @@ impl ConcreteInterrupt {
     }
 }
 
-// Impl concrete interrupt
-impl ConcreteInterrupt {
+// Impl village interrupt
+impl VillageInterrupt {
     // Setup
     pub fn setup(&mut self) {
         // Setupt exception
@@ -60,8 +60,8 @@ impl ConcreteInterrupt {
     }
 }
 
-// Impl interrupt for concrete interrupt
-impl Interrupt for ConcreteInterrupt {
+// Impl interrupt for village interrupt
+impl Interrupt for VillageInterrupt {
     // Set ISR function callback
     fn set_isr_cb(&mut self, irq: isize, callback: Callback) {
         self.clear_isr_cb(irq);

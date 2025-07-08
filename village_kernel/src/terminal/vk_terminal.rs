@@ -35,15 +35,15 @@ impl Sandbox {
     }
 }
 
-// Struct concrete terminal
-pub struct ConcreteTerminal {
+// Struct village terminal
+pub struct VillageTerminal {
     cid_cnt: i32,
     commands: LinkedList<Box<dyn Cmd>>,
     sandboxes: LinkedList<Box<Sandbox>>,
 }
 
-// Impl concrete terminal
-impl ConcreteTerminal {
+// Impl village terminal
+impl VillageTerminal {
     // New
     pub const fn new() -> Self {
         Self {
@@ -54,8 +54,8 @@ impl ConcreteTerminal {
     }
 }
 
-// Impl concrete terminal
-impl ConcreteTerminal {
+// Impl village terminal
+impl VillageTerminal {
     // Setup
     pub fn setup(&mut self) {
         // Create terminal execute
@@ -84,8 +84,8 @@ impl ConcreteTerminal {
     }
 }
 
-// Impl terminal for concrete terminal
-impl Terminal for ConcreteTerminal {
+// Impl terminal for village terminal
+impl Terminal for VillageTerminal {
     // Register cmd
     fn register_cmd(&mut self, cmd: Box<dyn Cmd>) {
         self.commands.push(cmd);
@@ -160,7 +160,7 @@ impl Terminal for ConcreteTerminal {
     }
 }
 
-impl ConcreteTerminal {
+impl VillageTerminal {
     // Get sandbox
     fn get_sandbox(&mut self, cid: i32) -> Option<&mut Box<Sandbox>> {
         for sandbox in self.sandboxes.iter_mut() {

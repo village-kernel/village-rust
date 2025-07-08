@@ -34,17 +34,17 @@ struct IdtRegister {
     base: u32,
 }
 
-// Struct concrete exception
-pub struct ConcreteException {
+// Struct village exception
+pub struct VillageException {
     idt: [IdtGate; ISR_NUM],
     idt_reg: IdtRegister,
 }
 
-// Impl concrete exception
-impl ConcreteException {
+// Impl village exception
+impl VillageException {
     // New
     pub const fn new() -> Self {
-        ConcreteException {
+        VillageException {
             idt: [IdtGate {
                 low_offset: 0,
                 sel: 0,
@@ -57,8 +57,8 @@ impl ConcreteException {
     }
 }
 
-// Impl concrete exception
-impl ConcreteException {
+// Impl village exception
+impl VillageException {
     // Setup
     pub fn setup(&mut self) {
         // Symbol defined in the linker script

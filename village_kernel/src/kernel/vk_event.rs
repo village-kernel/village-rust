@@ -13,8 +13,8 @@ use crate::traits::vk_kernel::{EventInputAxis, EventInputKey, EventOutputAxis, E
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
 
-// Struct concrete event
-pub struct ConcreteEvent {
+// Struct village event
+pub struct VillageEvent {
     input_key: EventInputKey,
     input_axis: EventInputAxis,
 
@@ -26,8 +26,8 @@ pub struct ConcreteEvent {
     observers: [ObserverModel; EventType::AllSizes as usize],
 }
 
-// Impl concrete event
-impl ConcreteEvent {
+// Impl village event
+impl VillageEvent {
     pub const fn new() -> Self {
         Self {
             input_key: EventInputKey::new(),
@@ -43,8 +43,8 @@ impl ConcreteEvent {
     }
 }
 
-// impl concrete event
-impl ConcreteEvent {
+// impl village event
+impl VillageEvent {
     // Setup
     pub fn setup(&mut self) {
         // Init all input devices
@@ -80,8 +80,8 @@ impl ConcreteEvent {
     }
 }
 
-// Impl event for concrete event
-impl Event for ConcreteEvent {
+// Impl event for village event
+impl Event for VillageEvent {
     // Init input device
     fn init_input_device(&mut self, input: &str) {
         // Create an input device object

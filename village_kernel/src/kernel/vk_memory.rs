@@ -48,7 +48,7 @@ impl MapNode {
     }
 }
 
-// Struct concrete memory
+// Struct village memory
 struct MemoryAllocator {
     sram_start: AtomicU32,
     sram_ended: AtomicU32,
@@ -92,7 +92,7 @@ impl MemoryAllocator {
     }
 }
 
-// Impl concrete memory
+// Impl village memory
 impl MemoryAllocator {
     // Initiate
     pub fn initiate(&mut self) {
@@ -177,7 +177,7 @@ impl MemoryAllocator {
     }
 }
 
-// Impl memory for concrete memory
+// Impl memory for village memory
 impl MemoryAllocator {
     // Alloc
     // |--------------|---------------|
@@ -352,11 +352,11 @@ impl MemoryAllocator {
     }
 }
 
-// Struct ConcreteMemory
-pub struct ConcreteMemory;
+// Struct village memory
+pub struct VillageMemory;
 
-// Impl ConcreteMemory
-impl ConcreteMemory {
+// Impl village memory
+impl VillageMemory {
     // New
     pub const fn new() -> Self {
         Self {}
@@ -376,8 +376,8 @@ impl ConcreteMemory {
     }
 }
 
-// Impl Memory for ConcreteMemory
-impl Memory for ConcreteMemory {
+// Impl memory for village memory
+impl Memory for VillageMemory {
     // Alloc
     fn alloc(&mut self, size: u32) -> u32 {
         ALLOCATOR.memory.lock().alloc(size)

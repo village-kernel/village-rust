@@ -27,76 +27,76 @@ use crate::traits::vk_kernel::Thread;
 use crate::traits::vk_kernel::Timer;
 use crate::traits::vk_kernel::WorkQueue;
 
-use super::vk_debug::ConcreteDebug;
-use super::vk_device::ConcreteDevice;
-use super::vk_event::ConcreteEvent;
-use super::vk_feature::ConcreteFeature;
-use super::vk_interrupt::ConcreteInterrupt;
-use super::vk_loader::ConcreteLoader;
-use super::vk_memory::ConcreteMemory;
-use super::vk_process::ConcreteProcess;
-use super::vk_signal::ConcreteSignal;
-use super::vk_symbol::ConcreteSymbol;
-use super::vk_thread::ConcreteThread;
-use super::vk_timer::ConcreteTimer;
-use super::vk_workqueue::ConcreteWorkQueue;
-use crate::arch::ia32::legacy::vk_scheduler::ConcreteScheduler;
-use crate::arch::ia32::legacy::vk_system::ConcreteSystem;
-use crate::filesys::vk_filesystem::ConcreteFileSystem;
-use crate::protocol::vk_protocol::ConcreteProtocol;
-use crate::terminal::vk_terminal::ConcreteTerminal;
+use super::vk_debug::VillageDebug;
+use super::vk_device::VillageDevice;
+use super::vk_event::VillageEvent;
+use super::vk_feature::VillageFeature;
+use super::vk_interrupt::VillageInterrupt;
+use super::vk_loader::VillageLoader;
+use super::vk_memory::VillageMemory;
+use super::vk_process::VillageProcess;
+use super::vk_signal::VillageSignal;
+use super::vk_symbol::VillageSymbol;
+use super::vk_thread::VillageThread;
+use super::vk_timer::VillageTimer;
+use super::vk_workqueue::VillageWorkQueue;
+use crate::arch::ia32::legacy::vk_scheduler::VillageScheduler;
+use crate::arch::ia32::legacy::vk_system::VillageSystem;
+use crate::filesys::vk_filesystem::VillageFileSystem;
+use crate::protocol::vk_protocol::VillageProtocol;
+use crate::terminal::vk_terminal::VillageTerminal;
 
-// Struct village
-pub struct Village {
-    memory: Box<ConcreteMemory>,
-    debug: Box<ConcreteDebug>,
-    interrupt: Box<ConcreteInterrupt>,
-    system: Box<ConcreteSystem>,
-    scheduler: Box<ConcreteScheduler>,
-    thread: Box<ConcreteThread>,
-    workqueue: Box<ConcreteWorkQueue>,
-    event: Box<ConcreteEvent>,
-    symbol: Box<ConcreteSymbol>,
-    device: Box<ConcreteDevice>,
-    feature: Box<ConcreteFeature>,
-    filesys: Box<ConcreteFileSystem>,
-    loader: Box<ConcreteLoader>,
-    process: Box<ConcreteProcess>,
-    timer: Box<ConcreteTimer>,
-    terminal: Box<ConcreteTerminal>,
-    signal: Box<ConcreteSignal>,
-    protocol: Box<ConcreteProtocol>,
+// Struct village kernel
+pub struct VillageKernel {
+    memory: Box<VillageMemory>,
+    debug: Box<VillageDebug>,
+    interrupt: Box<VillageInterrupt>,
+    system: Box<VillageSystem>,
+    scheduler: Box<VillageScheduler>,
+    thread: Box<VillageThread>,
+    workqueue: Box<VillageWorkQueue>,
+    event: Box<VillageEvent>,
+    symbol: Box<VillageSymbol>,
+    device: Box<VillageDevice>,
+    feature: Box<VillageFeature>,
+    filesys: Box<VillageFileSystem>,
+    loader: Box<VillageLoader>,
+    process: Box<VillageProcess>,
+    timer: Box<VillageTimer>,
+    terminal: Box<VillageTerminal>,
+    signal: Box<VillageSignal>,
+    protocol: Box<VillageProtocol>,
 }
 
-// Impl village
-impl Village {
-    // New village object
+// Impl village kernel
+impl VillageKernel {
+    // New village kernel
     pub fn new() -> Self {
         Self {
-            memory: Box::new(ConcreteMemory::new()),
-            debug: Box::new(ConcreteDebug::new()),
-            interrupt: Box::new(ConcreteInterrupt::new()),
-            system: Box::new(ConcreteSystem::new()),
-            scheduler: Box::new(ConcreteScheduler::new()),
-            thread: Box::new(ConcreteThread::new()),
-            workqueue: Box::new(ConcreteWorkQueue::new()),
-            event: Box::new(ConcreteEvent::new()),
-            symbol: Box::new(ConcreteSymbol::new()),
-            device: Box::new(ConcreteDevice::new()),
-            feature: Box::new(ConcreteFeature::new()),
-            filesys: Box::new(ConcreteFileSystem::new()),
-            loader: Box::new(ConcreteLoader::new()),
-            process: Box::new(ConcreteProcess::new()),
-            timer: Box::new(ConcreteTimer::new()),
-            terminal: Box::new(ConcreteTerminal::new()),
-            signal: Box::new(ConcreteSignal::new()),
-            protocol: Box::new(ConcreteProtocol::new()),
+            memory: Box::new(VillageMemory::new()),
+            debug: Box::new(VillageDebug::new()),
+            interrupt: Box::new(VillageInterrupt::new()),
+            system: Box::new(VillageSystem::new()),
+            scheduler: Box::new(VillageScheduler::new()),
+            thread: Box::new(VillageThread::new()),
+            workqueue: Box::new(VillageWorkQueue::new()),
+            event: Box::new(VillageEvent::new()),
+            symbol: Box::new(VillageSymbol::new()),
+            device: Box::new(VillageDevice::new()),
+            feature: Box::new(VillageFeature::new()),
+            filesys: Box::new(VillageFileSystem::new()),
+            loader: Box::new(VillageLoader::new()),
+            process: Box::new(VillageProcess::new()),
+            timer: Box::new(VillageTimer::new()),
+            terminal: Box::new(VillageTerminal::new()),
+            signal: Box::new(VillageSignal::new()),
+            protocol: Box::new(VillageProtocol::new()),
         }
     }
 }
 
-// Impl kernel for village
-impl Kernel for Village {
+// Impl kernel for village kernel
+impl Kernel for VillageKernel {
     // Setup
     fn setup(&mut self) {
         // Setup memory

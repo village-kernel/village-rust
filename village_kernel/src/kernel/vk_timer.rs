@@ -10,14 +10,14 @@ use crate::traits::vk_linkedlist::LinkedList;
 use crate::vendor::ia32legacy::core::i686::SYSTICK_IRQN;
 use crate::village::kernel;
 
-// Struct concrete timer
-pub struct ConcreteTimer {
+// Struct village timer
+pub struct VillageTimer {
     jobs: LinkedList<Job>,
     id_cnt: u32,
 }
 
-// Impl concrete timer
-impl ConcreteTimer {
+// Impl village timer
+impl VillageTimer {
     pub const fn new() -> Self {
         Self {
             jobs: LinkedList::new(),
@@ -26,8 +26,8 @@ impl ConcreteTimer {
     }
 }
 
-// Impl concrete timer
-impl ConcreteTimer {
+// Impl village timer
+impl VillageTimer {
     // Setup
     pub fn setup(&mut self) {
         // Add the systick interrupt handler
@@ -50,7 +50,7 @@ impl ConcreteTimer {
 }
 
 // Impl concreta timer
-impl ConcreteTimer {
+impl VillageTimer {
     // Execute
     fn execute(&mut self) {
         for job in self.jobs.iter_mut() {
@@ -64,8 +64,8 @@ impl ConcreteTimer {
     }
 }
 
-// Impl timer for concrete timer
-impl Timer for ConcreteTimer {
+// Impl timer for village timer
+impl Timer for VillageTimer {
     // Create
     fn create(&mut self, callback: Callback) -> Option<&mut Job> {
         let id = self.id_cnt;

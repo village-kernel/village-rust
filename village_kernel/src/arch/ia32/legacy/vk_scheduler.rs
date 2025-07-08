@@ -10,21 +10,21 @@ use crate::vendor::ia32legacy::core::i686::{PENDSV_IRQN, SYSTICK_IRQN};
 use crate::village::kernel;
 use core::arch::{asm, naked_asm};
 
-// Struct concrete scheduler
-pub struct ConcreteScheduler {
+// Struct village scheduler
+pub struct VillageScheduler {
     is_ready: bool,
 }
 
-// Impl concrete scheduler
-impl ConcreteScheduler {
+// Impl village scheduler
+impl VillageScheduler {
     // New
     pub const fn new() -> Self {
         Self { is_ready: false }
     }
 }
 
-// Impl concrete scheduler
-impl ConcreteScheduler {
+// Impl village scheduler
+impl VillageScheduler {
     // Setup
     pub fn setup(&mut self) {
         // Clear start schedule flag
@@ -53,8 +53,8 @@ impl ConcreteScheduler {
     }
 }
 
-// Impl scheduler for concrete scheduler
-impl Scheduler for ConcreteScheduler {
+// Impl scheduler for village scheduler
+impl Scheduler for VillageScheduler {
     // Start scheduler
     fn start(&mut self) {
         // Output debug info
@@ -84,8 +84,8 @@ impl Scheduler for ConcreteScheduler {
     }
 }
 
-// Impl concrete scheduler
-impl ConcreteScheduler {
+// Impl village scheduler
+impl VillageScheduler {
     // Save task psp
     #[unsafe(no_mangle)]
     unsafe extern "C" fn save_task_psp(psp: u32) {
