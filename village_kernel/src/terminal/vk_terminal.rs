@@ -4,9 +4,9 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::terminal::vk_console::Console;
+use super::vk_console::VillageConsole;
 use crate::traits::vk_callback::Callback;
-use crate::traits::vk_command::Cmd;
+use crate::traits::vk_command::Command;
 use crate::traits::vk_kernel::Terminal;
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
@@ -19,7 +19,7 @@ pub struct Sandbox {
     pub cid: i32,
     pub tid: i32,
     pub driver: String,
-    pub console: Option<Box<Console>>,
+    pub console: Option<Box<VillageConsole>>,
 }
 
 // Impl sandbox
@@ -38,7 +38,7 @@ impl Sandbox {
 // Struct village terminal
 pub struct VillageTerminal {
     cid_cnt: i32,
-    commands: LinkedList<Box<dyn Cmd>>,
+    commands: LinkedList<Box<Command>>,
     sandboxes: LinkedList<Box<Sandbox>>,
 }
 
@@ -87,28 +87,28 @@ impl VillageTerminal {
 // Impl terminal for village terminal
 impl Terminal for VillageTerminal {
     // Register cmd
-    fn register_cmd(&mut self, cmd: Box<dyn Cmd>) {
+    fn register_cmd(&mut self, cmd: Box<Command>) {
         self.commands.push(cmd);
     }
 
     // Unregister cmd
     fn unregister_cmd(&mut self, name: &str) {
         self.commands
-            .retain_mut(|cmd| !(cmd.base().get_name() == name));
+            .retain_mut(|cmd| !(cmd.get_name() == name));
     }
 
     // Get cmd
-    fn get_cmd(&mut self, name: &str) -> Option<&mut Box<dyn Cmd>> {
-        for cmd in self.commands.iter_mut() {
-            if cmd.base().get_name() == name {
-                return Some(cmd);
+    fn get_cmd(&mut self, name: &str) -> Option<&mut Box<Command>> {
+        for command in self.commands.iter_mut() {
+            if command.get_name() == name {
+                return Some(command);
             }
         }
         None
     }
 
     // Get cmds
-    fn get_cmds(&mut self) -> &mut LinkedList<Box<dyn Cmd>> {
+    fn get_cmds(&mut self) -> &mut LinkedList<Box<Command>> {
         &mut self.commands
     }
 
@@ -121,11 +121,14 @@ impl Terminal for VillageTerminal {
         sandbox.driver = driver.to_string();
 
         // Create console object
-        sandbox.console = Some(Box::new(Console::new()));
+        sandbox.console = Some(Box::new(VillageConsole::new()));
+
+        // Sandbox cid
+        let cid = self.cid_cnt;
+        self.cid_cnt += 1;
 
         // Set sandbox cid
-        sandbox.cid = self.cid_cnt;
-        self.cid_cnt += 1;
+        sandbox.cid = cid;
 
         // Create thread task
         let sandbox_na = format!("Console::{}", driver);
@@ -144,7 +147,7 @@ impl Terminal for VillageTerminal {
         kernel().thread().start_task(tid);
 
         // return cid
-        self.cid_cnt - 1
+        cid
     }
 
     // Destroy console

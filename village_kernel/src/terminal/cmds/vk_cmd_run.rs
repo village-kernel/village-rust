@@ -5,62 +5,41 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::register_cmd;
-use crate::traits::vk_command::{Cmd, CmdBase};
+use crate::traits::vk_command::{Cmd, Console};
 use crate::traits::vk_kernel::ProcessBehavior;
 use crate::village::kernel;
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 
 // Struct cmd run
-struct CmdRun {
-    base: CmdBase,
-}
-
-// Impl cmd run
-impl CmdRun {
-    // New
-    pub const fn new() -> Self {
-        Self {
-            base: CmdBase::new(),
-        }
-    }
-}
+struct CmdRun;
 
 // Impl cmd for cmd run
 impl Cmd for CmdRun {
-    // Base
-    fn base(&mut self) -> &mut CmdBase {
-        &mut self.base
-    }
-
     // Execute
-    fn execute(&mut self, argv: Vec<&str>) {
-        if let Some(console) = self.base.get_console() {
-            if argv.len() < 2 {
-                console.println("Usage: run <program> [arg1] [arg2] [...] [&]");
-                return;
-            }
-
-            let mut behavior = ProcessBehavior::Foreground;
-
-            if argv[argv.len() - 1] == "&" {
-                behavior = ProcessBehavior::Background;
-            }
-
-            let path = console.absolute_path(argv[1]);
-            let mut argv = argv;
-            argv.remove(0);
-            kernel().process().run_with_argv(behavior, &path, argv);
+    fn exec(&mut self, console: &mut dyn Console, argv: Vec<&str>) {
+        if argv.len() < 2 {
+            console.println("Usage: run <program> [arg1] [arg2] [...] [&]");
+            return;
         }
+
+        let mut behavior = ProcessBehavior::Foreground;
+
+        if argv[argv.len() - 1] == "&" {
+            behavior = ProcessBehavior::Background;
+        }
+
+        let path = console.real_path(argv[1]);
+        let mut argv = argv;
+        argv.remove(0);
+        kernel().process().run_with_argv(behavior, &path, argv);
     }
 
     // Help
-    fn help(&mut self) {
-        if let Some(console) = self.base.get_console() {
-            console.println("cmd run: execute application");
-        }
+    fn help(&mut self, console: &mut dyn Console) {
+        console.println("cmd run: execute application");
     }
 }
 
 // Register cmd
-register_cmd!(CmdRun::new(), run);
+register_cmd!(CmdRun, run);

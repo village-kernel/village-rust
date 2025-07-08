@@ -4,63 +4,71 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::terminal::vk_console::Console;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
+use alloc::boxed::Box;
 
-// Struct cmd base
-pub struct CmdBase {
-    name: String,
-    console: Option<*mut Console>,
+// Trait Console
+pub trait Console {
+    // Path methods
+    fn set_path(&mut self, path: &str);
+    fn get_path(&mut self) -> &str;
+    fn real_path(&mut self, path: &str) -> String;
+
+    // Msg methods
+    fn log(&mut self, log: &str);
+    fn info(&mut self, info: &str);
+    fn error(&mut self, error: &str);
+    fn warn(&mut self, warn: &str);
+    fn print(&mut self, msg: &str);
+    fn println(&mut self, msg: &str);
 }
 
-// Impl cmd base
-impl CmdBase {
+// Trait Cmd
+pub trait Cmd {
+    fn exec(&mut self, console: &mut dyn Console, argv: Vec<&str>);
+    fn help(&mut self, console: &mut dyn Console);
+}
+
+// Struct Command
+pub struct Command {
+    name: String,
+    inner: Box<dyn Cmd>,
+}
+
+// Impl Command
+impl Command {
     // New
-    pub const fn new() -> Self {
+    pub const fn new(inner: Box<dyn Cmd>) -> Self {
         Self {
             name: String::new(),
-            console: None,
+            inner,
         }
     }
 
     // Set name
+    #[inline]
     pub fn set_name(&mut self, name: &str) {
         self.name = name.to_string();
     }
 
     // Get name
+    #[inline]
     pub fn get_name(&mut self) -> &str {
         &self.name
     }
 
-    // Set console
-    pub fn set_console(&mut self, console: &mut Console) {
-        self.console = Some(console as *mut _);
+    // Execute
+    #[inline]
+    pub fn exec(&mut self, console: &mut dyn Console, argv: Vec<&str>) {
+        self.inner.exec(console, argv);
     }
 
-    // Get console
-    pub fn get_console(&mut self) -> Option<&mut Console> {
-        unsafe { self.console.map(|ptr| &mut *ptr) }
+    // Help
+    #[inline]
+    pub fn help(&mut self, console: &mut dyn Console) {
+        self.inner.help(console);
     }
-}
-
-// Cmd
-pub trait Cmd {
-    // Base
-    fn base(&mut self) -> &mut CmdBase;
-
-    // Setup
-    fn setup(&mut self, console: &mut Console) {
-        self.base().set_console(console);
-    }
-
-    // Exit
-    fn exit(&mut self) {}
-
-    // Methods
-    fn execute(&mut self, argv: Vec<&str>);
-    fn help(&mut self);
 }
 
 // Register cmd macro
@@ -77,8 +85,12 @@ macro_rules! register_cmd {
             static [<EXIT_ $name:upper>]: fn() = [<$name _exit>];
 
             fn [<$name _init>]() {
-                let mut command = Box::new($cmd);
-                command.base().set_name(stringify!($name));
+                let mut command = Box::new(
+                    crate::traits::vk_command::Command::new(
+                        Box::new($cmd)
+                    )
+                );
+                command.set_name(stringify!($name));
                 kernel().terminal().register_cmd(command);
             }
 

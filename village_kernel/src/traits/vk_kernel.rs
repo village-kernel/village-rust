@@ -5,7 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use super::vk_callback::Callback;
-use super::vk_command::Cmd;
+use super::vk_command::Command;
 use super::vk_driver::{Driver, PlatDevice, PlatDriver};
 use super::vk_executor::{Executor, ExecutorFty};
 use super::vk_filesys::{FileSys, FileVol};
@@ -493,10 +493,10 @@ pub trait Timer {
 // Terminal
 pub trait Terminal {
     // Cmd Methods
-    fn register_cmd(&mut self, cmd: Box<dyn Cmd>);
+    fn register_cmd(&mut self, cmd: Box<Command>);
     fn unregister_cmd(&mut self, name: &str);
-    fn get_cmd(&mut self, name: &str) -> Option<&mut Box<dyn Cmd>>;
-    fn get_cmds(&mut self) -> &mut LinkedList<Box<dyn Cmd>>;
+    fn get_cmd(&mut self, name: &str) -> Option<&mut Box<Command>>;
+    fn get_cmds(&mut self) -> &mut LinkedList<Box<Command>>;
 
     // Console Methods
     fn create_console(&mut self, driver: &str) -> i32;

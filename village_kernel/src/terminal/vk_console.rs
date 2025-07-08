@@ -6,6 +6,7 @@
 //###########################################################################
 use super::vk_cmdmsg::CmdMsg;
 use super::vk_cmdmsg::CmdMsgMgr;
+use crate::traits::vk_command::Console;
 use crate::village::kernel;
 use alloc::format;
 use alloc::string::String;
@@ -23,16 +24,16 @@ const VK_WELCOME: &[&str] = &[
     "\r\n",
 ];
 
-// Struct console
-pub struct Console {
+// Struct village console
+pub struct VillageConsole {
     msg_mgr: CmdMsgMgr,
     user: String,
     mach: String,
     path: String,
 }
 
-// Impl console
-impl Console {
+// Impl village console
+impl VillageConsole {
     // New
     pub const fn new() -> Self {
         Self {
@@ -72,7 +73,7 @@ impl Console {
 }
 
 // Impl console
-impl Console {
+impl VillageConsole {
     // Execute
     pub fn execute(&mut self) {
         loop {
@@ -88,9 +89,7 @@ impl Console {
         self.msg_mgr.write("\r\n");
 
         if let Some(cmd) = kernel().terminal().get_cmd(&msg.cmd) {
-            cmd.setup(self);
-            cmd.execute(msg.args.split(' ').collect());
-            cmd.exit();
+            cmd.exec(self, msg.args.split(' ').collect());
             self.show_user_and_path();
             return;
         }
@@ -115,19 +114,19 @@ impl Console {
 }
 
 // Impl console
-impl Console {
+impl Console for VillageConsole {
     // Set path
-    pub fn set_path(&mut self, path: &str) {
+    fn set_path(&mut self, path: &str) {
         self.path = path.to_string();
     }
 
     // Get path
-    pub fn get_path(&mut self) -> &str {
+    fn get_path(&mut self) -> &str {
         &self.path
     }
 
     // Absolute path
-    pub fn absolute_path(&mut self, path: &str) -> String {
+    fn real_path(&mut self, path: &str) -> String {
         let mut abs_path = String::new();
 
         if !path.starts_with('/') {
@@ -142,40 +141,37 @@ impl Console {
 
         abs_path
     }
-}
 
-// Impl Console
-impl Console {
     // Log
-    pub fn log(&mut self, log: &str) {
+    fn log(&mut self, log: &str) {
         self.msg_mgr.write(&format!("Log: {} \r\n", log));
     }
 
     // Info
-    pub fn info(&mut self, info: &str) {
+    fn info(&mut self, info: &str) {
         self.msg_mgr
             .write(&format!("\x1b[36m[Info] {} \r\n\x1b[39m", info));
     }
 
     // Error
-    pub fn error(&mut self, error: &str) {
+    fn error(&mut self, error: &str) {
         self.msg_mgr
             .write(&format!("\x1b[31m[Error] {} \r\n\x1b[39m", error));
     }
 
     // Warn
-    pub fn warn(&mut self, warn: &str) {
+    fn warn(&mut self, warn: &str) {
         self.msg_mgr
             .write(&format!("\x1b[33m[Warning] {} \r\n\x1b[39m", warn));
     }
 
     // print
-    pub fn print(&mut self, msg: &str) {
+    fn print(&mut self, msg: &str) {
         self.msg_mgr.write(&format!("{}", msg));
     }
 
     // println
-    pub fn println(&mut self, msg: &str) {
+    fn println(&mut self, msg: &str) {
         self.msg_mgr.write(&format!("{}\r\n", msg));
     }
 }

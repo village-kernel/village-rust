@@ -5,51 +5,30 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::register_cmd;
-use crate::traits::vk_command::{Cmd, CmdBase};
+use crate::traits::vk_command::{Cmd, Console};
 use crate::village::kernel;
 use alloc::boxed::Box;
 use alloc::format;
 use alloc::vec::Vec;
 
-// Struct cmd mem
-struct CmdMem {
-    base: CmdBase,
-}
+// Struct cmd memory
+struct CmdMemory;
 
-// Impl cmd mem
-impl CmdMem {
-    // New
-    pub const fn new() -> Self {
-        Self {
-            base: CmdBase::new(),
-        }
-    }
-}
-
-// Impl cmd for cmd mem
-impl Cmd for CmdMem {
-    // Base
-    fn base(&mut self) -> &mut CmdBase {
-        &mut self.base
-    }
-
+// Impl cmd for cmd memory
+impl Cmd for CmdMemory {
     // Execute
-    fn execute(&mut self, _argv: Vec<&str>) {
-        if let Some(console) = self.base.get_console() {
-            let size = kernel().memory().get_size();
-            let used = kernel().memory().get_used();
-            let per = used as f32 * 100.0 / size as f32;
-            console.println(&format!("memory size: 0x{:08x} Bytes, memory used: 0x{:08x} Bytes, percentage used: {:0.2} %", size, used, per));
-        }
+    fn exec(&mut self, console: &mut dyn Console, _argv: Vec<&str>) {
+        let size = kernel().memory().get_size();
+        let used = kernel().memory().get_used();
+        let per = used as f32 * 100.0 / size as f32;
+        console.println(&format!("memory size: 0x{:08x} Bytes, memory used: 0x{:08x} Bytes, percentage used: {:0.2} %", size, used, per));
     }
 
     // Help
-    fn help(&mut self) {
-        if let Some(console) = self.base.get_console() {
-            console.println("cmd memory: show memory used information");
-        }
+    fn help(&mut self, console: &mut dyn Console) {
+        console.println("cmd memory: show memory used information");
     }
 }
 
 // Register cmd
-register_cmd!(CmdMem::new(), memory);
+register_cmd!(CmdMemory, memory);

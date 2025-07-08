@@ -6,106 +6,84 @@
 //###########################################################################
 use crate::misc::fopts::vk_file_fopt::FileFopt;
 use crate::register_cmd;
-use crate::traits::vk_command::{Cmd, CmdBase};
+use crate::traits::vk_command::{Cmd, Console};
 use crate::traits::vk_filesys::FileMode;
 use crate::village::kernel;
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 
 // Struct cmd echo
-struct CmdEcho {
-    base: CmdBase,
-}
-
-// Impl cmd echo
-impl CmdEcho {
-    // New
-    pub const fn new() -> Self {
-        Self {
-            base: CmdBase::new(),
-        }
-    }
-}
+struct CmdEcho;
 
 // Impl cmd echo
 impl CmdEcho {
     // Echo
-    fn echo(&mut self, size: usize, data: Vec<&str>, mode: &str, path: &str) {
-        if let Some(console) = self.base.get_console() {
-            if path != "" {
-                // Set mode
-                let mut filemode = FileMode::CREATE_NEW;
+    fn echo(&mut self, console: &mut dyn Console, size: usize, data: Vec<&str>, mode: &str, path: &str) {
+        if path != "" {
+            // Set mode
+            let mut filemode = FileMode::CREATE_NEW;
 
-                if mode == ">" {
-                    filemode.insert(FileMode::WRITE);
-                } else if mode == ">>" {
-                    filemode.insert(FileMode::OPEN_APPEND);
-                } else {
-                    console.error("parse error near \'\n\'");
-                    return;
-                }
-
-                // Set path
-                let filepath = console.absolute_path(path);
-
-                // Write data
-                let mut file = FileFopt::new();
-
-                if file.open(&filepath, filemode) {
-                    if file.size() != 0 && mode == ">>" {
-                        file.write("\r\n".as_bytes(), 3, 0);
-                    }
-
-                    for i in 0..size {
-                        file.write(data[i].as_bytes(), data[i].len(), 0);
-                        file.write(" ".as_bytes(), 1, 0);
-                    }
-
-                    file.flush();
-                    file.close();
-                }
+            if mode == ">" {
+                filemode.insert(FileMode::WRITE);
+            } else if mode == ">>" {
+                filemode.insert(FileMode::OPEN_APPEND);
             } else {
-                console.println(data[0]);
+                console.error("parse error near \'\n\'");
+                return;
             }
+
+            // Set path
+            let filepath = console.real_path(path);
+
+            // Write data
+            let mut file = FileFopt::new();
+
+            if file.open(&filepath, filemode) {
+                if file.size() != 0 && mode == ">>" {
+                    file.write("\r\n".as_bytes(), 3, 0);
+                }
+
+                for i in 0..size {
+                    file.write(data[i].as_bytes(), data[i].len(), 0);
+                    file.write(" ".as_bytes(), 1, 0);
+                }
+
+                file.flush();
+                file.close();
+            }
+        } else {
+            console.println(data[0]);
         }
     }
 }
 
 // Impl cmd for cmd echo
 impl Cmd for CmdEcho {
-    // Base
-    fn base(&mut self) -> &mut CmdBase {
-        &mut self.base
-    }
-
     // Execute
-    fn execute(&mut self, argv: Vec<&str>) {
-        if let Some(console) = self.base.get_console() {
-            if argv.len() < 2 {
-                console.println("Usage: echo <string> [>]|[>>] [path]");
-                return;
-            }
+    fn exec(&mut self, console: &mut dyn Console, argv: Vec<&str>) {
+        if argv.len() < 2 {
+            console.println("Usage: echo <string> [>]|[>>] [path]");
+            return;
+        }
 
-            if argv.len() >= 4 {
-                self.echo(
-                    argv.len() - 3,
-                    argv[1..].to_vec(),
-                    argv[argv.len() - 2],
-                    argv[argv.len() - 1],
-                );
-            } else {
-                self.echo(argv.len() - 1, argv[1..].to_vec(), "", "");
-            }
+        if argv.len() >= 4 {
+            self.echo(
+                console,
+                argv.len() - 3,
+                argv[1..].to_vec(),
+                argv[argv.len() - 2],
+                argv[argv.len() - 1],
+            );
+        } else {
+            self.echo(console, argv.len() - 1, argv[1..].to_vec(), "", "");
         }
     }
 
     // Help
-    fn help(&mut self) {
-        if let Some(console) = self.base.get_console() {
-            console.println("cmd echo: write arguments to the standard output");
-        }
+    fn help(&mut self, console: &mut dyn Console) {
+        console.println("cmd echo: write arguments to the standard output");
     }
 }
 
 // Register cmd
-register_cmd!(CmdEcho::new(), echo);
+register_cmd!(CmdEcho, echo);
