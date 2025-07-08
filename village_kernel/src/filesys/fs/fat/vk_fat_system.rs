@@ -9,7 +9,7 @@ use super::vk_fat_filedir::{FatDir, FatFile};
 use super::vk_fat_folder::FatFolder;
 use super::vk_fat_object::{EntryAttr, FatObject};
 use crate::register_filesys;
-use crate::traits::vk_filesys::{FileDir, FileMode, FileSys, FileSysInfo, FileType, FileVol};
+use crate::traits::vk_filesys::{FileDir, FileMode, FileSys, FileType, FileVol};
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
 use alloc::boxed::Box;
@@ -279,28 +279,12 @@ impl FileVol for FatVolume {
 }
 
 // Struct fat system
-struct FatSystem {
-    info: FileSysInfo,
-}
-
-// Impl fatsystem
-impl FatSystem {
-    pub const fn new() -> Self {
-        Self {
-            info: FileSysInfo::new(),
-        }
-    }
-}
+struct FatSystem;
 
 // Impl filesys for fat system
 impl FileSys for FatSystem {
-    // Info
-    fn info(&mut self) -> &mut FileSysInfo {
-        &mut self.info
-    }
-
     // Get system id
-    fn get_system_id(&mut self) -> usize {
+    fn get_system_id(&self) -> usize {
         let system_id = 11 as usize;
         system_id
     }
@@ -312,4 +296,4 @@ impl FileSys for FatSystem {
 }
 
 // Register filesys
-register_filesys!(FatSystem::new(), fat);
+register_filesys!(FatSystem, fat);

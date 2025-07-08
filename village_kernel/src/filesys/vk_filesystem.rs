@@ -9,7 +9,7 @@ use alloc::vec;
 //use alloc::vec::Vec;
 use crate::misc::fopts::vk_dev_fopt::DevFopt;
 use crate::traits::vk_driver::DriverID;
-use crate::traits::vk_filesys::{FileSys, FileVol};
+use crate::traits::vk_filesys::{FileSysWrapper, FileVol};
 use crate::traits::vk_kernel::FileSystem;
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
@@ -370,7 +370,7 @@ impl DiskMedia {
 
 // Struct village file system
 pub struct VillageFileSystem {
-    filesyses: LinkedList<Box<dyn FileSys>>,
+    filesyses: LinkedList<Box<FileSysWrapper>>,
     medias: LinkedList<DiskMedia>,
     mounts: LinkedList<MountNode>,
 }
@@ -484,14 +484,14 @@ impl VillageFileSystem {
 // Impl file system for village file system
 impl FileSystem for VillageFileSystem {
     // Register fs
-    fn register_fs(&mut self, fs: Box<dyn FileSys>) {
+    fn register_fs(&mut self, fs: Box<FileSysWrapper>) {
         self.filesyses.push(fs);
     }
 
     // Unregister fs
     fn unregister_fs(&mut self, name: &str) {
         self.filesyses
-            .retain_mut(|fs| !(fs.info().get_name() == name));
+            .retain_mut(|fs| !(fs.get_name() == name));
     }
 
     // Mount hard drive

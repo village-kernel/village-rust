@@ -102,36 +102,62 @@ pub trait FileVol {
     fn remove(&mut self, name: &str) -> bool;
 }
 
-// Struct filesys info
-pub struct FileSysInfo {
-    name: String,
+// FileSys
+pub trait FileSys {
+    fn get_system_id(&self) -> usize;
+    fn create_volume(&mut self) -> Box<dyn FileVol>;
 }
 
-// Impl filesys data
-impl FileSysInfo {
+// Struct FileSysWrapper
+pub struct FileSysWrapper {
+    name: String,
+    inner: Box<dyn FileSys>,
+}
+
+// Impl FileSysWrapper
+impl FileSysWrapper {
     // New
-    pub const fn new() -> Self {
+    #[inline]
+    pub const fn new(inner: Box<dyn FileSys>) -> Self {
         Self {
             name: String::new(),
+            inner,
+        }
+    }
+
+    // New with name
+    #[inline]
+    pub fn with_name(inner: Box<dyn FileSys>, name: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            inner,
         }
     }
 
     // Set name
-    pub fn set_name(&mut self, name: &str) {
+    #[inline]
+    pub fn set_name(&mut self, name: &str) -> &mut Self {
         self.name = name.to_string();
+        self
     }
 
     // Get name
+    #[inline]
     pub fn get_name(&self) -> &str {
         &self.name
     }
-}
 
-// FileSys
-pub trait FileSys {
-    fn info(&mut self) -> &mut FileSysInfo;
-    fn get_system_id(&mut self) -> usize;
-    fn create_volume(&mut self) -> Box<dyn FileVol>;
+    // Get system id
+    #[inline]
+    pub fn get_system_id(&self) -> usize {
+        self.inner.get_system_id()
+    }
+
+    // Create volume
+    #[inline]
+    pub fn create_volume(&mut self) -> Box<dyn FileVol> {
+        self.inner.create_volume()
+    }
 }
 
 // Register filesys macro
@@ -148,8 +174,11 @@ macro_rules! register_filesys {
             static [<EXIT_ $name:upper>]: fn() = [<$name _exit>];
 
             fn [<$name _init>]() {
-                let mut filesys = Box::new($filsys);
-                filesys.info().set_name(stringify!($name));
+                let filesys = Box::new(
+                    crate::traits::vk_filesys::FileSysWrapper::with_name(
+                        Box::new($filsys), stringify!($name)
+                    )
+                );
                 kernel().filesys().register_fs(filesys);
             }
 

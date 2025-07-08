@@ -8,7 +8,7 @@ use super::vk_callback::Callback;
 use super::vk_command::CmdWrapper;
 use super::vk_driver::{Driver, PlatDevice, PlatDriver};
 use super::vk_executor::{Executor, ExecutorFty};
-use super::vk_filesys::{FileSys, FileVol};
+use super::vk_filesys::{FileSysWrapper, FileVol};
 use super::vk_linkedlist::LinkedList;
 use super::vk_module::Module;
 use alloc::boxed::Box;
@@ -238,7 +238,7 @@ pub trait FileSystem {
     fn unmount_hard_drive(&mut self, disk: &str) -> bool;
 
     // Register methods
-    fn register_fs(&mut self, fs: Box<dyn FileSys>);
+    fn register_fs(&mut self, fs: Box<FileSysWrapper>);
     fn unregister_fs(&mut self, name: &str);
 
     // Volume methods
