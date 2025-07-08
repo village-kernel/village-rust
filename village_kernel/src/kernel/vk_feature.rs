@@ -6,13 +6,13 @@
 //###########################################################################
 use crate::traits::vk_kernel::Feature;
 use crate::traits::vk_linkedlist::LinkedList;
-use crate::traits::vk_module::{Module, ModuleID};
+use crate::traits::vk_module::{Module, ModuleID, ModuleWrapper};
 use crate::village::kernel;
 use alloc::boxed::Box;
 
 // Struct village feature
 pub struct VillageFeature {
-    modules: LinkedList<Box<dyn Module>>,
+    modules: LinkedList<Box<ModuleWrapper>>,
     is_runtime: bool,
 }
 
@@ -37,7 +37,7 @@ impl VillageFeature {
         // Setup modules
         for id in ModuleID::iter() {
             for module in self.modules.iter_mut() {
-                if module.info().get_id() == id {
+                if module.get_id() == id {
                     module.setup();
                 }
             }
@@ -58,7 +58,7 @@ impl VillageFeature {
         // Setup modules
         for id in ModuleID::rev_iter() {
             for module in self.modules.iter_mut() {
-                if module.info().get_id() == id {
+                if module.get_id() == id {
                     module.exit();
                 }
             }
@@ -72,7 +72,7 @@ impl VillageFeature {
 // iImpl feature for village feature
 impl Feature for VillageFeature {
     // Register module
-    fn register_module(&mut self, mut module: Box<dyn Module>) {
+    fn register_module(&mut self, mut module: Box<ModuleWrapper>) {
         if self.is_runtime {
             module.setup();
         }
@@ -82,7 +82,7 @@ impl Feature for VillageFeature {
     // Unregister module
     fn unregister_module(&mut self, name: &str) {
         self.modules.retain_mut(|module| {
-            if module.info().get_name() == name {
+            if module.get_name() == name {
                 if self.is_runtime {
                     module.exit();
                 }
@@ -96,8 +96,8 @@ impl Feature for VillageFeature {
     // Get module
     fn get_module(&mut self, name: &str) -> Option<&mut Box<dyn Module>> {
         for module in self.modules.iter_mut() {
-            if module.info().get_name() == name {
-                return Some(module);
+            if module.get_name() == name {
+                return Some(module.box_mut());
             }
         }
         None

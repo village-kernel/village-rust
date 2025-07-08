@@ -5,6 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use alloc::string::{String, ToString};
+use alloc::boxed::Box;
 
 // Module id
 #[derive(PartialEq, Clone)]
@@ -27,49 +28,85 @@ impl ModuleID {
     }
 }
 
-// Struct module info
-pub struct ModuleInfo {
-    id: ModuleID,
-    name: String,
+// Module
+pub trait Module {
+    fn setup(&mut self);
+    fn exit(&mut self);
 }
 
-// Impl module data
-impl ModuleInfo {
+// Struct ModuleWrapper
+pub struct ModuleWrapper {
+    id: ModuleID,
+    name: String,
+    inner: Box<dyn Module>,
+}
+
+// Impl ModuleWrapper
+impl ModuleWrapper {
     // New
-    pub const fn new() -> Self {
+    #[inline]
+    pub const fn new(inner: Box<dyn Module>) -> Self {
         Self {
             id: ModuleID::Feature,
             name: String::new(),
+            inner,
         }
     }
 
+    // New with name
+    #[inline]
+    pub fn with_id_name(inner: Box<dyn Module>, id: ModuleID, name: &str) -> Self {
+        Self {
+            id,
+            name: name.to_string(),
+            inner,
+        }
+    }
+
+    // Set name
+    #[inline]
+    pub fn set_name(&mut self, name: &str) -> &mut Self {
+        self.name = name.to_string();
+        self
+    }
+
+    // Get name
+    #[inline]
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+
     // Set id
+    #[inline]
     pub fn set_id(&mut self, id: ModuleID) {
         self.id = id;
     }
 
     // Get id
+    #[inline]
     pub fn get_id(&self) -> ModuleID {
         self.id.clone()
     }
 
-    // Set name
-    pub fn set_name(&mut self, name: &str) {
-        self.name = name.to_string();
+    // box mut
+    #[inline]
+    pub fn box_mut(&mut self) -> &mut Box<dyn Module> {
+        &mut self.inner
     }
 
-    // Get name
-    pub fn get_name(&self) -> &str {
-        &self.name
+    // Setup
+    #[inline]
+    pub fn setup(&mut self) {
+        self.inner.setup();
+    }
+
+    // Exit
+    #[inline]
+    pub fn exit(&mut self) {
+        self.inner.exit();
     }
 }
 
-// Module
-pub trait Module {
-    fn info(&mut self) -> &mut ModuleInfo;
-    fn setup(&mut self);
-    fn exit(&mut self);
-}
 
 // Register module macro
 #[macro_export]
@@ -85,14 +122,16 @@ macro_rules! register_module {
             static [<EXIT_ $name:upper>]: fn() = [<$name _exit>];
 
             fn [<$name _init>]() {
-                let mut module = Box::new($mod);
-                module.info().set_name(stringify!($name));
-                module.info().set_id($id);
-                kernel().feature().register_module(module);
+                let module = Box::new(
+                    crate::traits::vk_module::ModuleWrapper::with_id_name(
+                        Box::new($mod), $id, stringify!($name)
+                    )
+                );
+                crate::village::kernel().feature().register_module(module);
             }
 
             fn [<$name _exit>]() {
-                kernel().feature().unregister_module(stringify!($name));
+                crate::village::kernel().feature().unregister_module(stringify!($name));
             }
         }
     };
