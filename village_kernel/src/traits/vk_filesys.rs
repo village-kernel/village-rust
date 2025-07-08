@@ -179,11 +179,11 @@ macro_rules! register_filesys {
                         Box::new($filsys), stringify!($name)
                     )
                 );
-                kernel().filesys().register_fs(filesys);
+                crate::village::kernel().filesys().register_fs(filesys);
             }
 
             fn [<$name _exit>]() {
-                kernel().filesys().unregister_fs(stringify!($name));
+                crate::village::kernel().filesys().unregister_fs(stringify!($name));
             }
         }
     };
