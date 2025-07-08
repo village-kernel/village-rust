@@ -10,7 +10,7 @@ use super::vk_driver::{Driver, PlatDevice, PlatDriver};
 use super::vk_executor::{BaseExecutor, ExecutorWrapper};
 use super::vk_filesys::{FileSysWrapper, FileVol};
 use super::vk_linkedlist::LinkedList;
-use super::vk_module::{Module, ModuleWrapper};
+use super::vk_module::ModuleWrapper;
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
@@ -228,7 +228,7 @@ pub trait Feature {
     fn unregister_module(&mut self, name: &str);
 
     // Data methods
-    fn get_module(&mut self, name: &str) -> Option<&mut Box<dyn Module>>;
+    fn get_module(&mut self, name: &str) -> Option<&mut Box<ModuleWrapper>>;
 }
 
 // FileSystem

@@ -6,7 +6,7 @@
 //###########################################################################
 use crate::traits::vk_kernel::Feature;
 use crate::traits::vk_linkedlist::LinkedList;
-use crate::traits::vk_module::{Module, ModuleID, ModuleWrapper};
+use crate::traits::vk_module::{ModuleID, ModuleWrapper};
 use crate::village::kernel;
 use alloc::boxed::Box;
 
@@ -94,10 +94,10 @@ impl Feature for VillageFeature {
     }
 
     // Get module
-    fn get_module(&mut self, name: &str) -> Option<&mut Box<dyn Module>> {
+    fn get_module(&mut self, name: &str) -> Option<&mut Box<ModuleWrapper>> {
         for module in self.modules.iter_mut() {
             if module.get_name() == name {
-                return Some(module.box_mut());
+                return Some(module);
             }
         }
         None
