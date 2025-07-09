@@ -6,7 +6,7 @@ build-std = ["core", "alloc", "compiler_builtins"]
 
 [target.ia32legacy]
 rustflags = [
-    "-C", "opt-level=0",
+    "-C", "opt-level=2",
     "-C", "debuginfo=2",
     "-C", "relocation-model=pic",
     "-C", "link-arg=-pie",
