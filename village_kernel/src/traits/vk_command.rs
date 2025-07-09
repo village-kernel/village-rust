@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::string::{String, ToString};
+use alloc::string::String;
 use alloc::vec::Vec;
 use alloc::boxed::Box;
 
@@ -32,40 +32,24 @@ pub trait Cmd {
 
 // Struct CmdWrapper
 pub struct CmdWrapper {
-    name: String,
+    name: &'static str,
     inner: Box<dyn Cmd>,
 }
 
 // Impl CmdWrapper
 impl CmdWrapper {
-    // New
-    #[inline]
-    pub const fn new(inner: Box<dyn Cmd>) -> Self {
-        Self {
-            name: String::new(),
-            inner,
-        }
-    }
-
     // New with name
     #[inline]
-    pub fn with_name(inner: Box<dyn Cmd>, name: &str) -> Self {
+    pub fn new(inner: Box<dyn Cmd>, name: &'static str) -> Self {
         Self {
-            name: name.to_string(),
+            name,
             inner,
         }
-    }
-
-    // Set name
-    #[inline]
-    pub fn set_name(&mut self, name: &str) -> &mut Self {
-        self.name = name.to_string();
-        self
     }
 
     // Get name
     #[inline]
-    pub fn get_name(&self) -> &str {
+    pub fn name(&self) -> &str {
         &self.name
     }
 
@@ -97,7 +81,7 @@ macro_rules! register_cmd {
 
             fn [<$name _init>]() {
                 let command = Box::new(
-                    crate::traits::vk_command::CmdWrapper::with_name(
+                    crate::traits::vk_command::CmdWrapper::new(
                         Box::new($cmd), stringify!($name)
                     )
                 );

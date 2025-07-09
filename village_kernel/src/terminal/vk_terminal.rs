@@ -94,13 +94,13 @@ impl Terminal for VillageTerminal {
     // Unregister cmd
     fn unregister_cmd(&mut self, name: &str) {
         self.commands
-            .retain_mut(|cmd| !(cmd.get_name() == name));
+            .retain_mut(|cmd| !(cmd.name() == name));
     }
 
     // Get cmd
     fn get_cmd(&mut self, name: &str) -> Option<&mut Box<CmdWrapper>> {
         for command in self.commands.iter_mut() {
-            if command.get_name() == name {
+            if command.name() == name {
                 return Some(command);
             }
         }
