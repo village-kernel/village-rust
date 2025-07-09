@@ -8,11 +8,10 @@ use crate::traits::vk_kernel::Feature;
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::traits::vk_module::{ModuleID, ModuleWrapper};
 use crate::village::kernel;
-use alloc::boxed::Box;
 
 // Struct village feature
 pub struct VillageFeature {
-    modules: LinkedList<Box<ModuleWrapper>>,
+    modules: LinkedList<ModuleWrapper>,
     is_runtime: bool,
 }
 
@@ -72,7 +71,7 @@ impl VillageFeature {
 // iImpl feature for village feature
 impl Feature for VillageFeature {
     // Register module
-    fn register_module(&mut self, mut module: Box<ModuleWrapper>) {
+    fn register_module(&mut self, mut module: ModuleWrapper) {
         if self.is_runtime {
             module.setup();
         }
@@ -94,7 +93,7 @@ impl Feature for VillageFeature {
     }
 
     // Get module
-    fn get_module(&mut self, name: &str) -> Option<&mut Box<ModuleWrapper>> {
+    fn get_module(&mut self, name: &str) -> Option<&mut ModuleWrapper> {
         for module in self.modules.iter_mut() {
             if module.name() == name {
                 return Some(module);

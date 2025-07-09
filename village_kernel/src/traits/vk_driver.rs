@@ -102,14 +102,14 @@ impl PlatData {
     // Attach
     pub fn attach(&mut self, driver: Box<dyn Driver>) {
         if !self.is_attach {
-            kernel().device().register_driver(Box::new(
+            kernel().device().register_driver(
                 DriverWrapper::new(
                     driver,
                     self.drvid.clone(),
                     self.drvname,
                     self.drvdata
                 )
-            ));
+            );
             self.is_attach = true;
         }
     }
@@ -329,10 +329,8 @@ macro_rules! register_driver {
             static [<EXIT_ $name:upper>]: fn() = [<$name _exit>];
 
             fn [<$name _init>]() {
-                let driver = Box::new(
-                    crate::traits::vk_driver::DriverWrapper::with(
-                        Box::new($drv), $id, stringify!($name)
-                    )
+                let driver = crate::traits::vk_driver::DriverWrapper::with(
+                    Box::new($drv), $id, stringify!($name)
                 );
                 crate::village::kernel().device().register_driver(driver);
             }
@@ -358,10 +356,8 @@ macro_rules! register_plat_driver {
             static [<EXIT_ $fn_name:upper>]: fn() = [<$fn_name _exit>];
 
             fn [<$fn_name _init>]() {
-                let driver = Box::new(
-                    crate::traits::vk_driver::PlatDrvWrapper::new(
-                        Box::new($drv), stringify!($name)
-                    )
+                let driver = crate::traits::vk_driver::PlatDrvWrapper::new(
+                    Box::new($drv), stringify!($name)
                 );
                 crate::village::kernel().device().register_plat_driver(driver);
             }
@@ -387,10 +383,8 @@ macro_rules! register_plat_device {
             static [<EXIT_ $fn_name:upper>]: fn() = [<$fn_name _exit>];
 
             fn [<$fn_name _init>]() {
-                let device = Box::new(
-                    crate::traits::vk_driver::PlatDevWrapper::new(
-                        Box::new($drv), stringify!($name)
-                    )
+                let device = crate::traits::vk_driver::PlatDevWrapper::new(
+                    Box::new($drv), stringify!($name)
                 );
                 crate::village::kernel().device().register_plat_device(device);
             }

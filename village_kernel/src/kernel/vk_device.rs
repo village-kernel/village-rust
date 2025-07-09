@@ -4,21 +4,20 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::traits::vk_driver::DriverWrapper;
 use crate::traits::vk_driver::DriverID;
+use crate::traits::vk_driver::DriverWrapper;
 use crate::traits::vk_driver::PlatDevWrapper;
 use crate::traits::vk_driver::PlatDrvWrapper;
 use crate::traits::vk_kernel::Device;
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
-use alloc::boxed::Box;
 
 // Struct village device
 pub struct VillageDevice {
     is_runtime: bool,
-    base_devs: LinkedList<Box<DriverWrapper>>,
-    plat_devs: LinkedList<Box<PlatDevWrapper>>,
-    plat_drvs: LinkedList<Box<PlatDrvWrapper>>,
+    base_devs: LinkedList<DriverWrapper>,
+    plat_devs: LinkedList<PlatDevWrapper>,
+    plat_drvs: LinkedList<PlatDrvWrapper>,
 }
 
 // Impl village device
@@ -94,55 +93,55 @@ impl VillageDevice {
 
     // Platform device probe
     fn platform_device_probe(
-        plat_devs: &mut LinkedList<Box<PlatDevWrapper>>,
+        plat_devs: &mut LinkedList<PlatDevWrapper>,
         driver: &mut PlatDrvWrapper,
     ) {
         for device in plat_devs.iter_mut() {
-            Self::platform_probe(&mut **device, driver);
+            Self::platform_probe(&mut *device, driver);
         }
     }
 
     // Platform device remove
     fn platform_device_remove(
-        plat_devs: &mut LinkedList<Box<PlatDevWrapper>>,
+        plat_devs: &mut LinkedList<PlatDevWrapper>,
         driver: &mut PlatDrvWrapper,
     ) {
         for device in plat_devs.iter_mut() {
-            Self::platform_remove(&mut **device, driver);
+            Self::platform_remove(&mut *device, driver);
         }
     }
 
     // Platform driver probe
     fn platform_driver_probe(
-        plat_drvs: &mut LinkedList<Box<PlatDrvWrapper>>,
+        plat_drvs: &mut LinkedList<PlatDrvWrapper>,
         device: &mut PlatDevWrapper,
     ) {
         for driver in plat_drvs.iter_mut() {
-            Self::platform_probe(device, &mut **driver);
+            Self::platform_probe(device, &mut *driver);
         }
     }
 
     // Platform driver remove
     fn platform_driver_remove(
-        plat_drvs: &mut LinkedList<Box<PlatDrvWrapper>>,
+        plat_drvs: &mut LinkedList<PlatDrvWrapper>,
         device: &mut PlatDevWrapper,
     ) {
         for driver in plat_drvs.iter_mut() {
-            Self::platform_remove(device, &mut **driver);
+            Self::platform_remove(device, &mut *driver);
         }
     }
 
     // Platform probe
     fn platform_probe_all(&mut self) {
         for device in self.plat_devs.iter_mut() {
-            Self::platform_driver_probe(&mut self.plat_drvs, &mut **device);
+            Self::platform_driver_probe(&mut self.plat_drvs, &mut *device);
         }
     }
 
     // Platform remove
     fn platform_remove_all(&mut self) {
         for device in self.plat_devs.rev_iter_mut() {
-            Self::platform_driver_remove(&mut self.plat_drvs, &mut **device);
+            Self::platform_driver_remove(&mut self.plat_drvs, &mut *device);
         }
     }
 
@@ -157,7 +156,7 @@ impl VillageDevice {
 // Impl deivce for village device
 impl Device for VillageDevice {
     // Register driver
-    fn register_driver(&mut self, driver: Box<DriverWrapper>) {
+    fn register_driver(&mut self, driver: DriverWrapper) {
         if self.is_runtime {
             if driver.id() == DriverID::Block {
                 kernel()
@@ -191,9 +190,9 @@ impl Device for VillageDevice {
     }
 
     // Register plat drvier
-    fn register_plat_driver(&mut self, mut driver: Box<PlatDrvWrapper>) {
+    fn register_plat_driver(&mut self, mut driver: PlatDrvWrapper) {
         if self.is_runtime {
-            Self::platform_device_probe(&mut self.plat_devs, &mut *driver);
+            Self::platform_device_probe(&mut self.plat_devs, &mut driver);
         }
         self.plat_drvs.push(driver);
     }
@@ -203,7 +202,7 @@ impl Device for VillageDevice {
         self.plat_drvs.retain_mut(|driver| {
             if driver.name() == name {
                 if self.is_runtime {
-                    Self::platform_device_remove(&mut self.plat_devs, &mut **driver);
+                    Self::platform_device_remove(&mut self.plat_devs, driver);
                 }
                 false
             } else {
@@ -213,9 +212,9 @@ impl Device for VillageDevice {
     }
 
     // Register plat device
-    fn register_plat_device(&mut self, mut device: Box<PlatDevWrapper>) {
+    fn register_plat_device(&mut self, mut device: PlatDevWrapper) {
         if self.is_runtime {
-            Self::platform_driver_probe(&mut self.plat_drvs, &mut *device);
+            Self::platform_driver_probe(&mut self.plat_drvs, &mut device);
         }
         self.plat_devs.push(device);
     }
@@ -225,7 +224,7 @@ impl Device for VillageDevice {
         self.plat_devs.retain_mut(|device| {
             if device.name() == name {
                 if self.is_runtime {
-                    Self::platform_driver_remove(&mut self.plat_drvs, &mut **device);
+                    Self::platform_driver_remove(&mut self.plat_drvs, device);
                 }
                 false
             } else {
@@ -235,7 +234,7 @@ impl Device for VillageDevice {
     }
 
     // Get driver fopts
-    fn get_driver(&mut self, name: &str) -> Option<&mut Box<DriverWrapper>> {
+    fn get_driver(&mut self, name: &str) -> Option<&mut DriverWrapper> {
         for driver in self.base_devs.iter_mut() {
             if driver.name() == name {
                 return Some(driver);
@@ -245,7 +244,7 @@ impl Device for VillageDevice {
     }
 
     // Get drivers
-    fn get_drivers(&mut self) -> &mut LinkedList<Box<DriverWrapper>> {
+    fn get_drivers(&mut self) -> &mut LinkedList<DriverWrapper> {
         &mut self.base_devs
     }
 }

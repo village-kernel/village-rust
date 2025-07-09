@@ -205,30 +205,30 @@ pub trait Symbol {
 // Device
 pub trait Device {
     // Register driver methods
-    fn register_driver(&mut self, driver: Box<DriverWrapper>);
+    fn register_driver(&mut self, driver: DriverWrapper);
     fn unregister_driver(&mut self, name: &str);
 
     // Platform driver methods
-    fn register_plat_driver(&mut self, driver: Box<PlatDrvWrapper>);
+    fn register_plat_driver(&mut self, driver: PlatDrvWrapper);
     fn unregister_plat_driver(&mut self, name: &str);
 
     // Platform device methods
-    fn register_plat_device(&mut self, device: Box<PlatDevWrapper>);
+    fn register_plat_device(&mut self, device: PlatDevWrapper);
     fn unregister_plat_device(&mut self, name: &str);
 
     // Data methods
-    fn get_driver(&mut self, name: &str) -> Option<&mut Box<DriverWrapper>>;
-    fn get_drivers(&mut self) -> &mut LinkedList<Box<DriverWrapper>>;
+    fn get_driver(&mut self, name: &str) -> Option<&mut DriverWrapper>;
+    fn get_drivers(&mut self) -> &mut LinkedList<DriverWrapper>;
 }
 
 // Feature
 pub trait Feature {
     // Register methods
-    fn register_module(&mut self, module: Box<ModuleWrapper>);
+    fn register_module(&mut self, module: ModuleWrapper);
     fn unregister_module(&mut self, name: &str);
 
     // Data methods
-    fn get_module(&mut self, name: &str) -> Option<&mut Box<ModuleWrapper>>;
+    fn get_module(&mut self, name: &str) -> Option<&mut ModuleWrapper>;
 }
 
 // FileSystem
@@ -238,7 +238,7 @@ pub trait FileSystem {
     fn unmount_hard_drive(&mut self, disk: &str) -> bool;
 
     // Register methods
-    fn register_fs(&mut self, fs: Box<FileSysWrapper>);
+    fn register_fs(&mut self, fs: FileSysWrapper);
     fn unregister_fs(&mut self, name: &str);
 
     // Volume methods
@@ -432,7 +432,7 @@ impl ProcessData {
 // Process
 pub trait Process {
     // Register Methods
-    fn register_executor(&mut self, factory: Box<ExecutorWrapper>);
+    fn register_executor(&mut self, executor: ExecutorWrapper);
     fn unregister_executor(&mut self, name: &str);
 
     // Run Methods
@@ -448,7 +448,7 @@ pub trait Process {
     fn is_exist_by_pid(&mut self, pid: i32) -> bool;
 
     // Data Methods
-    fn get_processes(&mut self) -> &mut LinkedList<Box<ProcessData>>;
+    fn get_processes(&mut self) -> &mut LinkedList<ProcessData>;
 }
 
 // Timer state
@@ -493,10 +493,10 @@ pub trait Timer {
 // Terminal
 pub trait Terminal {
     // Cmd Methods
-    fn register_cmd(&mut self, cmd: Box<CmdWrapper>);
+    fn register_cmd(&mut self, cmd: CmdWrapper);
     fn unregister_cmd(&mut self, name: &str);
-    fn get_cmd(&mut self, name: &str) -> Option<&mut Box<CmdWrapper>>;
-    fn get_cmds(&mut self) -> &mut LinkedList<Box<CmdWrapper>>;
+    fn get_cmd(&mut self, name: &str) -> Option<&mut CmdWrapper>;
+    fn get_cmds(&mut self) -> &mut LinkedList<CmdWrapper>;
 
     // Console Methods
     fn create_console(&mut self, driver: &str) -> i32;

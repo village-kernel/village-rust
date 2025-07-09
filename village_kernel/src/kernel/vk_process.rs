@@ -17,8 +17,8 @@ use alloc::vec::Vec;
 // Struct village process
 pub struct VillageProcess {
     pid_cnt: i32,
-    processes: LinkedList<Box<ProcessData>>,
-    executors: LinkedList<Box<ExecutorWrapper>>,
+    processes: LinkedList<ProcessData>,
+    executors: LinkedList<ExecutorWrapper>,
 }
 
 // Impl village process
@@ -112,7 +112,7 @@ impl VillageProcess {
 // Impl process for village process
 impl Process for VillageProcess {
     // Register executor
-    fn register_executor(&mut self, executor: Box<ExecutorWrapper>) {
+    fn register_executor(&mut self, executor: ExecutorWrapper) {
         self.executors.push(executor);
     }
 
@@ -134,7 +134,7 @@ impl Process for VillageProcess {
     // Run with argv
     fn run_with_argv(&mut self, behavior: ProcessBehavior, path: &str, argv: Vec<&str>) -> i32 {
         // New data object
-        let mut process = Box::new(ProcessData::new());
+        let mut process = ProcessData::new();
 
         // Set the path
         process.path = path.to_string();
@@ -212,7 +212,7 @@ impl Process for VillageProcess {
     }
 
     // Get processes
-    fn get_processes(&mut self) -> &mut LinkedList<Box<ProcessData>> {
+    fn get_processes(&mut self) -> &mut LinkedList<ProcessData> {
         &mut self.processes
     }
 }

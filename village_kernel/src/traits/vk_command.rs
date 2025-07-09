@@ -80,10 +80,8 @@ macro_rules! register_cmd {
             static [<EXIT_ $name:upper>]: fn() = [<$name _exit>];
 
             fn [<$name _init>]() {
-                let command = Box::new(
-                    crate::traits::vk_command::CmdWrapper::new(
-                        Box::new($cmd), stringify!($name)
-                    )
+                let command = crate::traits::vk_command::CmdWrapper::new(
+                    Box::new($cmd), stringify!($name)
                 );
                 crate::village::kernel().terminal().register_cmd(command);
             }

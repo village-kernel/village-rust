@@ -370,7 +370,7 @@ impl DiskMedia {
 
 // Struct village file system
 pub struct VillageFileSystem {
-    filesyses: LinkedList<Box<FileSysWrapper>>,
+    filesyses: LinkedList<FileSysWrapper>,
     medias: LinkedList<DiskMedia>,
     mounts: LinkedList<MountNode>,
 }
@@ -484,7 +484,7 @@ impl VillageFileSystem {
 // Impl file system for village file system
 impl FileSystem for VillageFileSystem {
     // Register fs
-    fn register_fs(&mut self, fs: Box<FileSysWrapper>) {
+    fn register_fs(&mut self, fs: FileSysWrapper) {
         self.filesyses.push(fs);
     }
 

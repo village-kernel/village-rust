@@ -92,10 +92,8 @@ macro_rules! register_module {
             static [<EXIT_ $name:upper>]: fn() = [<$name _exit>];
 
             fn [<$name _init>]() {
-                let module = Box::new(
-                    crate::traits::vk_module::ModuleWrapper::with_id_name(
-                        Box::new($mod), $id, stringify!($name)
-                    )
+                let module = crate::traits::vk_module::ModuleWrapper::with_id_name(
+                    Box::new($mod), $id, stringify!($name)
                 );
                 crate::village::kernel().feature().register_module(module);
             }

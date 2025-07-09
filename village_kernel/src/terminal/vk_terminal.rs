@@ -38,7 +38,7 @@ impl Sandbox {
 // Struct village terminal
 pub struct VillageTerminal {
     cid_cnt: i32,
-    commands: LinkedList<Box<CmdWrapper>>,
+    commands: LinkedList<CmdWrapper>,
     sandboxes: LinkedList<Box<Sandbox>>,
 }
 
@@ -87,7 +87,7 @@ impl VillageTerminal {
 // Impl terminal for village terminal
 impl Terminal for VillageTerminal {
     // Register cmd
-    fn register_cmd(&mut self, cmd: Box<CmdWrapper>) {
+    fn register_cmd(&mut self, cmd: CmdWrapper) {
         self.commands.push(cmd);
     }
 
@@ -98,7 +98,7 @@ impl Terminal for VillageTerminal {
     }
 
     // Get cmd
-    fn get_cmd(&mut self, name: &str) -> Option<&mut Box<CmdWrapper>> {
+    fn get_cmd(&mut self, name: &str) -> Option<&mut CmdWrapper> {
         for command in self.commands.iter_mut() {
             if command.name() == name {
                 return Some(command);
@@ -108,7 +108,7 @@ impl Terminal for VillageTerminal {
     }
 
     // Get cmds
-    fn get_cmds(&mut self) -> &mut LinkedList<Box<CmdWrapper>> {
+    fn get_cmds(&mut self) -> &mut LinkedList<CmdWrapper> {
         &mut self.commands
     }
 

@@ -158,10 +158,8 @@ macro_rules! register_filesys {
             static [<EXIT_ $name:upper>]: fn() = [<$name _exit>];
 
             fn [<$name _init>]() {
-                let filesys = Box::new(
-                    crate::traits::vk_filesys::FileSysWrapper::new(
-                        Box::new($filsys), stringify!($name)
-                    )
+                let filesys = crate::traits::vk_filesys::FileSysWrapper::new(
+                    Box::new($filsys), stringify!($name)
                 );
                 crate::village::kernel().filesys().register_fs(filesys);
             }

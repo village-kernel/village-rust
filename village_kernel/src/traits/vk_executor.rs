@@ -77,12 +77,10 @@ macro_rules! register_executor {
             static [<EXIT_ $name:upper>]: fn() = [<$name _exit>];
 
             fn [<$name _init>]() {
-                let factory = Box::new(
-                    crate::traits::vk_executor::ExecutorWrapper::new(
-                        Box::new($fty), stringify!($name)
-                    )
+                let executor = crate::traits::vk_executor::ExecutorWrapper::new(
+                    Box::new($fty), stringify!($name)
                 );
-                crate::village::kernel().process().register_executor(factory);
+                crate::village::kernel().process().register_executor(executor);
             }
 
             fn [<$name _exit>]() {
