@@ -65,7 +65,7 @@ kernel:
 osbone:
 	@$(foreach CRATE, $(shell find village_osbone -name Makefile.toml -exec dirname {} \; ), \
 		$(MAKE) $(CRATE).cargo;                                                              \
-		SED_DIR=$$(echo '$(CRATE)' | sed 's:^village_osbone/\(.*\)/[^/]*$$:\1:');            \
+		SED_DIR=$$(echo '$(CRATE)' | sed 's:^village_osbone/::');                            \
 		mkdir -p  $(ROOTFS_OUT_DIR)/$$SED_DIR/;                                              \
 		cp    -rf $(CRATE_OUT_DIR)/*.{rlib,elf,hex,bin,exec}                                 \
 				  $(ROOTFS_OUT_DIR)/$$SED_DIR/ 2>/dev/null || :;                             \

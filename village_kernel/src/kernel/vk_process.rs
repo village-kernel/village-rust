@@ -64,7 +64,7 @@ impl VillageProcess {
 impl VillageProcess {
     // Taichi
     fn taichi(&mut self) {
-        let taichi = "/services/taichi.exec";
+        let taichi = "/services/taichi/taichi.exec";
 
         if self.run_with_args(ProcessBehavior::Background, taichi) < 0 {
             kernel()
