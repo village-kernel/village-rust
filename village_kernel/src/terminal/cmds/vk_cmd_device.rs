@@ -21,11 +21,11 @@ impl Cmd for CmdDevice {
     fn exec(&mut self, console: &mut dyn Console, _argv: Vec<&str>) {
         for driver_id in DriverID::iter() {
             for device in kernel().device().get_drivers().iter_mut() {
-                if driver_id == device.get_id() {
+                if driver_id == device.id() {
                     console.println(&format!(
                         "name: {}, type: {}",
-                        device.get_name(),
-                        device.get_id().as_str()
+                        device.name(),
+                        device.id().as_str()
                     ));
                 }
             }

@@ -64,7 +64,7 @@ impl VillageDevice {
 impl VillageDevice {
     // Platform match
     fn platform_match(device: &mut PlatDevWrapper, driver: &mut PlatDrvWrapper) -> bool {
-        device.get_name() == driver.get_name()
+        device.name() == driver.name()
     }
 
     // Platform probe
@@ -159,12 +159,12 @@ impl Device for VillageDevice {
     // Register driver
     fn register_driver(&mut self, driver: Box<DriverWrapper>) {
         if self.is_runtime {
-            if driver.get_id() == DriverID::Block {
+            if driver.id() == DriverID::Block {
                 kernel()
                     .filesys()
-                    .mount_hard_drive(driver.get_name());
-            } else if driver.get_id() == DriverID::Input {
-                kernel().event().init_input_device(driver.get_name());
+                    .mount_hard_drive(driver.name());
+            } else if driver.id() == DriverID::Input {
+                kernel().event().init_input_device(driver.name());
             }
         }
         self.base_devs.push(driver);
@@ -173,14 +173,14 @@ impl Device for VillageDevice {
     // Unregister driver
     fn unregister_driver(&mut self, name: &str) {
         self.base_devs.retain_mut(|driver| {
-            if driver.get_name() == name {
+            if driver.name() == name {
                 if self.is_runtime {
-                    if driver.get_id() == DriverID::Block {
+                    if driver.id() == DriverID::Block {
                         kernel()
                             .filesys()
-                            .unmount_hard_drive(driver.get_name());
-                    } else if driver.get_id() == DriverID::Input {
-                        kernel().event().exit_input_device(driver.get_name());
+                            .unmount_hard_drive(driver.name());
+                    } else if driver.id() == DriverID::Input {
+                        kernel().event().exit_input_device(driver.name());
                     }
                 }
                 false
@@ -201,7 +201,7 @@ impl Device for VillageDevice {
     // Unregister plat driver
     fn unregister_plat_driver(&mut self, name: &str) {
         self.plat_drvs.retain_mut(|driver| {
-            if driver.get_name() == name {
+            if driver.name() == name {
                 if self.is_runtime {
                     Self::platform_device_remove(&mut self.plat_devs, &mut **driver);
                 }
@@ -223,7 +223,7 @@ impl Device for VillageDevice {
     // Unregister plat device
     fn unregister_plat_device(&mut self, name: &str) {
         self.plat_devs.retain_mut(|device| {
-            if device.get_name() == name {
+            if device.name() == name {
                 if self.is_runtime {
                     Self::platform_driver_remove(&mut self.plat_drvs, &mut **device);
                 }
@@ -237,7 +237,7 @@ impl Device for VillageDevice {
     // Get driver fopts
     fn get_driver(&mut self, name: &str) -> Option<&mut Box<DriverWrapper>> {
         for driver in self.base_devs.iter_mut() {
-            if driver.get_name() == name {
+            if driver.name() == name {
                 return Some(driver);
             }
         }

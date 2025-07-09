@@ -34,9 +34,9 @@ impl PlatDevice for AtaLbaDiskDev {
 
     fn config(&mut self) {
         self.config = AtaLbaDiskConfig { drv: 1 };
-        self.plat.set_data(&self.config);
-        self.plat.set_id(DriverID::Block);
-        self.plat.set_name("disk0");
+        self.plat.set_drvdata(&self.config);
+        self.plat.set_drvid(DriverID::Block);
+        self.plat.set_drvname("disk0");
     }
 }
 
@@ -67,9 +67,9 @@ impl PlatDevice for Pic32UartDev {
 
     fn config(&mut self) {
         self.config = Pic32UartConfig { port: 0 };
-        self.plat.set_data(&self.config);
-        self.plat.set_id(DriverID::Char);
-        self.plat.set_name("serial0");
+        self.plat.set_drvdata(&self.config);
+        self.plat.set_drvid(DriverID::Char);
+        self.plat.set_drvname("serial0");
     }
 }
 

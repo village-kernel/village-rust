@@ -6,7 +6,6 @@
 //###########################################################################
 use crate::village::kernel;
 use alloc::boxed::Box;
-use alloc::string::{String, ToString};
 
 // Driver id
 #[derive(PartialEq, Clone)]
@@ -82,9 +81,9 @@ pub trait Driver {
 
 // Struct Platdata
 pub struct PlatData {
-    pub drvid: DriverID,
-    pub drvname: String,
-    pub drvdata: *mut (),
+    drvid: DriverID,
+    drvname: &'static str,
+    drvdata: *mut (),
     is_attach: bool,
 }
 
@@ -94,7 +93,7 @@ impl PlatData {
     pub const fn new() -> Self {
         Self {
             drvid: DriverID::Misc,
-            drvname: String::new(),
+            drvname: "none",
             drvdata: core::ptr::null_mut(),
             is_attach: false,
         }
@@ -104,10 +103,10 @@ impl PlatData {
     pub fn attach(&mut self, driver: Box<dyn Driver>) {
         if !self.is_attach {
             kernel().device().register_driver(Box::new(
-                DriverWrapper::with(
+                DriverWrapper::new(
                     driver,
                     self.drvid.clone(),
-                    &self.drvname,
+                    self.drvname,
                     self.drvdata
                 )
             ));
@@ -128,18 +127,18 @@ impl PlatData {
         self.is_attach
     }
 
-    // Set id
-    pub fn set_id(&mut self, id: DriverID) {
+    // Set drv id
+    pub fn set_drvid(&mut self, id: DriverID) {
         self.drvid = id;
     }
 
-    // Set name
-    pub fn set_name(&mut self, name: &str) {
-        self.drvname = name.to_string();
+    // Set drv name
+    pub fn set_drvname(&mut self, name: &'static str) {
+        self.drvname = name;
     }
 
-    // Set data
-    pub fn set_data<T>(&mut self, data: &T) {
+    // Set drv data
+    pub fn set_drvdata<T>(&mut self, data: &T) {
         self.drvdata = data as *const T as *mut ();
     }
 }
@@ -161,63 +160,34 @@ pub trait PlatDevice {
 // Struct driver wrapper
 pub struct DriverWrapper {
     id: DriverID,
-    name: String,
+    name: &'static str,
     data: *mut (),
     inner: Box<dyn Driver>,
 }
 
 // Impl driver wrapper
 impl DriverWrapper {
-    // New
-    #[inline]
-    pub const fn new(inner: Box<dyn Driver>) -> Self {
-        Self {
-            id: DriverID::Misc,
-            name: String::new(),
-            data: core::ptr::null_mut(),
-            inner,
-        }
-    }
-
     // New with
     #[inline]
-    pub fn with(inner: Box<dyn Driver>, id: DriverID, name: &str, data: *mut ()) -> Self {
+    pub fn new(inner: Box<dyn Driver>, id: DriverID, name: &'static str, data: *mut ()) -> Self {
         Self {
             id,
-            name: name.to_string(),
+            name,
             data,
             inner,
         }
     }
 
-    // Set id
-    #[inline]
-    pub fn set_id(&mut self, id: DriverID) {
-        self.id = id;
-    }
-
     // Get id
     #[inline]
-    pub fn get_id(&self) -> DriverID {
+    pub fn id(&self) -> DriverID {
         self.id.clone()
-    }
-
-    // Set name
-    #[inline]
-    pub fn set_name(&mut self, name: &str) {
-        self.name = name.to_string();
     }
 
     // Get name
     #[inline]
-    pub fn get_name(&self) -> &str {
+    pub fn name(&self) -> &str {
         &self.name
-    }
-
-    // Set data
-    #[inline]
-    pub fn set_data(&mut self, data: *mut ()) {
-        self.data = data;
     }
 
     // Open
@@ -254,53 +224,31 @@ impl DriverWrapper {
 // Struct PlatDrvWrapper
 pub struct PlatDrvWrapper {
     id: DriverID,
-    name: String,
+    name: &'static str,
     inner: Box<dyn PlatDriver>,
 }
 
 // Impl PlatDrvWrapper
 impl PlatDrvWrapper {
-    // New
-    #[inline]
-    pub const fn new(inner: Box<dyn PlatDriver>) -> Self {
-        Self {
-            id: DriverID::PlatDrv,
-            name: String::new(),
-            inner,
-        }
-    }
-
     // New with
     #[inline]
-    pub fn with(inner: Box<dyn PlatDriver>, name: &str) -> Self {
+    pub fn new(inner: Box<dyn PlatDriver>, name: &'static str) -> Self {
         Self {
             id: DriverID::PlatDrv,
-            name: name.to_string(),
+            name,
             inner,
         }
-    }
-
-    // Set id
-    #[inline]
-    pub fn set_id(&mut self, id: DriverID) {
-        self.id = id;
     }
 
     // Get id
     #[inline]
-    pub fn get_id(&self) -> DriverID {
+    pub fn id(&self) -> DriverID {
         self.id.clone()
-    }
-
-    // Set name
-    #[inline]
-    pub fn set_name(&mut self, name: &str) {
-        self.name = name.to_string();
     }
 
     // Get name
     #[inline]
-    pub fn get_name(&self) -> &str {
+    pub fn name(&self) -> &str {
         &self.name
     }
 
@@ -320,53 +268,31 @@ impl PlatDrvWrapper {
 // Struct PlatDevWrapper
 pub struct PlatDevWrapper {
     id: DriverID,
-    name: String,
+    name: &'static str,
     inner: Box<dyn PlatDevice>,
 }
 
 // Impl PlatDevWrapper
 impl PlatDevWrapper {
-    // New
-    #[inline]
-    pub const fn new(inner: Box<dyn PlatDevice>) -> Self {
-        Self {
-            id: DriverID::PlatDev,
-            name: String::new(),
-            inner,
-        }
-    }
-
     // New with
     #[inline]
-    pub fn with(inner: Box<dyn PlatDevice>, name: &str) -> Self {
+    pub fn new(inner: Box<dyn PlatDevice>, name: &'static str) -> Self {
         Self {
             id: DriverID::PlatDev,
-            name: name.to_string(),
+            name,
             inner,
         }
-    }
-
-    // Set id
-    #[inline]
-    pub fn set_id(&mut self, id: DriverID) {
-        self.id = id;
     }
 
     // Get id
     #[inline]
-    pub fn get_id(&self) -> DriverID {
+    pub fn id(&self) -> DriverID {
         self.id.clone()
-    }
-
-    // Set name
-    #[inline]
-    pub fn set_name(&mut self, name: &str) {
-        self.name = name.to_string();
     }
 
     // Get name
     #[inline]
-    pub fn get_name(&self) -> &str {
+    pub fn name(&self) -> &str {
         &self.name
     }
 
@@ -433,7 +359,7 @@ macro_rules! register_plat_driver {
 
             fn [<$fn_name _init>]() {
                 let driver = Box::new(
-                    crate::traits::vk_driver::PlatDrvWrapper::with(
+                    crate::traits::vk_driver::PlatDrvWrapper::new(
                         Box::new($drv), stringify!($name)
                     )
                 );
@@ -462,7 +388,7 @@ macro_rules! register_plat_device {
 
             fn [<$fn_name _init>]() {
                 let device = Box::new(
-                    crate::traits::vk_driver::PlatDevWrapper::with(
+                    crate::traits::vk_driver::PlatDevWrapper::new(
                         Box::new($drv), stringify!($name)
                     )
                 );
