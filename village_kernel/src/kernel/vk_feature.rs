@@ -37,7 +37,7 @@ impl VillageFeature {
         // Setup modules
         for id in ModuleID::iter() {
             for module in self.modules.iter_mut() {
-                if module.get_id() == id {
+                if module.id() == id {
                     module.setup();
                 }
             }
@@ -58,7 +58,7 @@ impl VillageFeature {
         // Setup modules
         for id in ModuleID::rev_iter() {
             for module in self.modules.iter_mut() {
-                if module.get_id() == id {
+                if module.id() == id {
                     module.exit();
                 }
             }
@@ -82,7 +82,7 @@ impl Feature for VillageFeature {
     // Unregister module
     fn unregister_module(&mut self, name: &str) {
         self.modules.retain_mut(|module| {
-            if module.get_name() == name {
+            if module.name() == name {
                 if self.is_runtime {
                     module.exit();
                 }
@@ -96,7 +96,7 @@ impl Feature for VillageFeature {
     // Get module
     fn get_module(&mut self, name: &str) -> Option<&mut Box<ModuleWrapper>> {
         for module in self.modules.iter_mut() {
-            if module.get_name() == name {
+            if module.name() == name {
                 return Some(module);
             }
         }
