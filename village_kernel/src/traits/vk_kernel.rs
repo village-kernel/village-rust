@@ -83,9 +83,9 @@ impl DebugLevel {
 // Debug
 pub trait Debug {
     fn log(&mut self, log: &str);
-    fn info(&mut self, log: &str);
+    fn info(&mut self, info: &str);
     fn error(&mut self, error: &str);
-    fn warn(&mut self, warn: &str);
+    fn warning(&mut self, warning: &str);
     fn output(&mut self, level: DebugLevel, msg: &str);
     fn set_debug_level(&mut self, level: DebugLevel);
 }

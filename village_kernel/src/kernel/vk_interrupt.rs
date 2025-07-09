@@ -115,7 +115,7 @@ impl Interrupt for VillageInterrupt {
             }
             kernel()
                 .debug()
-                .warn(&format!("IRQ {} has no interrupt service function", irq));
+                .warning(&format!("IRQ {} has no interrupt service function", irq));
             self.warnings[irq_idx] += 1;
             return;
         } else {

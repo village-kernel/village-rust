@@ -130,9 +130,9 @@ impl Debug for VillageDebug {
     }
 
     // Warn
-    fn warn(&mut self, warn: &str) {
+    fn warning(&mut self, warning: &str) {
         self.write("\x1b[33m[warning] ");
-        self.write(warn);
+        self.write(warning);
         self.write("\r\n\x1b[39m");
     }
 
