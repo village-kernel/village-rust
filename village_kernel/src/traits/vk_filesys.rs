@@ -5,7 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use alloc::boxed::Box;
-use alloc::string::{String, ToString};
+use alloc::string::String;
 
 // struct FileMode
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -110,40 +110,24 @@ pub trait FileSys {
 
 // Struct FileSysWrapper
 pub struct FileSysWrapper {
-    name: String,
+    name: &'static str,
     inner: Box<dyn FileSys>,
 }
 
 // Impl FileSysWrapper
 impl FileSysWrapper {
-    // New
-    #[inline]
-    pub const fn new(inner: Box<dyn FileSys>) -> Self {
-        Self {
-            name: String::new(),
-            inner,
-        }
-    }
-
     // New with name
     #[inline]
-    pub fn with_name(inner: Box<dyn FileSys>, name: &str) -> Self {
+    pub fn new(inner: Box<dyn FileSys>, name: &'static str) -> Self {
         Self {
-            name: name.to_string(),
+            name,
             inner,
         }
-    }
-
-    // Set name
-    #[inline]
-    pub fn set_name(&mut self, name: &str) -> &mut Self {
-        self.name = name.to_string();
-        self
     }
 
     // Get name
     #[inline]
-    pub fn get_name(&self) -> &str {
+    pub fn name(&self) -> &str {
         &self.name
     }
 
@@ -175,7 +159,7 @@ macro_rules! register_filesys {
 
             fn [<$name _init>]() {
                 let filesys = Box::new(
-                    crate::traits::vk_filesys::FileSysWrapper::with_name(
+                    crate::traits::vk_filesys::FileSysWrapper::new(
                         Box::new($filsys), stringify!($name)
                     )
                 );

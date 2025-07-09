@@ -491,7 +491,7 @@ impl FileSystem for VillageFileSystem {
     // Unregister fs
     fn unregister_fs(&mut self, name: &str) {
         self.filesyses
-            .retain_mut(|fs| !(fs.get_name() == name));
+            .retain_mut(|fs| !(fs.name() == name));
     }
 
     // Mount hard drive
