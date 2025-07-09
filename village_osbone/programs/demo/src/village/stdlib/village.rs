@@ -6,7 +6,7 @@
 //###########################################################################
 use core::ffi::c_void;
 use core::cell::UnsafeCell;
-use crate::vk_kernel::Kernel;
+use crate::traits::vk_kernel::Kernel;
 
 // Type aliases for start entry
 type DynKernel = fn() -> &'static mut dyn Kernel;

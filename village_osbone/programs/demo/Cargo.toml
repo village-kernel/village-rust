@@ -1,16 +1,16 @@
 [package]
-name = "taichi"
+name = "demo"
 version = "0.1.0"
 edition = "2024"
 build = "build.rs"
 
 [lib]
-name = "taichi"
+name = "demo"
 test = false
 bench = false
 
 [[bin]]
-name = "taichi"
+name = "demo"
 test = false
 bench = false
 

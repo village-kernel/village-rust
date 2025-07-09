@@ -1,0 +1,17 @@
+[build]
+target = "./triples/ia32legacy.json"
+
+[unstable]
+build-std = ["core", "alloc", "compiler_builtins"]
+
+[target.ia32legacy]
+rustflags = [
+    "-C", "opt-level=0",
+    "-C", "debuginfo=2",
+    "-C", "relocation-model=pic",
+    "-C", "link-arg=-pie",
+    "-C", "link-arg=--gc-sections",
+    "-C", "linker=rust-lld",
+    "-C", "panic=abort",
+    "-C", "link-arg=-T./triples/ia32legacy.lds",
+]

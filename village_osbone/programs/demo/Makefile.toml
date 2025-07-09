@@ -1,0 +1,30 @@
+###########################################################################
+# Makefile
+# The Makefile of taichi
+#
+# usage: BUILD=build TARGET=ia32legacy PROFILE=debug cargo make
+#
+# $Copyright: Copyright (C) village
+############################################################################
+
+[config]
+skip_core_tasks = true
+
+[env]
+BUILD = "${BUILD:target}"
+TARGET = "${TARGET:ia32legacy}"
+PROFILE = "${PROFILE:debug}"
+PROGRAM = "${BUILD}/${TARGET}/${PROFILE}/${CARGO_MAKE_PROJECT_NAME}"
+
+[tasks.default]
+script = '''
+    if [ ${PROFILE} = "debug" ]; then
+        CARGO_TARGET_DIR=${BUILD} cargo build --target ./triples/${TARGET}.json
+    else
+        CARGO_TARGET_DIR=${BUILD} cargo build --release --target ./triples/${TARGET}.json
+    fi
+    rust-objcopy -O ihex      ${PROGRAM}     ${PROGRAM}.hex
+    rust-objcopy -O binary -S ${PROGRAM}     ${PROGRAM}.bin
+    cp -rf                    ${PROGRAM}     ${PROGRAM}.elf
+    cp -rf                    ${PROGRAM}.bin ${PROGRAM}.exec
+'''
