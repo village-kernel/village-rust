@@ -93,7 +93,7 @@ impl VillageProcess {
         };
 
         for executor in self.executors.iter_mut() {
-            let suffixes = executor.get_suffixes();
+            let suffixes = executor.suffixes();
 
             for supported_suffix in suffixes {
                 if suffix == supported_suffix {
@@ -119,7 +119,7 @@ impl Process for VillageProcess {
     // Unregister executor
     fn unregister_executor(&mut self, name: &str) {
         self.executors
-            .retain_mut(|executor| !(executor.get_name() == name));
+            .retain_mut(|executor| !(executor.name() == name));
     }
 
     // Run with args

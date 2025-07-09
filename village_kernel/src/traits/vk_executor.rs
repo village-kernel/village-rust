@@ -5,7 +5,6 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use alloc::boxed::Box;
-use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 
 // BaseLoader
@@ -30,46 +29,30 @@ pub trait Executor {
 
 // Struct ExecutorWrapper
 pub struct ExecutorWrapper {
-    name: String,
+    name: &'static str,
     inner: Box<dyn Executor>,
 }
 
 // Impl ExecutorWrapper
 impl ExecutorWrapper {
-    // New
-    #[inline]
-    pub const fn new(inner: Box<dyn Executor>) -> Self {
-        Self {
-            name: String::new(),
-            inner,
-        }
-    }
-
     // New with name
     #[inline]
-    pub fn with_name(inner: Box<dyn Executor>, name: &str) -> Self {
+    pub fn new(inner: Box<dyn Executor>, name: &'static str) -> Self {
         Self {
-            name: name.to_string(),
+            name,
             inner,
         }
-    }
-
-    // Set name
-    #[inline]
-    pub fn set_name(&mut self, name: &str) -> &mut Self {
-        self.name = name.to_string();
-        self
     }
 
     // Get name
     #[inline]
-    pub fn get_name(&self) -> &str {
+    pub fn name(&self) -> &str {
         &self.name
     }
 
-    // get_suffixes
+    // Get suffixes
     #[inline]
-    pub fn get_suffixes(&self) -> Vec<&str> {
+    pub fn suffixes(&self) -> Vec<&str> {
         self.inner.suffixes()
     }
 
@@ -95,7 +78,7 @@ macro_rules! register_executor {
 
             fn [<$name _init>]() {
                 let factory = Box::new(
-                    crate::traits::vk_executor::ExecutorWrapper::with_name(
+                    crate::traits::vk_executor::ExecutorWrapper::new(
                         Box::new($fty), stringify!($name)
                     )
                 );
