@@ -110,28 +110,38 @@ impl VillageDebug {
 impl Debug for VillageDebug {
     // Log
     fn log(&mut self, log: &str) {
-        self.write(&format!("Log: {} \r\n", log));
+        self.write("[log] ");
+        self.write(log);
+        self.write("\r\n");
     }
 
     // Info
     fn info(&mut self, info: &str) {
-        self.write(&format!("\x1b[36m[Info] {} \r\n\x1b[39m", info));
+        self.write("\x1b[36m[info] ");
+        self.write(info);
+        self.write("\r\n\x1b[39m");
     }
 
     // Error
     fn error(&mut self, error: &str) {
-        self.write(&format!("\x1b[31m[Error] {} \r\n\x1b[39m", error));
+        self.write("\x1b[31m[error] ");
+        self.write(error);
+        self.write("\r\n\x1b[39m");
     }
 
     // Warn
     fn warn(&mut self, warn: &str) {
-        self.write(&format!("\x1b[33m[Warning] {} \r\n\x1b[39m", warn));
+        self.write("\x1b[33m[warning] ");
+        self.write(warn);
+        self.write("\r\n\x1b[39m");
     }
 
     // Output
     fn output(&mut self, level: DebugLevel, msg: &str) {
         if level >= self.debug_level {
-            self.write(&format!("\x1b[34m[message] {} \r\n\x1b[39m", msg));
+           self.write("\x1b[34m[message] ");
+            self.write(msg);
+            self.write("\r\n\x1b[39m");
         }
     }
 

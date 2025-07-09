@@ -261,7 +261,7 @@ impl MemoryAllocator {
 
         // Alloc failed
         if alloc_addr == 0 {
-            panic!("out of memory.");
+            kernel().debug().error("out of memory.");
         }
 
         alloc_addr
@@ -273,7 +273,7 @@ impl MemoryAllocator {
         if memory < self.sram_start.load(Ordering::Acquire)
             || memory > self.sram_ended.load(Ordering::Acquire)
         {
-            panic!("invalid memory.");
+            kernel().debug().error("invalid memory.");
         }
 
         // Gets the curret node ptr
@@ -304,7 +304,7 @@ impl MemoryAllocator {
                     else if size < (*curr_node).map.size {
                         // No deal
                     } else {
-                        panic!(
+                        kernel().debug().error(
                             "The size to be released is larger than the size of the current node."
                         )
                     }
@@ -325,7 +325,7 @@ impl MemoryAllocator {
                     } else if memory >= (*curr_node).map.ended {
                         curr_node = (*curr_node).next.load(Ordering::Acquire);
                     } else {
-                        panic!("The memory is already been released.")
+                        kernel().debug().error("The memory is already been released.")
                     }
                 }
             }
