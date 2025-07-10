@@ -147,7 +147,7 @@ pub struct ThreadTask {
     pub psp: u32,
     pub ticks: u32,
     pub stack_start: u32,
-    pub stack_end: u32,
+    pub stack_ended: u32,
     pub state: ThreadState,
 }
 
@@ -161,7 +161,7 @@ impl ThreadTask {
             psp: 0,
             ticks: 0,
             stack_start: 0,
-            stack_end: 0,
+            stack_ended: 0,
             state: ThreadState::New,
         }
     }

@@ -24,10 +24,10 @@ impl Cmd for CmdTasker {
                 "{:<4}  0x{:08x}~0x{:08x}  0x{:08x}  0x{:08x}  0x{:08x}  {:<12} {}",
                 task.id,
                 task.stack_start,
-                task.stack_end,
+                task.stack_ended,
                 task.psp,
-                task.stack_end.wrapping_sub(task.stack_start),
-                task.stack_end.wrapping_sub(task.psp),
+                task.stack_ended.wrapping_sub(task.stack_start),
+                task.stack_ended.wrapping_sub(task.psp),
                 format!("{}", task.state.as_str()),
                 task.name
             ));

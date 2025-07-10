@@ -94,8 +94,8 @@ impl Thread for VillageThread {
     fn create_task(&mut self, name: &str, callback: Callback) -> i32 {
         // Create a new task and allocate stack space
         let stack_start = kernel().memory().alloc(TASK_STACK_SIZE);
-        let stack_end = stack_start + TASK_STACK_SIZE;
-        let psp = stack_end - PSP_FRAME_SIZE;
+        let stack_ended = stack_start + TASK_STACK_SIZE;
+        let psp = stack_ended - PSP_FRAME_SIZE;
 
         // Fill the stack content
         let context = TaskContext::new(
@@ -119,7 +119,7 @@ impl Thread for VillageThread {
             psp,
             ticks: 0,
             stack_start,
-            stack_end,
+            stack_ended,
             state: ThreadState::New,
         };
 
