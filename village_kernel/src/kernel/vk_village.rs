@@ -162,7 +162,7 @@ impl Kernel for VillageKernel {
         // Start scheduler
         self.scheduler.start();
 
-        // Should not go to here
+        // Will go to here
         loop {}
     }
 

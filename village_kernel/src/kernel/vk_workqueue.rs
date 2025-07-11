@@ -76,8 +76,7 @@ impl WorkQueue for VillageWorkQueue {
         self.id_cnt += 1;
         let work = Work::new(id, ticks, callback);
         self.works.push(work);
-        self.works.end();
-        self.works.item()
+        self.works.iter_mut().rev().next()
     }
 
     // Delete

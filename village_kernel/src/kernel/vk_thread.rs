@@ -10,7 +10,6 @@ use crate::traits::vk_kernel::{Thread, ThreadState, ThreadTask};
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
 use alloc::string::ToString;
-use core::arch::asm;
 use core::ptr;
 
 // Static constants
@@ -35,7 +34,7 @@ impl VillageThread {
 
     // Setup
     pub fn setup(&mut self) {
-        // First task should be idle task and the tid is 0
+        // Create idle task
         let idle_task_cb = Callback::new(Self::idle_task as u32).with_instance(self);
         self.create_task("Thread::idle", idle_task_cb);
 
@@ -49,10 +48,10 @@ impl VillageThread {
 
     // Start
     pub fn start(&mut self) {
+        // Set all task state to ready
         for task in &mut self.tasks.iter_mut() {
-            task.state = ThreadState::Running;
+            task.state = ThreadState::Ready;
         }
-        self.tasks.begin();
     }
 
     // Exit
@@ -72,7 +71,14 @@ impl VillageThread {
         loop {}
     }
 
-    // Monitor
+    // Idle task
+    fn idle_task(&mut self) {
+        loop {
+            self.sleep(1);
+        }
+    }
+
+    // Monitor task
     fn monitor(&mut self) {
         loop {
             self.tasks.retain_mut(|task| {
@@ -192,48 +198,35 @@ impl Thread for VillageThread {
         -1
     }
 
-    // Set State
-    fn set_state(&mut self, state: ThreadState) {
-        if let Some(task) = self.tasks.item() {
-            task.state = state;
-            kernel().scheduler().sched();
-        }
-    }
-
-    // Thread sleep
+    // Thread Sleep
     fn sleep(&mut self, ticks: u32) {
         if let Some(task) = self.tasks.item() {
-            if task.id > 0 {
-                task.state = ThreadState::Ready;
-                task.ticks = kernel().system().get_sysclk_counts() + ticks;
-                kernel().scheduler().sched();
-                while task.state == ThreadState::Ready {}
-            }
+            task.state = ThreadState::Blocked;
+            task.ticks = kernel().system().get_ticks() + ticks;
+            kernel().scheduler().sched();
+            while task.state == ThreadState::Blocked {}
         }
     }
 
     // Thread Blocked
     fn blocked(&mut self) {
         if let Some(task) = self.tasks.item() {
-            if task.id > 0 {
-                task.state = ThreadState::Blocked;
-                kernel().scheduler().sched();
-                while task.state == ThreadState::Blocked {}
-            }
+            task.state = ThreadState::Blocked;
+            task.ticks = 0;
+            kernel().scheduler().sched();
+            while task.state == ThreadState::Blocked {}
         }
     }
 
     // Thread Terminated
     fn terminated(&mut self) {
         if let Some(task) = self.tasks.item() {
-            if task.id > 0 {
-                task.state = ThreadState::Terminated;
-                kernel().scheduler().sched();
-            }
+            task.state = ThreadState::Terminated;
+            kernel().scheduler().sched();
         }
     }
 
-    // Save task PSP
+    // Save task PSP, the first item must be None
     fn save_task_psp(&mut self, psp: u32) {
         if let Some(task) = self.tasks.item() {
             task.psp = psp;
@@ -249,38 +242,30 @@ impl Thread for VillageThread {
         }
     }
 
-    // Select next task, round-Robin scheduler
+    // Select next task
     fn select_next_task(&mut self) {
         loop {
-            // Set next task as current task
-            self.tasks.next();
-            if self.tasks.is_end() {
-                self.tasks.begin();
-            }
-
-            // Get current task
-            if let Some(task) = self.tasks.item() {
-                //Check current task state
-                if task.state == ThreadState::Ready {
-                    if kernel().system().get_sysclk_counts() >= task.ticks {
-                        task.state = ThreadState::Running;
+            // Get next task
+            if let Some(task) = self.tasks.cycle() {
+                // Task state is Blocked
+                if task.state == ThreadState::Blocked {
+                    if task.ticks != 0 && task.ticks <= kernel().system().get_ticks() {
                         task.ticks = 0;
+                        task.state = ThreadState::Running;
+                        break;
                     }
                 }
-
-                // If no ready task is found, switch to the idle task (assuming the ID is 0)
-                if task.state == ThreadState::Running {
+                
+                // Task state is ready
+                else if task.state == ThreadState::Ready {
+                    task.state = ThreadState::Running;
                     break;
                 }
-            }
-        }
-    }
 
-    // Idle task
-    fn idle_task(&mut self) {
-        loop {
-            unsafe {
-                asm!("nop");
+                // Task state is running
+                else if task.state == ThreadState::Running {
+                    break;
+                }
             }
         }
     }

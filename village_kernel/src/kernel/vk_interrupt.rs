@@ -105,7 +105,7 @@ impl Interrupt for VillageInterrupt {
         let irq_idx = (irq + RSVD_ISR_SIZE as isize) as usize;
         let isrs = &mut self.isr_tabs[irq_idx];
 
-        if isrs.is_empty() {
+        if isrs.len() == 0 {
             if self.warnings[irq_idx] >= 10 {
                 kernel().debug().error(&format!(
                     "IRQ {} no being handled correctly, system will halt on here",

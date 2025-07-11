@@ -60,7 +60,7 @@ impl VillageLoader {
         if parser.load(filename) {
             let mut run_cmds = parser.get_run_cmds();
 
-            for lib_name in run_cmds.rev_iter_mut() {
+            for lib_name in run_cmds.iter_mut().rev() {
                 self.install_lib(lib_name);
             }
         }
@@ -99,7 +99,7 @@ impl VillageLoader {
         if parser.load(filename) {
             let mut run_cmds = parser.get_run_cmds();
 
-            for mod_name in run_cmds.rev_iter_mut() {
+            for mod_name in run_cmds.iter_mut().rev() {
                 self.uninstall_mod(mod_name);
             }
         }

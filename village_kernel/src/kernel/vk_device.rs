@@ -140,7 +140,7 @@ impl VillageDevice {
 
     // Platform remove
     fn platform_remove_all(&mut self) {
-        for device in self.plat_devs.rev_iter_mut() {
+        for device in self.plat_devs.iter_mut().rev() {
             Self::platform_driver_remove(&mut self.plat_drvs, &mut *device);
         }
     }

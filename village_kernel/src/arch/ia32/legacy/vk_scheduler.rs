@@ -65,9 +65,6 @@ impl Scheduler for VillageScheduler {
 
         // Set start schedule flag
         self.is_ready = true;
-
-        // Execute thread idle task
-        kernel().thread().idle_task();
     }
 
     // Rescheduler task

@@ -55,7 +55,7 @@ impl VillageTimer {
     fn execute(&mut self) {
         for job in self.jobs.iter_mut() {
             if job.state == JobState::Ready {
-                if kernel().system().get_sysclk_counts() >= job.ticks {
+                if kernel().system().get_ticks() >= job.ticks {
                     job.callback.call();
                     job.state = JobState::Terminated;
                 }
@@ -72,8 +72,7 @@ impl Timer for VillageTimer {
         self.id_cnt += 1;
         let job = Job::new(id, callback);
         self.jobs.push(job);
-        self.jobs.end();
-        self.jobs.item()
+        self.jobs.iter_mut().rev().next()
     }
 
     // Modify

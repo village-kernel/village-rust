@@ -17,8 +17,7 @@ use alloc::vec::Vec;
 
 // System
 pub trait System {
-    fn systick_counter(&mut self);
-    fn get_sysclk_counts(&mut self) -> u32;
+    fn get_ticks(&mut self) -> u32;
     fn delay_ms(&mut self, millis: u32);
 
     fn enable_irq(&mut self);
@@ -183,7 +182,6 @@ pub trait Thread {
 
     // State Methods
     fn get_task_id(&mut self) -> i32;
-    fn set_state(&mut self, state: ThreadState);
     fn sleep(&mut self, ticks: u32);
     fn blocked(&mut self);
     fn terminated(&mut self);
@@ -192,7 +190,6 @@ pub trait Thread {
     fn save_task_psp(&mut self, psp: u32);
     fn get_task_psp(&mut self) -> u32;
     fn select_next_task(&mut self);
-    fn idle_task(&mut self);
 }
 
 // Symbol

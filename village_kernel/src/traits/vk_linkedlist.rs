@@ -5,19 +5,19 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use alloc::boxed::Box;
-use core::iter::Iterator;
+use core::iter::{Iterator, DoubleEndedIterator};
 use core::marker::PhantomData;
 use core::ptr;
 use core::sync::atomic::{AtomicPtr, Ordering};
 
-// List node struct with atomic pointers
+// Struct ListNode
 struct ListNode<T> {
     obj: T,
     prev: AtomicPtr<ListNode<T>>,
     next: AtomicPtr<ListNode<T>>,
 }
 
-// List template with atomic pointers
+// Struct LinkedList
 pub struct LinkedList<T> {
     head: AtomicPtr<ListNode<T>>,
     tail: AtomicPtr<ListNode<T>>,
@@ -25,7 +25,7 @@ pub struct LinkedList<T> {
     len: usize,
 }
 
-// Impl list
+// Impl LinkedList
 impl<T> LinkedList<T> {
     // New
     pub const fn new() -> Self {
@@ -37,14 +37,7 @@ impl<T> LinkedList<T> {
         }
     }
 
-    // List get len
-    pub fn len(&self) -> usize {
-        self.len
-    }
-}
-
-impl<T> LinkedList<T> {
-    // Push node to list with atomic operations
+    // Push node to list tail
     pub fn push(&mut self, obj: T) {
         let node = ListNode {
             obj,
@@ -69,43 +62,7 @@ impl<T> LinkedList<T> {
         self.len += 1;
     }
 
-    // Delete node from list with atomic operations
-    pub fn del(&mut self, obj: &T)
-    where
-        T: PartialEq,
-    {
-        let mut current = self.head.load(Ordering::Acquire);
-
-        while !current.is_null() {
-            unsafe {
-                let node = &*current;
-                let obj_eq = &node.obj == obj;
-
-                if obj_eq {
-                    let prev = node.prev.load(Ordering::Acquire);
-                    let next = node.next.load(Ordering::Acquire);
-
-                    if !prev.is_null() {
-                        (*prev).next.store(next, Ordering::Release);
-                    } else {
-                        self.head.store(next, Ordering::Release);
-                    }
-
-                    if !next.is_null() {
-                        (*next).prev.store(prev, Ordering::Release);
-                    } else {
-                        self.tail.store(prev, Ordering::Release);
-                    }
-
-                    self.len -= 1;
-                }
-
-                current = node.next.load(Ordering::Acquire);
-            }
-        }
-    }
-
-    // Clear List with atomic operations
+    // Clear List
     pub fn clear(&mut self) {
         let mut current = self.head.load(Ordering::Acquire);
 
@@ -121,63 +78,29 @@ impl<T> LinkedList<T> {
         self.tail.store(ptr::null_mut(), Ordering::Release);
         self.len = 0;
     }
+
+    // List get len
+    pub fn len(&self) -> usize {
+        self.len
+    }
 }
 
-// LinkedList self iterator with atomic pointers
+// LinkedList self iterator
 impl<T> LinkedList<T> {
-    // List begin node
-    pub fn begin(&mut self) {
-        self.iter
-            .store(self.head.load(Ordering::Acquire), Ordering::Release);
-    }
-
     // List next node
-    pub fn next(&mut self) {
-        if !self.iter.load(Ordering::Acquire).is_null() {
-            unsafe {
-                self.iter.store(
-                    (*self.iter.load(Ordering::Acquire))
-                        .next
-                        .load(Ordering::Acquire),
-                    Ordering::Release,
-                );
+    pub fn cycle(&mut self) -> Option<&mut T> {
+        unsafe {
+            let iter_ptr = self.iter.load(Ordering::Acquire);
+            let mut next_ptr: *mut ListNode<T> = ptr::null_mut();
+            if !iter_ptr.is_null() {
+                next_ptr = (*iter_ptr).next.load(Ordering::Acquire);
             }
-        }
-    }
-
-    // List prev node
-    pub fn prev(&mut self) {
-        if !self.iter.load(Ordering::Acquire).is_null() {
-            unsafe {
-                self.iter.store(
-                    (*self.iter.load(Ordering::Acquire))
-                        .prev
-                        .load(Ordering::Acquire),
-                    Ordering::Release,
-                );
+            if next_ptr.is_null() {
+                next_ptr = self.head.load(Ordering::Acquire);
             }
+            self.iter.store(next_ptr, Ordering::Release);
+            Some(&mut (*next_ptr).obj)
         }
-    }
-
-    // List end node
-    pub fn end(&mut self) {
-        self.iter
-            .store(self.tail.load(Ordering::Acquire), Ordering::Release);
-    }
-
-    // List is begin
-    pub fn is_begin(&self) -> bool {
-        self.iter.load(Ordering::Acquire).is_null()
-    }
-
-    // List is end
-    pub fn is_end(&self) -> bool {
-        self.iter.load(Ordering::Acquire).is_null()
-    }
-
-    // List is empty
-    pub fn is_empty(&self) -> bool {
-        self.len == 0
     }
 
     // List item
@@ -202,22 +125,15 @@ impl<T> FromIterator<T> for LinkedList<T> {
     }
 }
 
-// List iterator with atomic pointers
-pub struct ListIterator<'a, T> {
-    _list: &'a LinkedList<T>,
+// Linkedlist mutable iterator
+pub struct ListIterMut<'a, T> {
     current: AtomicPtr<ListNode<T>>,
+    current_back: AtomicPtr<ListNode<T>>,
     marker: PhantomData<&'a mut T>,
 }
 
-// List reverse iterator with atomic pointers
-pub struct ListReverseIterator<'a, T> {
-    _list: &'a LinkedList<T>,
-    current: AtomicPtr<ListNode<T>>,
-    marker: PhantomData<&'a mut T>,
-}
-
-// Impl iterator for list iterator with atomic operations
-impl<'a, T> Iterator for ListIterator<'a, T> {
+// Impl iterator for list mutable iterator
+impl<'a, T> Iterator for ListIterMut<'a, T> {
     type Item = &'a mut T;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -226,49 +142,40 @@ impl<'a, T> Iterator for ListIterator<'a, T> {
             None
         } else {
             unsafe {
-                let obj = &mut (*current).obj;
-                self.current
-                    .store((*current).next.load(Ordering::Acquire), Ordering::Release);
-                Some(obj)
+                let next = (*current).next.load(Ordering::Acquire);
+                self.current.store(next, Ordering::Release);
+                Some(&mut (*current).obj)
             }
         }
     }
 }
 
-// Impl iterator for list reverse iterator with atomic operations
-impl<'a, T> Iterator for ListReverseIterator<'a, T> {
-    type Item = &'a mut T;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let current = self.current.load(Ordering::Acquire);
-        if current.is_null() {
+// Impl double ended iterator for list mutable iterator
+impl<'a, T> DoubleEndedIterator for ListIterMut<'a, T> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        let current_back = self.current_back.load(Ordering::Acquire);
+        if current_back.is_null() {
             None
         } else {
             unsafe {
-                let obj = &mut (*current).obj;
-                self.current
-                    .store((*current).prev.load(Ordering::Acquire), Ordering::Release);
-                Some(obj)
+                let prev = (*current_back).prev.load(Ordering::Acquire);
+                self.current_back.store(prev, Ordering::Release);
+                Some(&mut (*current_back).obj)
             }
         }
     }
 }
 
+// Impl LinkedList
 impl<T> LinkedList<T> {
-    // Create iterator
-    pub fn iter_mut(&mut self) -> ListIterator<'_, T> {
-        ListIterator {
-            _list: self,
-            current: AtomicPtr::new(self.head.load(Ordering::Acquire)),
-            marker: PhantomData,
-        }
-    }
-
-    // Create reverse iterator
-    pub fn rev_iter_mut(&mut self) -> ListReverseIterator<'_, T> {
-        ListReverseIterator {
-            _list: self,
-            current: AtomicPtr::new(self.tail.load(Ordering::Acquire)),
+    // Create mutable iterator
+    pub fn iter_mut(&mut self) -> ListIterMut<'_, T> {
+        let head = self.head.load(Ordering::Acquire);
+        let tail = self.tail.load(Ordering::Acquire);
+        
+        ListIterMut {
+            current: AtomicPtr::new(head),
+            current_back: AtomicPtr::new(tail),
             marker: PhantomData,
         }
     }

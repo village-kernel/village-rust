@@ -64,7 +64,7 @@ impl VillageEvent {
     // Exit
     pub fn exit(&mut self) {
         // Exit all input devices
-        for device in kernel().device().get_drivers().rev_iter_mut() {
+        for device in kernel().device().get_drivers().iter_mut().rev() {
             if device.id() == DriverID::Input {
                 self.exit_input_device(device.name());
             }

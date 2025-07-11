@@ -31,13 +31,8 @@ impl VillageSystem {
 
 /// impl system for village system
 impl System for VillageSystem {
-    /// systick counter
-    fn systick_counter(&mut self) {
-
-    }
-
-    /// get sysclk counts
-    fn get_sysclk_counts(&mut self) -> u32 {
+    /// get system ticks
+    fn get_ticks(&mut self) -> u32 {
         0
     }
 
