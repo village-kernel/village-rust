@@ -5,9 +5,10 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use super::vk_fat_diskio::FatDiskio;
+use super::vk_fat_entry::FatEntryAttr;
 use super::vk_fat_filedir::{FatDir, FatFile};
 use super::vk_fat_folder::FatFolder;
-use super::vk_fat_object::{EntryAttr, FatObject};
+use super::vk_fat_object::FatObject;
 use crate::traits::vk_filesys::{FileDir, FileMode, FileSys, FileType, FileVol};
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::register_filesys;
@@ -73,7 +74,7 @@ impl FatVolume {
 
         for i in 0..deep {
             if let Some(fatobj) = someobj {
-                someobj = FatFolder::search(&mut self.diskio, fatobj, names[i]);
+                someobj = FatFolder::search_obj(&mut self.diskio, fatobj, names[i]);
             }
 
             if someobj.is_none() {
@@ -89,7 +90,7 @@ impl FatVolume {
         if let Some(mut parent) = self.search_path(path, 1) {
             if parent.get_object_type() == FileType::Directory {
                 let name = self.base_name(path);
-                return FatFolder::create(&mut self.diskio, parent, &name, attr);
+                return FatFolder::create_obj(&mut self.diskio, parent, &name, attr);
             }
         }
         None
@@ -98,10 +99,10 @@ impl FatVolume {
     // Delete path
     fn delete_path(&mut self, path: &str) -> bool {
         if let Some(mut fatobj) = self.search_path(path, 0) {
-            if fatobj.get_object_type() == FileType::File
-                || fatobj.get_object_type() == FileType::Directory
+            if fatobj.get_object_type() == FileType::File ||
+               fatobj.get_object_type() == FileType::Directory
             {
-                FatFolder::remove(&mut self.diskio, fatobj);
+                FatFolder::remove_obj(&mut self.diskio, fatobj);
                 return true;
             }
         }
@@ -133,13 +134,13 @@ impl FileVol for FatVolume {
 
     // Set name
     fn set_name(&mut self, name: &str) -> bool {
-        FatFolder::set_volume_label(&mut self.diskio, name);
+        FatFolder::set_vol_lab(&mut self.diskio, name);
         self.get_name() == name
     }
 
     // Get name
     fn get_name(&mut self) -> String {
-        FatFolder::get_volume_label(&mut self.diskio)
+        FatFolder::get_vol_lab(&mut self.diskio)
     }
 
     // Open
@@ -147,7 +148,7 @@ impl FileVol for FatVolume {
         // Search or create path
         let someobj = match self.search_path(name, 0) {
             Some(obj) => Some(obj),
-            None if mode.contains(FileMode::CREATE_NEW) => self.create_path(name, EntryAttr::FILE),
+            None if mode.contains(FileMode::CREATE_NEW) => self.create_path(name, FatEntryAttr::FILE),
             None => None,
         };
 
@@ -215,7 +216,7 @@ impl FileVol for FatVolume {
         let someobj = match self.search_path(name, 0) {
             Some(obj) => Some(obj),
             None if mode.contains(FileMode::CREATE_NEW) => {
-                self.create_path(name, EntryAttr::DIRECTORY)
+                self.create_path(name, FatEntryAttr::DIRECTORY)
             }
             None => None,
         };
@@ -264,7 +265,7 @@ impl FileVol for FatVolume {
     }
 
     // Is exist
-    fn is_exist(&mut self, name: &str, typeid: FileType) -> bool {
+    fn exist(&mut self, name: &str, typeid: FileType) -> bool {
         if let Some(mut fatobj) = self.search_path(name, 0) {
             return fatobj.get_object_type() == typeid;
         }
@@ -282,10 +283,10 @@ struct FatSystem;
 
 // Impl filesys for fat system
 impl FileSys for FatSystem {
-    // Get system id
-    fn get_system_id(&self) -> usize {
-        let system_id = 11 as usize;
-        system_id
+    // Get file system id
+    fn file_system_id(&self) -> usize {
+        const SYSTEM_ID: usize = 11;
+        SYSTEM_ID
     }
 
     // Create volume

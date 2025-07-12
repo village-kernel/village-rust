@@ -60,7 +60,7 @@ impl FatFile {
         self.file_size = fatobj.get_file_size();
 
         if self.file_size > 0 {
-            self.fst_clust = fatobj.get_first_cluster();
+            self.fst_clust = fatobj.get_fst_clust();
             self.sector_size = (self.file_size + bytes_per_sec - 1) / bytes_per_sec;
             self.clust_size = (self.sector_size + sec_per_clust - 1) / sec_per_clust;
 
@@ -122,7 +122,7 @@ impl FatFile {
     pub fn flush(&mut self, diskio: &mut FatDiskio) {
         if self.clust_size == diskio.write_cluster(&self.buffer, self.fst_clust, self.clust_size) {
             self.myself.set_file_size(self.file_size);
-            FatFolder::update(diskio, self.myself.clone());
+            FatFolder::update_obj(diskio, self.myself.clone());
         }
     }
 
@@ -169,7 +169,7 @@ impl FatDir {
 impl FatDir {
     // Open
     pub fn open(&mut self, diskio: &mut FatDiskio, fatobj: FatObject, mode: FileMode) {
-        let mut folder = FatFolder::new(diskio, fatobj.clone());
+        let mut folder = FatFolder::init(diskio, fatobj.clone());
 
         self.myself = fatobj;
         self.dir_mode = mode;

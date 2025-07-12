@@ -28,7 +28,7 @@ impl CmdCd {
     fn change_directory(&mut self, console: &mut dyn Console, path: &str) {
         let mut dir = DirFopt::new();
 
-        if dir.is_exist(path) {
+        if dir.exist(path) {
             let mut new_path = path.to_string();
 
             if let Some(last_slash_pos) = path.rfind('/') {
@@ -148,7 +148,7 @@ impl CmdTouch {
     fn create_file(&mut self, console: &mut dyn Console, path: &str) {
         let mut file = FileFopt::new();
 
-        if !file.is_exist(path) {
+        if !file.exist(path) {
             if !file.open(path, FileMode::CREATE_NEW) {
                 console.error(&format!("Create file {} failed", path));
             }
@@ -186,7 +186,7 @@ impl CmdMkdir {
     fn create_dir(&mut self, console: &mut dyn Console, path: &str) {
         let mut dir = DirFopt::new();
 
-        if !dir.is_exist(path) {
+        if !dir.exist(path) {
             if !dir.open(path, FileMode::CREATE_NEW) {
                 console.error(&format!("Create directory {} failed", path));
             }

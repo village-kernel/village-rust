@@ -98,13 +98,13 @@ pub trait FileVol {
     fn closedir(&mut self, fd: usize);
 
     // Opt methods
-    fn is_exist(&mut self, name: &str, typeid: FileType) -> bool;
+    fn exist(&mut self, name: &str, typeid: FileType) -> bool;
     fn remove(&mut self, name: &str) -> bool;
 }
 
 // FileSys
 pub trait FileSys {
-    fn get_system_id(&self) -> usize;
+    fn file_system_id(&self) -> usize;
     fn create_volume(&mut self) -> Box<dyn FileVol>;
 }
 
@@ -134,7 +134,7 @@ impl FileSysWrapper {
     // Get system id
     #[inline]
     pub fn get_system_id(&self) -> usize {
-        self.inner.get_system_id()
+        self.inner.file_system_id()
     }
 
     // Create volume

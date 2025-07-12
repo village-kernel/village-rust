@@ -5,6 +5,8 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use super::vk_fat_diskio::DiskIndex;
+use super::vk_fat_entry::{FatEntryAttr, FatEntryNSFlag};
+use super::vk_fat_entry::{FatEntry, FatLongEntry, FatShortEntry};
 use crate::traits::vk_filesys::{FileAttr, FileType};
 use alloc::boxed::Box;
 use alloc::string::String;
@@ -12,285 +14,9 @@ use alloc::vec;
 use alloc::vec::Vec;
 
 // Const members
-const DIR_ENTRY_SIZE: u8 = 32;
 const LONG_NAME_SIZE: u8 = 13;
 const DIR_SEQ_FLAG: u8 = 0x40;
 const DIR_FREE_FLAG: u8 = 0xe5;
-const DIR_VALID_FLAG: u8 = 0x0;
-
-// Flag EntryAttr
-pub struct EntryAttr;
-
-// Impl EntryAttr
-impl EntryAttr {
-    pub const FILE: u8 = 0x00;
-    pub const READ_ONLY: u8 = 0x01;
-    pub const HIDDEN: u8 = 0x02;
-    pub const SYSTEM: u8 = 0x04;
-    pub const VOLUME_ID: u8 = 0x08;
-    pub const DIRECTORY: u8 = 0x10;
-    pub const ARCHIVE: u8 = 0x20;
-    pub const LONG_NAME: u8 = 0x0f;
-    pub const LONG_NAME_MASK: u8 = 0x3f;
-}
-
-// Flag NS
-pub struct NSFlag;
-
-// Impl NSFlag
-impl NSFlag {
-    pub const NOE: u8 = 0x00;
-    pub const LOSS: u8 = 0x01; /* Out of 8.3 format */
-    pub const LFN: u8 = 0x02; /* Force to create LFN entry */
-    pub const LAST: u8 = 0x04; /* Last segment */
-    pub const BODY: u8 = 0x08; /* Lower case flag (body) */
-    pub const EXT: u8 = 0x10; /* Lower case flag (ext) */
-    pub const DOT: u8 = 0x20; /* Dot entry */
-    pub const NOLFN: u8 = 0x40; /* Do not find LFN */
-    pub const NONAME: u8 = 0x80; /* Not followed */
-}
-
-// Struct FatShortEntry
-#[derive(Debug, Clone, Copy)]
-pub struct FatShortEntry {
-    name: [u8; 11],
-    attr: u8,
-    nt_res: u8,
-    crt_time_tenth: u8,
-    crt_time: u16,
-    crt_date: u16,
-    lst_acc_date: u16,
-    fst_clust_hi: u16,
-    wrt_time: u16,
-    wrt_date: u16,
-    fst_clust_lo: u16,
-    file_size: u32,
-}
-
-// Impl FatShortEntry
-impl FatShortEntry {
-    // New
-    pub const fn new() -> Self {
-        Self {
-            name: [0x20u8; 11],
-            attr: 0,
-            nt_res: 0,
-            crt_time_tenth: 0,
-            crt_time: 0,
-            crt_date: 0,
-            lst_acc_date: 0,
-            fst_clust_hi: 0,
-            wrt_time: 0,
-            wrt_date: 0,
-            fst_clust_lo: 0,
-            file_size: 0,
-        }
-    }
-
-    // From bytes
-    pub fn from_bytes(data: &[u8]) -> Self {
-        let mut entry = Self::new();
-
-        entry.name.copy_from_slice(&data[0..11]);
-        entry.attr = data[11];
-        entry.nt_res = data[12];
-        entry.crt_time_tenth = data[13];
-        entry.crt_time = u16::from_le_bytes([data[14], data[15]]);
-        entry.crt_date = u16::from_le_bytes([data[16], data[17]]);
-        entry.lst_acc_date = u16::from_le_bytes([data[18], data[19]]);
-        entry.fst_clust_hi = u16::from_le_bytes([data[20], data[21]]);
-        entry.wrt_time = u16::from_le_bytes([data[22], data[23]]);
-        entry.wrt_date = u16::from_le_bytes([data[24], data[25]]);
-        entry.fst_clust_lo = u16::from_le_bytes([data[26], data[27]]);
-        entry.file_size = u32::from_le_bytes([data[28], data[29], data[30], data[31]]);
-
-        entry
-    }
-
-    // As bytes
-    pub fn as_bytes(&self) -> [u8; 32] {
-        let mut bytes = [0u8; 32];
-
-        bytes[0..11].copy_from_slice(&self.name);
-        bytes[11] = self.attr;
-        bytes[12] = self.nt_res;
-        bytes[13] = self.crt_time_tenth;
-        bytes[14..16].copy_from_slice(&self.crt_time.to_le_bytes());
-        bytes[16..18].copy_from_slice(&self.crt_date.to_le_bytes());
-        bytes[18..20].copy_from_slice(&self.lst_acc_date.to_le_bytes());
-        bytes[20..22].copy_from_slice(&self.fst_clust_hi.to_le_bytes());
-        bytes[22..24].copy_from_slice(&self.wrt_time.to_le_bytes());
-        bytes[24..26].copy_from_slice(&self.wrt_date.to_le_bytes());
-        bytes[26..28].copy_from_slice(&self.fst_clust_lo.to_le_bytes());
-        bytes[28..32].copy_from_slice(&self.file_size.to_le_bytes());
-
-        bytes
-    }
-}
-
-// Struct FatLongEntry
-#[derive(Debug, Clone, Copy)]
-pub struct FatLongEntry {
-    ord: u8,
-    name1: [u16; 5],
-    attr: u8,
-    typ: u8,
-    chksum: u8,
-    name2: [u16; 6],
-    fst_clust_lo: u16,
-    name3: [u16; 2],
-}
-
-// Impl FatLongEntry
-impl FatLongEntry {
-    // New
-    pub const fn new() -> Self {
-        Self {
-            ord: 0,
-            name1: [0xffffu16; 5],
-            attr: 0,
-            typ: 0,
-            chksum: 0,
-            name2: [0xffffu16; 6],
-            fst_clust_lo: 0,
-            name3: [0xffffu16; 2],
-        }
-    }
-
-    // From bytes
-    pub fn from_bytes(data: &[u8]) -> Self {
-        let mut entry = Self::new();
-
-        entry.ord = data[0];
-
-        // Copy name1
-        for i in 0..5 {
-            entry.name1[i] = u16::from_le_bytes([data[1 + i * 2], data[1 + i * 2 + 1]]);
-        }
-
-        entry.attr = data[11];
-        entry.typ = data[12];
-        entry.chksum = data[13];
-
-        // Copy name2
-        for i in 0..6 {
-            entry.name2[i] = u16::from_le_bytes([data[14 + i * 2], data[14 + i * 2 + 1]]);
-        }
-
-        entry.fst_clust_lo = u16::from_le_bytes([data[26], data[27]]);
-
-        // Copy name3
-        for i in 0..2 {
-            entry.name3[i] = u16::from_le_bytes([data[28 + i * 2], data[28 + i * 2 + 1]]);
-        }
-
-        entry
-    }
-
-    // As bytes
-    pub fn as_bytes(&self) -> [u8; 32] {
-        let mut bytes = [0u8; 32];
-
-        bytes[0] = self.ord;
-
-        // Copy name1
-        for i in 0..5 {
-            let bytes_le = self.name1[i].to_le_bytes();
-            bytes[1 + i * 2] = bytes_le[0];
-            bytes[1 + i * 2 + 1] = bytes_le[1];
-        }
-
-        bytes[11] = self.attr;
-        bytes[12] = self.typ;
-        bytes[13] = self.chksum;
-
-        // Copy name2
-        for i in 0..6 {
-            let bytes_le = self.name2[i].to_le_bytes();
-            bytes[14 + i * 2] = bytes_le[0];
-            bytes[14 + i * 2 + 1] = bytes_le[1];
-        }
-
-        // Copy fst_clust_lo
-        let fst_clust_bytes = self.fst_clust_lo.to_le_bytes();
-        bytes[26] = fst_clust_bytes[0];
-        bytes[27] = fst_clust_bytes[1];
-
-        // Copy name3
-        for i in 0..2 {
-            let bytes_le = self.name3[i].to_le_bytes();
-            bytes[28 + i * 2] = bytes_le[0];
-            bytes[28 + i * 2 + 1] = bytes_le[1];
-        }
-
-        bytes
-    }
-}
-
-// Enum FatEntry
-#[derive(Debug, Clone, Copy)]
-pub enum FatEntry {
-    Long(FatLongEntry),
-    Short(FatShortEntry),
-}
-
-// Impl FatEntry
-impl FatEntry {
-    // Is Valid
-    fn is_valid(bytes: &[u8]) -> bool {
-        if bytes.len() >= DIR_ENTRY_SIZE as usize
-            && bytes[0] != DIR_FREE_FLAG
-            && bytes[0] > DIR_VALID_FLAG
-        {
-            let attr = bytes[11] & (EntryAttr::DIRECTORY | EntryAttr::VOLUME_ID);
-            if attr == EntryAttr::FILE
-                || attr == EntryAttr::DIRECTORY
-                || attr == EntryAttr::VOLUME_ID
-                || Self::is_long_entry(bytes)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Is long name entry
-    fn is_long_entry(bytes: &[u8]) -> bool {
-        (bytes[11] & EntryAttr::LONG_NAME_MASK) == EntryAttr::LONG_NAME
-    }
-
-    // From bytes
-    pub fn from_bytes(bytes: &[u8]) -> Option<Self> {
-        // Check is valid
-        if !Self::is_valid(bytes) {
-            return None;
-        }
-
-        // Long Entry
-        if Self::is_long_entry(bytes) {
-            return Some(FatEntry::Long(FatLongEntry::from_bytes(bytes)));
-        }
-
-        // Short Entry
-        Some(FatEntry::Short(FatShortEntry::from_bytes(bytes)))
-    }
-
-    // As bytes
-    pub fn as_bytes(&self) -> [u8; 32] {
-        match self {
-            FatEntry::Long(entry) => entry.as_bytes(),
-            FatEntry::Short(entry) => entry.as_bytes(),
-        }
-    }
-
-    // Store Size
-    pub fn get_store_size(&self) -> usize {
-        match self {
-            FatEntry::Long(entry) => (entry.ord - DIR_SEQ_FLAG + 1) as usize,
-            FatEntry::Short(_) => 1,
-        }
-    }
-}
 
 // Struct FatObject
 #[derive(Clone)]
@@ -315,7 +41,7 @@ impl FatObject {
     pub fn new_dir(name: &str) -> Self {
         let mut obj = Self::new();
         obj.set_name(name);
-        obj.set_attribute(EntryAttr::DIRECTORY);
+        obj.set_attribute(FatEntryAttr::DIRECTORY);
         obj
     }
 
@@ -323,7 +49,7 @@ impl FatObject {
     pub fn new_file(name: &str) -> Self {
         let mut obj = Self::new();
         obj.set_name(name);
-        obj.set_attribute(EntryAttr::FILE);
+        obj.set_attribute(FatEntryAttr::FILE);
         obj
     }
 
@@ -331,7 +57,7 @@ impl FatObject {
     pub fn root() -> Self {
         let mut obj = Self::new();
         obj.set_name("/");
-        obj.set_attribute(EntryAttr::DIRECTORY);
+        obj.set_attribute(FatEntryAttr::DIRECTORY);
         obj
     }
 
@@ -339,8 +65,8 @@ impl FatObject {
     pub fn new_dot_dir(fst_clust: u32) -> Self {
         let mut obj = Self::new();
         obj.set_name(".");
-        obj.set_first_cluster(fst_clust);
-        obj.set_attribute(EntryAttr::DIRECTORY | EntryAttr::HIDDEN);
+        obj.set_fst_clust(fst_clust);
+        obj.set_attribute(FatEntryAttr::DIRECTORY | FatEntryAttr::HIDDEN);
         obj
     }
 
@@ -348,13 +74,13 @@ impl FatObject {
     pub fn new_dot_dot_dir(fst_clust: u32) -> Self {
         let mut obj = Self::new();
         obj.set_name("..");
-        obj.set_first_cluster(fst_clust);
-        obj.set_attribute(EntryAttr::DIRECTORY | EntryAttr::HIDDEN);
+        obj.set_fst_clust(fst_clust);
+        obj.set_attribute(FatEntryAttr::DIRECTORY | FatEntryAttr::HIDDEN);
         obj
     }
 
     // from entries
-    pub fn from_entries(entries: &mut [FatEntry]) -> Self {
+    pub fn from(entries: &mut [FatEntry]) -> Self {
         let mut obj = Self::new();
 
         let mut long_entries = Vec::new();
@@ -398,17 +124,17 @@ impl FatObject {
 
     // Get object type
     pub fn get_object_type(&mut self) -> FileType {
-        match self.short_entry.attr & (EntryAttr::DIRECTORY | EntryAttr::VOLUME_ID) {
-            x if x == EntryAttr::FILE => FileType::File,
-            x if x == EntryAttr::DIRECTORY => FileType::Directory,
-            x if x == EntryAttr::VOLUME_ID => FileType::Volume,
+        match self.short_entry.attr & (FatEntryAttr::DIRECTORY | FatEntryAttr::VOLUME_ID) {
+            x if x == FatEntryAttr::FILE => FileType::File,
+            x if x == FatEntryAttr::DIRECTORY => FileType::Directory,
+            x if x == FatEntryAttr::VOLUME_ID => FileType::Volume,
             _ => FileType::Unknown,
         }
     }
 
     // Get object attr
     pub fn get_object_attr(&mut self) -> FileAttr {
-        if (self.short_entry.attr & EntryAttr::HIDDEN) != 0 {
+        if (self.short_entry.attr & FatEntryAttr::HIDDEN) != 0 {
             FileAttr::Hidden
         } else {
             FileAttr::Visible
@@ -431,6 +157,7 @@ impl FatObject {
     }
 }
 
+// Impl FatObject
 impl FatObject {
     // Set name
     pub fn set_name(&mut self, name: &str) {
@@ -494,19 +221,19 @@ impl FatObject {
 
         // Set nt res
         if is_body_lowed_case {
-            self.short_entry.nt_res |= NSFlag::BODY;
+            self.short_entry.nt_res |= FatEntryNSFlag::BODY;
         }
 
         if is_ext_lowed_caset {
-            self.short_entry.nt_res |= NSFlag::EXT;
+            self.short_entry.nt_res |= FatEntryNSFlag::EXT;
         }
     }
 
     // Get short name
     fn get_short_name(&mut self) -> String {
         let mut name = String::new();
-        let is_body_lowed_case = (self.short_entry.nt_res & NSFlag::BODY) != 0;
-        let is_ext_lowed_case = (self.short_entry.nt_res & NSFlag::EXT) != 0;
+        let is_body_lowed_case = (self.short_entry.nt_res & FatEntryNSFlag::BODY) != 0;
+        let is_ext_lowed_case = (self.short_entry.nt_res & FatEntryNSFlag::EXT) != 0;
 
         // 8.3 name body
         for &c in &self.short_entry.name[..8] {
@@ -547,7 +274,7 @@ impl FatObject {
     // Set long name
     fn set_long_name(&mut self, name: &str) {
         let checksum = Self::calculate_checksum(&self.short_entry.name);
-        let entries_needed = Self::calculate_lfn_entries_needed(name);
+        let entries_needed = Self::calc_lfe_needed(name);
 
         let mut entries = vec![FatLongEntry::new(); entries_needed].into_boxed_slice();
 
@@ -658,7 +385,7 @@ impl FatObject {
     }
 
     // Calculate lfn entries needed
-    fn calculate_lfn_entries_needed(name: &str) -> usize {
+    fn calc_lfe_needed(name: &str) -> usize {
         let char_count = name.chars().count();
         let long_name_size = LONG_NAME_SIZE as usize;
         (char_count + long_name_size - 2) / (long_name_size - 1)
@@ -748,13 +475,13 @@ impl FatObject {
     }
 
     // Set first cluster
-    pub fn set_first_cluster(&mut self, clust: u32) {
+    pub fn set_fst_clust(&mut self, clust: u32) {
         self.short_entry.fst_clust_hi = (clust >> 16) as u16;
         self.short_entry.fst_clust_lo = clust as u16;
     }
 
     // Get first cluster
-    pub fn get_first_cluster(&mut self) -> u32 {
+    pub fn get_fst_clust(&mut self) -> u32 {
         ((self.short_entry.fst_clust_hi as u32) << 16) | (self.short_entry.fst_clust_lo as u32)
     }
 

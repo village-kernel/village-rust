@@ -740,7 +740,7 @@ impl FatDiskio {
     }
 
     // Get next index
-    pub fn get_next_index(&mut self, mut index: DiskIndex) -> DiskIndex {
+    pub fn get_next_index(&mut self, index: &mut DiskIndex) {
         // FAT16 root dir
         if index.clust < 2 {
             let dir_ended_sec = self.info.root_start_sector + self.info.root_sector_count;
@@ -763,8 +763,6 @@ impl FatDiskio {
                 }
             }
         }
-
-        index
     }
 }
 

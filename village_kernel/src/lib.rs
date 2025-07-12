@@ -71,6 +71,7 @@ pub mod filesys {
     pub mod fs {
         pub mod fat {
             pub mod vk_fat_diskio;
+            pub mod vk_fat_entry;
             pub mod vk_fat_filedir;
             pub mod vk_fat_folder;
             pub mod vk_fat_object;

@@ -28,9 +28,9 @@ impl FileFopt {
 // Impl FileFopt
 impl FileFopt {
     // Is exist
-    pub fn is_exist(&mut self, path: &str) -> bool {
+    pub fn exist(&mut self, path: &str) -> bool {
         if let Some(volume) = kernel().filesys().get_volume(path) {
-            return volume.is_exist(path, FileType::File);
+            return volume.exist(path, FileType::File);
         }
         false
     }
