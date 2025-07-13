@@ -99,6 +99,17 @@ impl VillageConsole {
         self.show_user_and_path();
     }
 
+    // Get dirname
+    fn dirname(path: &str) -> String {
+        if path.len() <= 1 {
+            return path.to_string()
+        }
+        match path.rfind('/') {
+            Some(pos) => path[pos + 1..].to_string(),
+            None => path.to_string(),
+        }
+    }
+
     // Show welcome msg
     fn show_welcome_msg(&mut self) {
         for line in VK_WELCOME.iter() {
@@ -109,7 +120,7 @@ impl VillageConsole {
     // Show user and path
     fn show_user_and_path(&mut self) {
         self.msg_mgr
-            .write(&format!("{}@{} {} # ", self.user, self.mach, self.path));
+            .write(&format!("{}@{} {} # ", self.user, self.mach, Self::dirname(&self.path)));
     }
 }
 
