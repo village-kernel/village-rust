@@ -12,7 +12,6 @@ use super::vk_fat_entry::FatEntryIterator;
 use super::vk_fat_object::FatObject;
 use crate::traits::vk_filesys::FileType;
 use crate::traits::vk_linkedlist::LinkedList;
-use alloc::boxed::Box;
 use alloc::string::{String, ToString};
 use alloc::vec;
 use alloc::vec::Vec;
@@ -20,7 +19,7 @@ use alloc::vec::Vec;
 // Struct FatFolder
 pub struct FatFolder {
     myself: FatObject,
-    fatobjs: LinkedList<Box<FatObject>>,
+    fatobjs: LinkedList<FatObject>,
 }
 
 // Impl FatFolder
@@ -41,7 +40,7 @@ impl FatFolder {
     }
 
     // Create fatobj
-    pub fn create_obj(diskio: &mut FatDiskio, mut selfobj: FatObject, name: &str, attr: u8) -> Option<FatObject> {
+    pub fn create(diskio: &mut FatDiskio, mut selfobj: FatObject, name: &str, attr: u8) -> Option<FatObject> {
         let myself_clust = selfobj.get_fst_clust();
         let newobj_clust = diskio.alloc_cluster(1);
 
@@ -64,12 +63,12 @@ impl FatFolder {
     }
 
     // Search fatobj
-    pub fn search_obj(diskio: &mut FatDiskio, selfobj: FatObject, name: &str) -> Option<FatObject> {
+    pub fn search(diskio: &mut FatDiskio, selfobj: FatObject, name: &str) -> Option<FatObject> {
         let mut folder = Self::init(diskio, selfobj);
 
         for fatobj in folder.fatobjs.iter_mut() {
             if fatobj.get_name() == name {
-                return Some(*fatobj.clone());
+                return Some(fatobj.clone());
             }
         }
 
@@ -77,25 +76,25 @@ impl FatFolder {
     }
 
     // Update fatobj
-    pub fn update_obj(diskio: &mut FatDiskio, mut fatobj: FatObject) {
+    pub fn update(diskio: &mut FatDiskio, mut fatobj: FatObject) {
         let mut folder = Self::new();
         folder.write_obj(diskio, &mut fatobj);
     }
 
     // Remove fatobj
-    pub fn remove_obj(diskio: &mut FatDiskio, mut fatobj: FatObject) {
+    pub fn remove(diskio: &mut FatDiskio, mut fatobj: FatObject) {
         fatobj.set_object_free();
         let mut folder = Self::new();
         folder.write_obj(diskio, &mut fatobj);
     }
 
     // Set volume label
-    pub fn set_vol_lab(diskio: &mut FatDiskio, label: &str) {
+    pub fn set_vol_lab(diskio: &mut FatDiskio, name: &str) {
         let mut folder = Self::init(diskio, FatObject::root());
         for fatobj in folder.fatobjs.iter_mut() {
             if fatobj.get_object_type() == FileType::Volume {
-                fatobj.set_name(label);
-                Self::update_obj(diskio, *fatobj.clone());
+                fatobj.set_name(name);
+                Self::update(diskio, fatobj.clone());
                 break;
             }
         }
@@ -189,7 +188,7 @@ impl FatFolder {
                     if let FatEntry::Short(_) = entry {
                         let mut fatobj = FatObject::from(&mut entries);
                         fatobj.set_index(start_index.clone());
-                        self.fatobjs.push(Box::new(fatobj));
+                        self.fatobjs.push(fatobj);
                         entries.clear();
                     }
                 }
@@ -210,7 +209,7 @@ impl FatFolder {
                 if self.write_obj(diskio, obj) != size {
                     return false;
                 }
-                self.fatobjs.push(Box::new(obj.clone()));
+                self.fatobjs.push(obj.clone());
             }
         }
         true
@@ -220,7 +219,9 @@ impl FatFolder {
     pub fn read(&mut self, subobjs: &mut [FatObject]) -> usize {
         let size = self.fatobjs.len().min(subobjs.len());
 
-        for (target, source) in subobjs.iter_mut().zip(self.fatobjs.iter_mut().take(size)) {
+        let zip = subobjs.iter_mut().zip(self.fatobjs.iter_mut().take(size));
+
+        for (target, source) in zip {
             target.clone_from(source);
         }
 

@@ -74,7 +74,7 @@ impl FatVolume {
 
         for i in 0..deep {
             if let Some(fatobj) = someobj {
-                someobj = FatFolder::search_obj(&mut self.diskio, fatobj, names[i]);
+                someobj = FatFolder::search(&mut self.diskio, fatobj, names[i]);
             }
 
             if someobj.is_none() {
@@ -90,7 +90,7 @@ impl FatVolume {
         if let Some(mut parent) = self.search_path(path, 1) {
             if parent.get_object_type() == FileType::Directory {
                 let name = self.base_name(path);
-                return FatFolder::create_obj(&mut self.diskio, parent, &name, attr);
+                return FatFolder::create(&mut self.diskio, parent, &name, attr);
             }
         }
         None
@@ -102,7 +102,7 @@ impl FatVolume {
             if fatobj.get_object_type() == FileType::File ||
                fatobj.get_object_type() == FileType::Directory
             {
-                FatFolder::remove_obj(&mut self.diskio, fatobj);
+                FatFolder::remove(&mut self.diskio, fatobj);
                 return true;
             }
         }
@@ -155,9 +155,8 @@ impl FileVol for FatVolume {
         // Open file
         if let Some(fatobj) = someobj {
             let fd = self.assign_file_id();
-            let mut file = FatFile::new();
+            let mut file = FatFile::new(fd);
 
-            file.set_id(fd);
             file.open(&mut self.diskio, fatobj, mode);
 
             self.files.push(file);
@@ -169,7 +168,7 @@ impl FileVol for FatVolume {
 
     // Write
     fn write(&mut self, fd: usize, data: &[u8], size: usize, offset: usize) -> usize {
-        if let Some(file) = self.files.iter_mut().find(|f| f.get_id() == fd) {
+        if let Some(file) = self.files.iter_mut().find(|f| f.id() == fd) {
             return file.write(data, size, offset);
         }
         0
@@ -177,7 +176,7 @@ impl FileVol for FatVolume {
 
     // Read
     fn read(&mut self, fd: usize, data: &mut [u8], size: usize, offset: usize) -> usize {
-        if let Some(file) = self.files.iter_mut().find(|f| f.get_id() == fd) {
+        if let Some(file) = self.files.iter_mut().find(|f| f.id() == fd) {
             return file.read(data, size, offset);
         }
         0
@@ -185,7 +184,7 @@ impl FileVol for FatVolume {
 
     // Size
     fn size(&mut self, fd: usize) -> usize {
-        if let Some(file) = self.files.iter_mut().find(|f| f.get_id() == fd) {
+        if let Some(file) = self.files.iter_mut().find(|f| f.id() == fd) {
             return file.size();
         }
         0
@@ -193,7 +192,7 @@ impl FileVol for FatVolume {
 
     // Flush
     fn flush(&mut self, fd: usize) {
-        if let Some(file) = self.files.iter_mut().find(|f| f.get_id() == fd) {
+        if let Some(file) = self.files.iter_mut().find(|f| f.id() == fd) {
             file.flush(&mut self.diskio);
         }
     }
@@ -201,7 +200,7 @@ impl FileVol for FatVolume {
     // Close
     fn close(&mut self, fd: usize) {
         self.files.retain_mut(|file| {
-            if file.get_id() == fd {
+            if file.id() == fd {
                 file.close();
                 false
             } else {
@@ -225,8 +224,7 @@ impl FileVol for FatVolume {
         if let Some(fatobj) = someobj {
             let fd = self.assign_dir_id();
 
-            let mut dir = FatDir::new();
-            dir.set_id(fd);
+            let mut dir = FatDir::new(fd);
             dir.open(&mut self.diskio, fatobj, mode);
 
             self.dirs.push(dir);
@@ -238,7 +236,7 @@ impl FileVol for FatVolume {
 
     // Read dir
     fn readdir(&mut self, fd: usize, dirs: &mut [FileDir], size: usize, offset: usize) -> usize {
-        if let Some(dir) = self.dirs.iter_mut().find(|d| d.get_id() == fd) {
+        if let Some(dir) = self.dirs.iter_mut().find(|d| d.id() == fd) {
             return dir.read(dirs, size, offset);
         }
         0
@@ -246,7 +244,7 @@ impl FileVol for FatVolume {
 
     // Size dir
     fn sizedir(&mut self, fd: usize) -> usize {
-        if let Some(dir) = self.dirs.iter_mut().find(|d| d.get_id() == fd) {
+        if let Some(dir) = self.dirs.iter_mut().find(|d| d.id() == fd) {
             return dir.size();
         }
         0
@@ -255,7 +253,7 @@ impl FileVol for FatVolume {
     // Close dir
     fn closedir(&mut self, fd: usize) {
         self.dirs.retain_mut(|dir| {
-            if dir.get_id() == fd {
+            if dir.id() == fd {
                 dir.close();
                 false
             } else {

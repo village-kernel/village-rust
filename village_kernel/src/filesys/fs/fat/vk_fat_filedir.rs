@@ -25,10 +25,10 @@ pub struct FatFile {
 // Impl FatFile
 impl FatFile {
     // New
-    pub fn new() -> Self {
+    pub fn new(fd: usize) -> Self {
         Self {
             myself: FatObject::new(),
-            file_id: 0,
+            file_id: fd,
             file_mode: FileMode::OPEN_EXISTING,
             file_size: 0,
             fst_clust: 0,
@@ -38,13 +38,8 @@ impl FatFile {
         }
     }
 
-    // Set id
-    pub fn set_id(&mut self, id: usize) {
-        self.file_id = id;
-    }
-
     // Get id
-    pub fn get_id(&self) -> usize {
+    pub fn id(&self) -> usize {
         self.file_id
     }
 }
@@ -122,7 +117,7 @@ impl FatFile {
     pub fn flush(&mut self, diskio: &mut FatDiskio) {
         if self.clust_size == diskio.write_cluster(&self.buffer, self.fst_clust, self.clust_size) {
             self.myself.set_file_size(self.file_size);
-            FatFolder::update_obj(diskio, self.myself.clone());
+            FatFolder::update(diskio, self.myself.clone());
         }
     }
 
@@ -144,23 +139,18 @@ pub struct FatDir {
 // Impl FatDir
 impl FatDir {
     // New
-    pub const fn new() -> Self {
+    pub const fn new(fd: usize) -> Self {
         Self {
             myself: FatObject::new(),
-            dir_id: 0,
+            dir_id: fd,
             dir_mode: FileMode::OPEN_EXISTING,
             sub_size: 0,
             sub_objs: Vec::new(),
         }
     }
 
-    // Set id
-    pub fn set_id(&mut self, id: usize) {
-        self.dir_id = id;
-    }
-
     // Get id
-    pub fn get_id(&self) -> usize {
+    pub fn id(&self) -> usize {
         self.dir_id
     }
 }
