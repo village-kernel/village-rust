@@ -84,16 +84,16 @@ macro_rules! register_module {
     ($mod:expr, $id:expr, $name:ident) => {
         paste::paste! {
             #[used]
-            #[link_section = ".init_array"]
+            #[unsafe(link_section = ".init_array")]
             static [<INIT_ $name:upper>]: fn() = [<$name _init>];
 
             #[used]
-            #[link_section = ".fini_array"]
+            #[unsafe(link_section = ".fini_array")]
             static [<EXIT_ $name:upper>]: fn() = [<$name _exit>];
 
             fn [<$name _init>]() {
-                let module = crate::traits::vk_module::ModuleWrapper::with_id_name(
-                    Box::new($mod), $id, stringify!($name)
+                let module = crate::traits::vk_module::ModuleWrapper::new(
+                    alloc::boxed::Box::new($mod), $id, stringify!($name)
                 );
                 crate::village::kernel().feature().register_module(module);
             }
