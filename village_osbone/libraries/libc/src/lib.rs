@@ -9,3 +9,17 @@
 
 // Import string
 pub mod string;
+
+// Import PanicInfo
+use core::panic::PanicInfo;
+
+// abort
+unsafe extern "C" {
+    unsafe fn abort() -> !;
+}
+
+// Panic
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    unsafe { abort() }
+}

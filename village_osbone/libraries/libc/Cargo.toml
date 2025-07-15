@@ -7,5 +7,6 @@ edition = "2024"
 name = "c"
 test = false
 bench = false
+crate-type = ["dylib"]
 
 [dependencies]
