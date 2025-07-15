@@ -9,8 +9,7 @@ use alloc::vec::Vec;
 
 // BaseLoader
 pub trait BaseLoader {
-    fn load(&mut self, filename: &str) -> bool;
-    fn exec(&mut self, argv: Vec<&str>) -> bool;
+    fn init(&mut self, filename: &str, data: &mut Vec<u8>) -> bool;
     fn exit(&mut self) -> bool;
 }
 

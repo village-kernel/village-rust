@@ -4,11 +4,9 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::binutils::decoder::vk_prog_decode::ProgDecoder;
 use crate::misc::fopts::vk_file_fopt::FileFopt;
 use crate::traits::vk_executor::BaseLoader;
 use crate::traits::vk_filesys::FileMode;
-use crate::traits::vk_kernel::DebugLevel;
 use crate::village::kernel;
 use alloc::format;
 use alloc::string::{String, ToString};
@@ -18,7 +16,6 @@ use alloc::vec::Vec;
 // Struct BinLoader
 pub struct BinLoader {
     filename: String,
-    program: ProgDecoder,
 }
 
 // Impl BinLoader
@@ -27,21 +24,19 @@ impl BinLoader {
     pub const fn new() -> Self {
         Self {
             filename: String::new(),
-            program: ProgDecoder::new(),
         }
     }
 
     // Load bin
-    fn load_bin(&mut self) -> bool {
+    fn load_bin(&mut self, data: &mut Vec<u8>) -> bool {
         let mut file = FileFopt::new();
-        let mut data = Vec::new();
         let mut result = false;
 
         // Read bin file
         if file.open(&self.filename, FileMode::READ) {
             let size = file.size();
-            data = vec![0u8; size];
-            result = file.read(&mut data, size, 0) == size;
+            *data = vec![0u8; size];
+            result = file.read(data, size, 0) == size;
             file.close();
         }
 
@@ -53,57 +48,27 @@ impl BinLoader {
             return false;
         }
 
-        // Init program
-        if !self.program.init(data) {
-            kernel()
-                .debug()
-                .error(&format!("{} load failed!", self.filename));
-            return false;
-        }
-
         true
     }
 }
 
 // Impl ProgLoader for BinLoader
 impl BaseLoader for BinLoader {
-    // Load
-    fn load(&mut self, filename: &str) -> bool {
+    // Init
+    fn init(&mut self, filename: &str, data: &mut Vec<u8>) -> bool {
         // Save filename in local
         self.filename = filename.to_string();
 
         // Load and mapping
-        if !self.load_bin() {
+        if !self.load_bin(data) {
             return false;
         }
 
-        // Output debug info
-        kernel().debug().output(
-            DebugLevel::Lv2,
-            &format!("{} load at 0x{:08x}", self.filename, self.program.base()),
-        );
         true
-    }
-
-    // Execute
-    fn exec(&mut self, argv: Vec<&str>) -> bool {
-        let result = self.program.execute(argv);
-
-        if result {
-            kernel()
-                .debug()
-                .output(DebugLevel::Lv2, &format!("{} exit", self.filename));
-        } else {
-            kernel()
-                .debug()
-                .error(&format!("{} execute failed!", self.filename));
-        }
-
-        result
     }
 
     // Exit
     fn exit(&mut self) -> bool {
-        self.program.exit()
+        true
     }
 }

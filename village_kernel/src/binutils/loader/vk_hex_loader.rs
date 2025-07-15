@@ -4,11 +4,9 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::binutils::decoder::vk_prog_decode::ProgDecoder;
 use crate::misc::fopts::vk_file_fopt::FileFopt;
 use crate::traits::vk_executor::BaseLoader;
 use crate::traits::vk_filesys::FileMode;
-use crate::traits::vk_kernel::DebugLevel;
 use crate::village::kernel;
 use alloc::format;
 use alloc::string::{String, ToString};
@@ -109,7 +107,6 @@ impl<'a> Record<'a> {
 pub struct HexLoader {
     text: String,
     filename: String,
-    program: ProgDecoder,
 }
 
 // Impl HexLoader
@@ -119,7 +116,6 @@ impl HexLoader {
         Self {
             text: String::new(),
             filename: String::new(),
-            program: ProgDecoder::new(),
         }
     }
 
@@ -148,7 +144,7 @@ impl HexLoader {
     }
 
     // load_program
-    fn load_program(&mut self) -> bool {
+    fn load_program(&mut self, data: &mut Vec<u8>) -> bool {
         // Records
         let mut records: Vec<Record> = Vec::new();
 
@@ -205,7 +201,7 @@ impl HexLoader {
 
         // Allocate the memory space required by the program
         let start_addr = records[0].addr as usize;
-        let mut data = vec![0u8; data_size - start_addr];
+        *data = vec![0u8; data_size - start_addr];
 
         // Load program data
         for record in records.iter_mut() {
@@ -221,22 +217,14 @@ impl HexLoader {
             }
         }
 
-        // Init program
-        if !self.program.init(data) {
-            kernel()
-                .debug()
-                .error(&format!("{} program load failed", self.filename));
-            return false;
-        }
-
         true
     }
 }
 
 // Imol ProgLoader for HexLoader
 impl BaseLoader for HexLoader {
-    // Load
-    fn load(&mut self, filename: &str) -> bool {
+    // Init
+    fn init(&mut self, filename: &str, data: &mut Vec<u8>) -> bool {
         //Save filename in local
         self.filename = filename.to_string();
 
@@ -244,37 +232,16 @@ impl BaseLoader for HexLoader {
         if !self.load_hex() {
             return false;
         }
-        if !self.load_program() {
+        if !self.load_program(data) {
             return false;
         }
 
-        // Output debug info
-        kernel().debug().output(
-            DebugLevel::Lv2,
-            &format!("{} load at 0x{:08x}", self.filename, self.program.base()),
-        );
         true
-    }
-
-    // Execute
-    fn exec(&mut self, argv: Vec<&str>) -> bool {
-        let result = self.program.execute(argv);
-
-        if result {
-            kernel()
-                .debug()
-                .output(DebugLevel::Lv2, &format!("{} exit", self.filename));
-        } else {
-            kernel()
-                .debug()
-                .error(&format!("{} execute failed!", self.filename));
-        }
-
-        result
     }
 
     // Exit
     fn exit(&mut self) -> bool {
-        self.program.exit()
+        self.text.clear();
+        true
     }
 }

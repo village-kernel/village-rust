@@ -175,7 +175,7 @@ impl ProgDecoder {
     }
 
     // Execute
-    pub fn execute(&mut self, argv: Vec<&str>) -> bool {
+    pub fn exec(&mut self, argv: Vec<&str>) -> bool {
         if self.exec != 0 {
             (Self::start_exec(self.exec))(kernel, argv.as_slice());
             return true;

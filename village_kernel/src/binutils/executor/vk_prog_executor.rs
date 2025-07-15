@@ -7,10 +7,12 @@
 use crate::binutils::loader::vk_bin_loader::BinLoader;
 use crate::binutils::loader::vk_elf_loader::ElfLoader;
 use crate::binutils::loader::vk_hex_loader::HexLoader;
+use crate::binutils::decoder::vk_prog_decode::ProgDecoder;
 use crate::traits::vk_callback::Callback;
 use crate::traits::vk_executor::{BaseLoader, BaseExecutor, Executor};
 use crate::village::kernel;
 use crate::register_executor;
+use alloc::format;
 use alloc::vec;
 use alloc::vec::Vec;
 use alloc::boxed::Box;
@@ -18,7 +20,8 @@ use alloc::string::{String, ToString};
 
 // Sturct ProgExecutor
 pub struct ProgExecutor {
-    prog: Box<dyn BaseLoader>,
+    loader: Box<dyn BaseLoader>,
+    decoder: ProgDecoder,
     path: String,
     argv: Vec<String>,
     tid: i32,
@@ -27,9 +30,10 @@ pub struct ProgExecutor {
 // Impl ProgExecutor
 impl ProgExecutor {
     // New
-    pub const fn new(prog: Box<dyn BaseLoader>) -> Self {
+    pub const fn new(loader: Box<dyn BaseLoader>) -> Self {
         Self {
-            prog,
+            loader,
+            decoder: ProgDecoder::new(),
             path: String::new(),
             argv: Vec::new(),
             tid: 0,
@@ -42,8 +46,8 @@ impl ProgExecutor {
     // Sandbox
     fn sandbox(&mut self) {
         let argv = self.argv.iter_mut().map(|s| s.as_str()).collect();
-        self.prog.exec(argv);
-        self.prog.exit();
+        self.decoder.exec(argv);
+        self.decoder.exit();
     }
 }
 
@@ -55,8 +59,18 @@ impl BaseExecutor for ProgExecutor {
         self.path = path.to_string();
         self.argv = argv.into_iter().map(|s| s.to_string()).collect();
 
-        // Load, parser and execute bin file
-        if !self.prog.load(&self.path) {
+        // New program data
+        let mut data: Vec<u8> = Vec::new();
+
+        // Load program data
+        if !self.loader.init(&self.path, &mut data) {
+            kernel().debug().error(&format!("{} program load failed", self.path));
+            return -1;
+        }
+
+        // Decoder program data
+        if !self.decoder.init(data) {
+            kernel().debug().error(&format!("{} program decode failed", self.path));
             return -1;
         }
 
@@ -78,7 +92,7 @@ impl BaseExecutor for ProgExecutor {
     // Kill
     fn kill(&mut self) {
         kernel().thread().stop_task(self.tid);
-        self.prog.exit();
+        self.decoder.exit();
     }
 }
 

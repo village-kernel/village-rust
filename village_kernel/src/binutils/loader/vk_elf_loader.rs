@@ -6,7 +6,6 @@
 //###########################################################################
 use crate::binutils::decoder::vk_elf_defines::{ELFClass, ELFVersion, ELFMachine, ELFType};
 use crate::binutils::decoder::vk_elf_defines::{ELFHeader, ProgramHeader, ProgHdrType};
-use crate::binutils::decoder::vk_prog_decode::ProgDecoder;
 use crate::misc::fopts::vk_file_fopt::FileFopt;
 use crate::traits::vk_executor::BaseLoader;
 use crate::traits::vk_filesys::FileMode;
@@ -22,7 +21,6 @@ pub struct ElfLoader {
     elf: Vec<u8>,
     hdr: ELFHeader,
     filename: String,
-    program: ProgDecoder,
 }
 
 // Impl ElfLoader
@@ -33,7 +31,6 @@ impl ElfLoader {
             elf: Vec::new(),
             hdr: ELFHeader::new(),
             filename: String::new(),
-            program: ProgDecoder::new(),
         }
     }
 
@@ -112,7 +109,7 @@ impl ElfLoader {
     }
 
     // Load parogram
-    fn load_program(&mut self) -> bool {
+    fn load_program(&mut self, data: &mut Vec<u8>) -> bool {
         // Program headers
         let mut phdrs: Vec<ProgramHeader> = Vec::new();
 
@@ -148,7 +145,7 @@ impl ElfLoader {
         }
 
         // Allocate the memory space required by the program
-        let mut data = vec![0u8; prog_size as usize];
+        *data = vec![0u8; prog_size as usize];
 
         // Load the program from the ELF file
         for phdr in phdrs.iter_mut() {
@@ -159,22 +156,14 @@ impl ElfLoader {
             }
         }
 
-        // Init program
-        if !self.program.init(data) {
-            kernel()
-                .debug()
-                .error(&format!("{} program load failed", self.filename));
-            return false;
-        }
-
         true
     }
 }
 
 // Impl ProgLoader for ELFLoader
 impl BaseLoader for ElfLoader {
-    // Load
-    fn load(&mut self, filename: &str) -> bool {
+    // Init
+    fn init(&mut self, filename: &str, data: &mut Vec<u8>) -> bool {
         // Save filename in local
         self.filename = filename.to_string();
 
@@ -185,37 +174,16 @@ impl BaseLoader for ElfLoader {
         if !self.check_elf() {
             return false;
         }
-        if !self.load_program() {
+        if !self.load_program(data) {
             return false;
         }
 
-        // Output debug info
-        kernel().debug().output(
-            DebugLevel::Lv2,
-            &format!("{} load at 0x{:08x}", self.filename, self.program.base()),
-        );
         true
     }
-
-    // Execute
-    fn exec(&mut self, argv: Vec<&str>) -> bool {
-        let result = self.program.execute(argv);
-
-        if result {
-            kernel()
-                .debug()
-                .output(DebugLevel::Lv2, &format!("{} exit", self.filename));
-        } else {
-            kernel()
-                .debug()
-                .error(&format!("{} execute failed!", self.filename));
-        }
-
-        result
-    }
-
+    
     // Exit
     fn exit(&mut self) -> bool {
-        self.program.exit()
+        self.elf.clear();
+        true
     }
 }
