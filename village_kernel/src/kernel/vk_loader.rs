@@ -138,7 +138,7 @@ impl Loader for VillageLoader {
         self.libtool
             .get_libraries()
             .iter_mut()
-            .map(|l| l.get_filename())
+            .map(|l| l.filename())
             .collect()
     }
 
@@ -147,7 +147,7 @@ impl Loader for VillageLoader {
         self.modtool
             .get_modules()
             .iter_mut()
-            .map(|m| m.get_filename())
+            .map(|m| m.filename())
             .collect()
     }
 }

@@ -1,12 +1,17 @@
 //###########################################################################
-// vk_bin_executor.rs
-// The specific implementation of functions related to bin executor
+// vk_prog_executor.rs
+// The specific implementation of functions related to prog executor
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::binutils::loader::vk_bin_loader::BinLoader;
+use crate::binutils::loader::vk_elf_loader::ElfLoader;
+use crate::binutils::loader::vk_hex_loader::HexLoader;
 use crate::traits::vk_callback::Callback;
-use crate::traits::vk_executor::{BaseLoader, BaseExecutor};
+use crate::traits::vk_executor::{BaseLoader, BaseExecutor, Executor};
 use crate::village::kernel;
+use crate::register_executor;
+use alloc::vec;
 use alloc::vec::Vec;
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
@@ -76,3 +81,68 @@ impl BaseExecutor for ProgExecutor {
         self.prog.exit();
     }
 }
+
+// Struct BinExecutor
+struct BinExecutor;
+
+// Impl executor for bin executor
+impl Executor for BinExecutor {
+    // Get suffixes
+    fn suffixes(&self) -> Vec<&str> {
+        #[cfg(not(feature = "binding_exec_bin"))]
+        return vec![".bin"];
+
+        #[cfg(feature = "binding_exec_bin")]
+        return vec![".bin", ".exec"];
+    }
+
+    // Create
+    fn create(&self) -> Box<dyn BaseExecutor> {
+        Box::new(ProgExecutor::new(Box::new(BinLoader::new())))
+    }
+}
+
+// Struct ElfExecutor
+struct ElfExecutor;
+
+// Impl executor for elf executro
+impl Executor for ElfExecutor {
+    // Get suffixes
+    fn suffixes(&self) -> Vec<&str> {
+        #[cfg(not(feature = "binding_exec_elf"))]
+        return vec![".elf"];
+
+        #[cfg(feature = "binding_exec_elf")]
+        return vec![".elf", ".exec"];
+    }
+
+    // Create
+    fn create(&self) -> Box<dyn BaseExecutor> {
+        Box::new(ProgExecutor::new(Box::new(ElfLoader::new())))
+    }
+}
+
+// Struct HexExecutor
+struct HexExecutor;
+
+// Impl executor for hex executor
+impl Executor for HexExecutor {
+    // Get suffixes
+    fn suffixes(&self) -> Vec<&str> {
+        #[cfg(not(feature = "binding_exec_hex"))]
+        return vec![".hex"];
+
+        #[cfg(feature = "binding_exec_hex")]
+        return vec![".hex", ".exec"];
+    }
+
+    // Create
+    fn create(&self) -> Box<dyn BaseExecutor> {
+        Box::new(ProgExecutor::new(Box::new(HexLoader::new())))
+    }
+}
+
+// Register executor
+register_executor!(BinExecutor, bin_executor);
+register_executor!(ElfExecutor, elf_executor);
+register_executor!(HexExecutor, hex_executor);

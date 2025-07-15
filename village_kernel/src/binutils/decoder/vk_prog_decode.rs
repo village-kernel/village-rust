@@ -15,9 +15,9 @@ type DynKernel = fn() -> &'static mut dyn Kernel;
 // Type aliases for start entry
 type StartEntry = fn(DynKernel, &[&str]);
 
-// Struct Program
-pub struct Program {
-    prog: Vec<u8>,
+// Struct ProgDecoder
+pub struct ProgDecoder {
+    data: Vec<u8>,
 
     load: u32,
     base: u32,
@@ -28,12 +28,12 @@ pub struct Program {
     entry: u32,
 }
 
-// Impl Program
-impl Program {
+// Impl ProgDecoder
+impl ProgDecoder {
     // New
     pub const fn new() -> Self {
         Self {
-            prog: Vec::new(),
+            data: Vec::new(),
 
             load: 0,
             base: 0,
@@ -51,19 +51,19 @@ impl Program {
     }
 }
 
-// Impl Program
-impl Program {
+// Impl ProgDecoder
+impl ProgDecoder {
     // decode
-    fn decode(&mut self, prog: Vec<u8>) -> bool {
-        if prog.len() < 12 {
+    fn decode(&mut self, data: Vec<u8>) -> bool {
+        if data.len() < 12 {
             return false;
         }
 
-        self.prog = prog;
-        self.load = self.prog.as_ptr() as u32;
-        self.offset = u32::from_le_bytes(self.prog[0..4].try_into().unwrap());
-        self.dynamic = u32::from_le_bytes(self.prog[4..8].try_into().unwrap());
-        self.entry = u32::from_le_bytes(self.prog[8..12].try_into().unwrap());
+        self.data = data;
+        self.load = self.data.as_ptr() as u32;
+        self.offset = u32::from_le_bytes(self.data[0..4].try_into().unwrap());
+        self.dynamic = u32::from_le_bytes(self.data[4..8].try_into().unwrap());
+        self.entry = u32::from_le_bytes(self.data[8..12].try_into().unwrap());
 
         self.base = self.load - self.offset;
         self.exec = self.base + self.entry;
@@ -78,12 +78,12 @@ impl Program {
 
         // Calc dynamic section offset in bin data
         let dynamic_start = (self.dynamic - self.offset) as usize;
-        if dynamic_start + 8 > self.prog.len() {
+        if dynamic_start + 8 > self.data.len() {
             return false;
         }
 
         // Gets dynamic bytes from bin data
-        let dynamic_bytes = &self.prog[dynamic_start..];
+        let dynamic_bytes = &self.data[dynamic_start..];
 
         // Gets the relocate section address and the relcount
         let mut i = 0;
@@ -123,22 +123,22 @@ impl Program {
         // Relocate the value of relative type
         for i in 0..relcount {
             let relocate_offset = relocate_start + (i * 8) as usize;
-            if relocate_offset + 8 > self.prog.len() {
+            if relocate_offset + 8 > self.data.len() {
                 continue;
             }
 
             let relocate_entry =
-                RelocationEntry::from(&self.prog[relocate_offset..relocate_offset + 8]);
+                RelocationEntry::from(&self.data[relocate_offset..relocate_offset + 8]);
 
             if relocate_entry.typ == RelocationCode::TYPE_RELATIVE {
                 let rel_addr_offset = (relocate_entry.offset - self.offset) as usize;
-                if rel_addr_offset + 4 > self.prog.len() {
+                if rel_addr_offset + 4 > self.data.len() {
                     continue;
                 }
 
                 // Read original relative value
                 let original_relative = u32::from_le_bytes(
-                    self.prog[rel_addr_offset..rel_addr_offset + 4]
+                    self.data[rel_addr_offset..rel_addr_offset + 4]
                         .try_into()
                         .unwrap(),
                 );
@@ -148,7 +148,7 @@ impl Program {
 
                 // Write relocated value back
                 let absolute_bytes = absolute_addr.to_le_bytes();
-                self.prog[rel_addr_offset..rel_addr_offset + 4].copy_from_slice(&absolute_bytes);
+                self.data[rel_addr_offset..rel_addr_offset + 4].copy_from_slice(&absolute_bytes);
             }
         }
 
@@ -161,10 +161,11 @@ impl Program {
     }
 }
 
-impl Program {
+// Impl ProgDecoder
+impl ProgDecoder {
     // Init
-    pub fn init(&mut self, prog: Vec<u8>) -> bool {
-        if !self.decode(prog) {
+    pub fn init(&mut self, data: Vec<u8>) -> bool {
+        if !self.decode(data) {
             return false;
         }
         if !self.relocate() {
@@ -184,8 +185,8 @@ impl Program {
 
     // Exit
     pub fn exit(&mut self) -> bool {
-        self.prog.clear();
-        self.prog.shrink_to_fit();
+        self.data.clear();
+        self.data.shrink_to_fit();
         true
     }
 }

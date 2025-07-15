@@ -46,7 +46,7 @@ impl LibLoader {
 // Impl LibLoader
 impl LibLoader {
     // Get filename
-    pub fn get_filename(&mut self) -> &str {
+    pub fn filename(&mut self) -> &str {
         &self.filename
     }
 

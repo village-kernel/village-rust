@@ -4,8 +4,9 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use super::vk_elf_defines::*;
-use super::vk_prog_decode::Program;
+use crate::binutils::decoder::vk_elf_defines::{ELFClass, ELFVersion, ELFMachine, ELFType};
+use crate::binutils::decoder::vk_elf_defines::{ELFHeader, ProgramHeader, ProgHdrType};
+use crate::binutils::decoder::vk_prog_decode::ProgDecoder;
 use crate::misc::fopts::vk_file_fopt::FileFopt;
 use crate::traits::vk_executor::BaseLoader;
 use crate::traits::vk_filesys::FileMode;
@@ -21,7 +22,7 @@ pub struct ElfLoader {
     elf: Vec<u8>,
     hdr: ELFHeader,
     filename: String,
-    program: Program,
+    program: ProgDecoder,
 }
 
 // Impl ElfLoader
@@ -32,7 +33,7 @@ impl ElfLoader {
             elf: Vec::new(),
             hdr: ELFHeader::new(),
             filename: String::new(),
-            program: Program::new(),
+            program: ProgDecoder::new(),
         }
     }
 

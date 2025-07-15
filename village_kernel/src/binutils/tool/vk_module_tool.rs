@@ -29,7 +29,7 @@ impl ModuleTool {
     pub fn install(&mut self, filename: &str) -> bool {
         // Check the module if it has been installed
         for module in self.mods.iter_mut() {
-            if module.get_filename() == filename {
+            if module.filename() == filename {
                 kernel().debug().output(
                     DebugLevel::Lv2,
                     &format!("{} module has already been installed", filename),
@@ -43,8 +43,6 @@ impl ModuleTool {
 
         // Load module
         if module.load(filename) {
-            module.fill_bss_zero();
-            module.init_array();
             self.mods.push(module);
             kernel().debug().output(
                 DebugLevel::Lv2,
@@ -65,9 +63,9 @@ impl ModuleTool {
         let mut is_unistall = false;
 
         self.mods.retain_mut(|module| {
-            if module.get_filename() == filename {
+            if module.filename() == filename {
                 is_unistall = true;
-                module.fini_array();
+                module.exit();
                 kernel().debug().output(
                     DebugLevel::Lv2,
                     &format!("{} module uninstall successful", filename),

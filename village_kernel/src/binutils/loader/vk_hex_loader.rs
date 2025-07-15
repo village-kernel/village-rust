@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use super::vk_prog_decode::Program;
+use crate::binutils::decoder::vk_prog_decode::ProgDecoder;
 use crate::misc::fopts::vk_file_fopt::FileFopt;
 use crate::traits::vk_executor::BaseLoader;
 use crate::traits::vk_filesys::FileMode;
@@ -109,7 +109,7 @@ impl<'a> Record<'a> {
 pub struct HexLoader {
     text: String,
     filename: String,
-    program: Program,
+    program: ProgDecoder,
 }
 
 // Impl HexLoader
@@ -119,7 +119,7 @@ impl HexLoader {
         Self {
             text: String::new(),
             filename: String::new(),
-            program: Program::new(),
+            program: ProgDecoder::new(),
         }
     }
 

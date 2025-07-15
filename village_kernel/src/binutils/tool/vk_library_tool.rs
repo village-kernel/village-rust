@@ -29,7 +29,7 @@ impl LibraryTool {
     pub fn install(&mut self, filename: &str) -> bool {
         // Check the library if it has been installed
         for lib in self.libs.iter_mut() {
-            if lib.get_filename() == filename {
+            if lib.filename() == filename {
                 kernel().debug().output(
                     DebugLevel::Lv2,
                     &format!("{} library has already been installed", filename),
@@ -68,7 +68,7 @@ impl LibraryTool {
         let mut is_unistall = false;
 
         self.libs.retain_mut(|lib| {
-            if lib.get_filename() == filename {
+            if lib.filename() == filename {
                 is_unistall = true;
                 lib.fini_array();
                 kernel().debug().output(

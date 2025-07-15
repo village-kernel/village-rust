@@ -26,22 +26,13 @@ impl ModLoader {
         false
     }
 
-    // Fill bss zero
-    pub fn fill_bss_zero(&mut self) {}
-
-    // Init array
-    pub fn init_array(&mut self) {}
-
-    // Fini array
-    pub fn fini_array(&mut self) {}
-
     // Exit
     pub fn exit(&mut self) -> bool {
         false
     }
 
     // Get filename
-    pub fn get_filename(&mut self) -> &str {
+    pub fn filename(&mut self) -> &str {
         &self.filename
     }
 }
