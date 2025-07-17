@@ -13,34 +13,38 @@ pub trait BaseLoader {
     fn exit(&mut self) -> bool;
 }
 
-// BaseExecutor
-pub trait BaseExecutor {
+// BaseDecoder
+pub trait BaseDecoder {
+    fn init(&mut self, data: Vec<u8>) -> bool;
+    fn exec(&mut self, argv: Vec<&str>) -> bool;
+    fn exit(&mut self) -> bool;
+}
+
+// BaseRunner
+pub trait BaseRunner {
     fn run(&mut self, path: &str, argv: Vec<&str>) -> i32;
     fn wait(&mut self);
     fn kill(&mut self);
 }
 
-// Executor
-pub trait Executor {
+// BaseExecutor
+pub trait BaseExecutor {
     fn suffixes(&self) -> Vec<&str>;
-    fn create(&self) -> Box<dyn BaseExecutor>;
+    fn create(&self, suffix: &str) -> Option<Box<dyn BaseRunner>>;
 }
 
 // Struct ExecutorWrapper
 pub struct ExecutorWrapper {
     name: &'static str,
-    inner: Box<dyn Executor>,
+    inner: Box<dyn BaseExecutor>,
 }
 
 // Impl ExecutorWrapper
 impl ExecutorWrapper {
     // New with name
     #[inline]
-    pub fn new(inner: Box<dyn Executor>, name: &'static str) -> Self {
-        Self {
-            name,
-            inner,
-        }
+    pub fn new(inner: Box<dyn BaseExecutor>, name: &'static str) -> Self {
+        Self { name, inner, }
     }
 
     // Get name
@@ -57,15 +61,15 @@ impl ExecutorWrapper {
 
     // create
     #[inline]
-    pub fn create(&self) -> Box<dyn BaseExecutor> {
-        self.inner.create()
+    pub fn create(&self, suffix: &str) -> Option<Box<dyn BaseRunner>> {
+        self.inner.create(suffix)
     }
 }
 
 // Register executor macro
 #[macro_export]
 macro_rules! register_executor {
-    ($fty:expr, $name:ident) => {
+    ($exec:expr, $name:ident) => {
         paste::paste! {
             #[used]
             #[unsafe(link_section = ".init_array")]
@@ -77,7 +81,7 @@ macro_rules! register_executor {
 
             fn [<$name _init>]() {
                 let executor = crate::traits::vk_executor::ExecutorWrapper::new(
-                    Box::new($fty), stringify!($name)
+                    Box::new($exec), stringify!($name)
                 );
                 crate::village::kernel().process().register_executor(executor);
             }

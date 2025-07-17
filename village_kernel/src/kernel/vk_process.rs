@@ -5,7 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::traits::vk_callback::Callback;
-use crate::traits::vk_executor::{BaseExecutor, ExecutorWrapper};
+use crate::traits::vk_executor::{BaseRunner, ExecutorWrapper};
 use crate::traits::vk_kernel::{Process, ProcessBehavior, ProcessData};
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
@@ -52,7 +52,7 @@ impl VillageProcess {
 
     // Exit
     pub fn exit(&mut self) {
-        // Clear datum
+        // Clear processes
         self.processes.clear();
 
         // Clear factories
@@ -85,26 +85,19 @@ impl VillageProcess {
 
 // Impl village process
 impl VillageProcess {
-    // Create executor
-    fn create_executor(&mut self, path: &str) -> Option<Box<dyn BaseExecutor>> {
+    // Create runner
+    fn create_runner(&mut self, path: &str) -> Option<Box<dyn BaseRunner>> {
         let suffix = match path.rfind('.') {
             Some(pos) => &path[pos..],
             None => return None,
         };
 
         for executor in self.executors.iter_mut() {
-            let suffixes = executor.suffixes();
-
-            for supported_suffix in suffixes {
-                if suffix == supported_suffix {
-                    return Some(executor.create());
-                }
+            if executor.suffixes().contains(&suffix) {
+                return executor.create(suffix);
             }
         }
 
-        kernel()
-            .debug()
-            .error(&format!("file type: \"*{}\" executor no found!", suffix));
         None
     }
 }
@@ -139,15 +132,17 @@ impl Process for VillageProcess {
         // Set the path
         process.path = path.to_string();
 
-        // Create executor
-        process.exec = self.create_executor(path);
-        if process.exec.is_none() {
+        // Create runner
+        process.runner = self.create_runner(path);
+        if process.runner.is_none() {
+            kernel().debug().error(&format!("{} unsupported file type!", path));
             return -1;
         }
 
-        // Run executor with argv
-        process.tid = process.exec.as_mut().unwrap().run(path, argv);
+        // Run with argv
+        process.tid = process.runner.as_mut().unwrap().run(path, argv);
         if process.tid < 0 {
+            kernel().debug().error(&format!("{} create task failed!", path));
             return -1;
         }
 
@@ -168,8 +163,8 @@ impl Process for VillageProcess {
                 .iter_mut()
                 .find(|p| p.pid == (self.pid_cnt - 1))
             {
-                if let Some(executor) = &mut process.exec {
-                    executor.wait();
+                if let Some(runner) = &mut process.runner {
+                    runner.wait();
                 }
             }
         }
@@ -180,8 +175,8 @@ impl Process for VillageProcess {
     // Kill by path
     fn kill_by_path(&mut self, path: &str) {
         if let Some(data) = self.processes.iter_mut().find(|d| d.path == path) {
-            if let Some(executor) = &mut data.exec {
-                executor.kill();
+            if let Some(runner) = &mut data.runner {
+                runner.kill();
             }
         }
     }
@@ -189,8 +184,8 @@ impl Process for VillageProcess {
     // Kill by pid
     fn kill_by_pid(&mut self, pid: i32) {
         if let Some(data) = self.processes.iter_mut().find(|d| d.pid == pid) {
-            if let Some(executor) = &mut data.exec {
-                executor.kill();
+            if let Some(runner) = &mut data.runner {
+                runner.kill();
             }
         }
     }

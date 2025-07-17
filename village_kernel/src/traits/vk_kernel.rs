@@ -7,7 +7,7 @@
 use super::vk_callback::Callback;
 use super::vk_command::CmdWrapper;
 use super::vk_driver::{DriverWrapper, PlatDevWrapper, PlatDrvWrapper};
-use super::vk_executor::{BaseExecutor, ExecutorWrapper};
+use super::vk_executor::{BaseRunner, ExecutorWrapper};
 use super::vk_filesys::{FileSysWrapper, FileVol};
 use super::vk_linkedlist::LinkedList;
 use super::vk_module::ModuleWrapper;
@@ -410,7 +410,7 @@ pub struct ProcessData {
     pub path: String,
     pub pid: i32,
     pub tid: i32,
-    pub exec: Option<Box<dyn BaseExecutor>>,
+    pub runner: Option<Box<dyn BaseRunner>>,
 }
 
 // Process data
@@ -421,7 +421,7 @@ impl ProcessData {
             path: "None".to_string(),
             pid: -1,
             tid: -1,
-            exec: None,
+            runner: None,
         }
     }
 }

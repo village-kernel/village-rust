@@ -42,6 +42,9 @@ pub mod binutils {
         pub mod vk_lib_loader;
         pub mod vk_mod_loader;
     }
+    pub mod runner {
+        pub mod vk_prog_runner;
+    }
     pub mod tool {
         pub mod vk_library_tool;
         pub mod vk_module_tool;

@@ -5,6 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use super::vk_elf_defines::{DynamicHeader, DynamicType, RelocationCode, RelocationEntry};
+use crate::traits::vk_executor::BaseDecoder;
 use crate::traits::vk_kernel::Kernel;
 use crate::village::kernel;
 use alloc::vec::Vec;
@@ -162,9 +163,9 @@ impl ProgDecoder {
 }
 
 // Impl ProgDecoder
-impl ProgDecoder {
+impl BaseDecoder for ProgDecoder {
     // Init
-    pub fn init(&mut self, data: Vec<u8>) -> bool {
+    fn init(&mut self, data: Vec<u8>) -> bool {
         if !self.decode(data) {
             return false;
         }
@@ -175,7 +176,7 @@ impl ProgDecoder {
     }
 
     // Execute
-    pub fn exec(&mut self, argv: Vec<&str>) -> bool {
+    fn exec(&mut self, argv: Vec<&str>) -> bool {
         if self.exec != 0 {
             (Self::start_exec(self.exec))(kernel, argv.as_slice());
             return true;
@@ -184,7 +185,7 @@ impl ProgDecoder {
     }
 
     // Exit
-    pub fn exit(&mut self) -> bool {
+    fn exit(&mut self) -> bool {
         self.data.clear();
         self.data.shrink_to_fit();
         true
