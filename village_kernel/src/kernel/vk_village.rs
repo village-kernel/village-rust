@@ -10,7 +10,7 @@ use crate::traits::vk_kernel::BuildInfo;
 use crate::traits::vk_kernel::Debug;
 use crate::traits::vk_kernel::Device;
 use crate::traits::vk_kernel::Event;
-use crate::traits::vk_kernel::Feature;
+use crate::traits::vk_kernel::Extender;
 use crate::traits::vk_kernel::Executer;
 use crate::traits::vk_kernel::FileSystem;
 use crate::traits::vk_kernel::Interrupt;
@@ -32,7 +32,7 @@ use crate::traits::vk_kernel::WorkQueue;
 use super::vk_debug::VillageDebug;
 use super::vk_device::VillageDevice;
 use super::vk_event::VillageEvent;
-use super::vk_feature::VillageFeature;
+use super::vk_extender::VillageExtender;
 use super::vk_executer::VillageExecuter;
 use super::vk_interrupt::VillageInterrupt;
 use super::vk_module::VillageModule;
@@ -63,7 +63,7 @@ pub struct VillageKernel {
     symbol: Box<VillageSymbol>,
     device: Box<VillageDevice>,
     executer: Box<VillageExecuter>,
-    feature: Box<VillageFeature>,
+    extender: Box<VillageExtender>,
     filesys: Box<VillageFileSystem>,
     library: Box<VillageLibrary>,
     module: Box<VillageModule>,
@@ -90,7 +90,7 @@ impl VillageKernel {
             symbol: Box::new(VillageSymbol::new()),
             device: Box::new(VillageDevice::new()),
             executer: Box::new(VillageExecuter::new()),
-            feature: Box::new(VillageFeature::new()),
+            extender: Box::new(VillageExtender::new()),
             filesys: Box::new(VillageFileSystem::new()),
             library: Box::new(VillageLibrary::new()),
             module: Box::new(VillageModule::new()),
@@ -155,8 +155,8 @@ impl Kernel for VillageKernel {
         // Setup executer
         self.executer.setup();
 
-        // Setup feature
-        self.feature.setup();
+        // Setup extender
+        self.extender.setup();
 
         // Setup process
         self.process.setup();
@@ -191,8 +191,8 @@ impl Kernel for VillageKernel {
         // Exit process
         self.process.exit();
 
-        // Exit feature
-        self.feature.exit();
+        // Exit extender
+        self.extender.exit();
 
         // Exit executer
         self.executer.exit();
@@ -295,9 +295,9 @@ impl Kernel for VillageKernel {
         self.executer.as_mut()
     }
 
-    // Feature
-    fn feature(&mut self) -> &mut dyn Feature {
-        self.feature.as_mut()
+    // Extender
+    fn extender(&mut self) -> &mut dyn Extender {
+        self.extender.as_mut()
     }
 
     // Filesys

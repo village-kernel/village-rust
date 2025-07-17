@@ -29,7 +29,7 @@ pub mod traits {
     pub mod vk_filesys;
     pub mod vk_kernel;
     pub mod vk_linkedlist;
-    pub mod vk_module;
+    pub mod vk_extension;
 }
 
 // import misc modules

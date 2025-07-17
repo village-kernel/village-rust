@@ -4,16 +4,16 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::register_module;
+use crate::register_extension;
 use crate::traits::vk_kernel::DebugLevel;
 use crate::village::kernel;
-use crate::traits::vk_module::{Module, ModuleID};
+use crate::traits::vk_extension::{Extension, ExtensionID};
 
 // Struct ModuleDemo
 struct ModuleDemo;
 
-// Module for ModuleDemo
-impl Module for ModuleDemo {
+// Impl Extension for ModuleDemo
+impl Extension for ModuleDemo {
     // Setup
     fn setup(&mut self) {
         kernel().debug().output(DebugLevel::Lv2, "hello module demo");
@@ -25,5 +25,5 @@ impl Module for ModuleDemo {
     }
 }
 
-// Register module
-register_module!(ModuleDemo, ModuleID::Feature, module_demo);
+// Register extension
+register_extension!(ModuleDemo, ExtensionID::Feature, module_demo);

@@ -1,50 +1,50 @@
 //###########################################################################
-// vK_module.rs
-// The interfaces of functions related to module
+// vK_extension.rs
+// The interfaces of functions related to extension
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
 use alloc::boxed::Box;
 
-// Module id
+// extension id
 #[derive(PartialEq, Clone)]
-pub enum ModuleID {
+pub enum ExtensionID {
     Feature = 0,
     Service,
     Program,
 }
 
-// Impl module id
-impl ModuleID {
+// Impl extension id
+impl ExtensionID {
     // Iterator
-    pub fn iter() -> impl Iterator<Item = ModuleID> {
-        [ModuleID::Feature, ModuleID::Service, ModuleID::Program].into_iter()
+    pub fn iter() -> impl Iterator<Item = ExtensionID> {
+        [ExtensionID::Feature, ExtensionID::Service, ExtensionID::Program].into_iter()
     }
 
     // Rev iterator
-    pub fn rev_iter() -> impl Iterator<Item = ModuleID> {
-        [ModuleID::Program, ModuleID::Service, ModuleID::Feature].into_iter()
+    pub fn rev_iter() -> impl Iterator<Item = ExtensionID> {
+        [ExtensionID::Program, ExtensionID::Service, ExtensionID::Feature].into_iter()
     }
 }
 
-// Module
-pub trait Module {
+// Extension
+pub trait Extension {
     fn setup(&mut self);
     fn exit(&mut self);
 }
 
-// Struct ModuleWrapper
-pub struct ModuleWrapper {
-    id: ModuleID,
+// Struct ExtensionWrapper
+pub struct ExtensionWrapper {
+    id: ExtensionID,
     name: &'static str,
-    inner: Box<dyn Module>,
+    inner: Box<dyn Extension>,
 }
 
-// Impl ModuleWrapper
-impl ModuleWrapper {
+// Impl ExtensionWrapper
+impl ExtensionWrapper {
     // New with name
     #[inline]
-    pub fn new(inner: Box<dyn Module>, id: ModuleID, name: &'static str) -> Self {
+    pub fn new(inner: Box<dyn Extension>, id: ExtensionID, name: &'static str) -> Self {
         Self {
             id,
             name,
@@ -60,7 +60,7 @@ impl ModuleWrapper {
 
     // Get id
     #[inline]
-    pub fn id(&self) -> ModuleID {
+    pub fn id(&self) -> ExtensionID {
         self.id.clone()
     }
 
@@ -80,7 +80,7 @@ impl ModuleWrapper {
 
 // Register module macro
 #[macro_export]
-macro_rules! register_module {
+macro_rules! register_extension {
     ($mod:expr, $id:expr, $name:ident) => {
         paste::paste! {
             #[used]
@@ -92,14 +92,14 @@ macro_rules! register_module {
             static [<EXIT_ $name:upper>]: fn() = [<$name _exit>];
 
             fn [<$name _init>]() {
-                let module = crate::traits::vk_module::ModuleWrapper::new(
+                let module = crate::traits::vk_extension::ExtensionWrapper::new(
                     alloc::boxed::Box::new($mod), $id, stringify!($name)
                 );
-                crate::village::kernel().feature().register_module(module);
+                crate::village::kernel().extender().register_extension(module);
             }
 
             fn [<$name _exit>]() {
-                crate::village::kernel().feature().unregister_module(stringify!($name));
+                crate::village::kernel().extender().unregister_extension(stringify!($name));
             }
         }
     };

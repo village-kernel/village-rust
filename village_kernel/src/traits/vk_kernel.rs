@@ -10,7 +10,7 @@ use super::vk_driver::{DriverWrapper, PlatDevWrapper, PlatDrvWrapper};
 use super::vk_executor::{BaseRunner, ExecutorWrapper};
 use super::vk_filesys::{FileSysWrapper, FileVol};
 use super::vk_linkedlist::LinkedList;
-use super::vk_module::ModuleWrapper;
+use super::vk_extension::ExtensionWrapper;
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
@@ -218,14 +218,14 @@ pub trait Device {
     fn get_drivers(&mut self) -> &mut LinkedList<DriverWrapper>;
 }
 
-// Feature
-pub trait Feature {
+// Extender
+pub trait Extender {
     // Register methods
-    fn register_module(&mut self, module: ModuleWrapper);
-    fn unregister_module(&mut self, name: &str);
+    fn register_extension(&mut self, extension: ExtensionWrapper);
+    fn unregister_extension(&mut self, name: &str);
 
     // Data methods
-    fn get_module(&mut self, name: &str) -> Option<&mut ModuleWrapper>;
+    fn get_extension(&mut self, name: &str) -> Option<&mut ExtensionWrapper>;
 }
 
 // FileSystem
@@ -590,7 +590,7 @@ pub trait Kernel {
     fn symbol(&mut self) -> &mut dyn Symbol;
     fn device(&mut self) -> &mut dyn Device;
     fn executer(&mut self) -> &mut dyn Executer;
-    fn feature(&mut self) -> &mut dyn Feature;
+    fn extender(&mut self) -> &mut dyn Extender;
     fn filesys(&mut self) -> &mut dyn FileSystem;
     fn library(&mut self) -> &mut dyn Library;
     fn module(&mut self) -> &mut dyn Module;

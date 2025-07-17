@@ -87,7 +87,7 @@ pub mod kernel {
     pub mod vk_device;
     pub mod vk_event;
     pub mod vk_executer;
-    pub mod vk_feature;
+    pub mod vk_extender;
     pub mod vk_interrupt;
     pub mod vk_library;
     pub mod vk_module;
@@ -161,7 +161,7 @@ pub mod traits {
     pub mod vk_filesys;
     pub mod vk_kernel;
     pub mod vk_linkedlist;
-    pub mod vk_module;
+    pub mod vk_extension;
 }
 
 // import vendor modules
