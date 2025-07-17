@@ -130,11 +130,10 @@ impl Module for VillageModule {
         });
 
         if !is_unistall {
-            kernel()
-                .debug()
-                .error(&format!("{} module not found!", path));
+            kernel().debug().error(&format!("{} module not found!", path));
             return false;
         }
+        
         true
     }
 

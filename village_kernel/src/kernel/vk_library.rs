@@ -1,6 +1,6 @@
 //###########################################################################
-// vk_library_tool.rs
-// The specific implementation of functions related to library tool
+// vk_library.rs
+// The specific implementation of functions related to library
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
@@ -130,11 +130,10 @@ impl Library for VillageLibrary {
         });
 
         if !is_unistall {
-            kernel()
-                .debug()
-                .error(&format!("{} library not found!", path));
+            kernel().debug().error(&format!("{} library not found!", path));
             return false;
         }
+        
         true
     }
 
