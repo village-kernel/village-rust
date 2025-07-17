@@ -56,7 +56,7 @@ impl ModDecoder {
     }
 }
 
-// Impl Module
+// Impl ModDecoder
 impl ModDecoder {
     // decode
     fn decode(&mut self, data: Vec<u8>) -> bool {
