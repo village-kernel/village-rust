@@ -88,6 +88,7 @@ pub mod kernel {
     pub mod vk_debug;
     pub mod vk_device;
     pub mod vk_event;
+    pub mod vk_executer;
     pub mod vk_feature;
     pub mod vk_interrupt;
     pub mod vk_loader;

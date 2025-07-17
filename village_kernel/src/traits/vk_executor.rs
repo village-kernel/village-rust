@@ -83,11 +83,11 @@ macro_rules! register_executor {
                 let executor = crate::traits::vk_executor::ExecutorWrapper::new(
                     Box::new($exec), stringify!($name)
                 );
-                crate::village::kernel().process().register_executor(executor);
+                crate::village::kernel().executer().register_executor(executor);
             }
 
             fn [<$name _exit>]() {
-                crate::village::kernel().process().unregister_executor(stringify!($name));
+                crate::village::kernel().executer().unregister_executor(stringify!($name));
             }
         }
     };

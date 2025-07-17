@@ -426,12 +426,18 @@ impl ProcessData {
     }
 }
 
-// Process
-pub trait Process {
+// Executer
+pub trait Executer {
     // Register Methods
     fn register_executor(&mut self, executor: ExecutorWrapper);
     fn unregister_executor(&mut self, name: &str);
 
+    // Data Methods
+    fn create_runner(&mut self, path: &str) -> Option<Box<dyn BaseRunner>>;
+}
+
+// Process
+pub trait Process {
     // Run Methods
     fn run_with_args(&mut self, behavior: ProcessBehavior, args: &str) -> i32;
     fn run_with_argv(&mut self, behavior: ProcessBehavior, path: &str, argv: Vec<&str>) -> i32;
@@ -546,6 +552,7 @@ pub trait Kernel {
     fn event(&mut self) -> &mut dyn Event;
     fn symbol(&mut self) -> &mut dyn Symbol;
     fn device(&mut self) -> &mut dyn Device;
+    fn executer(&mut self) -> &mut dyn Executer;
     fn feature(&mut self) -> &mut dyn Feature;
     fn filesys(&mut self) -> &mut dyn FileSystem;
     fn loader(&mut self) -> &mut dyn Loader;

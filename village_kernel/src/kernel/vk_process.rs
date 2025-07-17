@@ -5,11 +5,10 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::traits::vk_callback::Callback;
-use crate::traits::vk_executor::{BaseRunner, ExecutorWrapper};
 use crate::traits::vk_kernel::{Process, ProcessBehavior, ProcessData};
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
-use alloc::boxed::Box;
+
 use alloc::format;
 use alloc::string::ToString;
 use alloc::vec::Vec;
@@ -18,7 +17,6 @@ use alloc::vec::Vec;
 pub struct VillageProcess {
     pid_cnt: i32,
     processes: LinkedList<ProcessData>,
-    executors: LinkedList<ExecutorWrapper>,
 }
 
 // Impl village process
@@ -27,7 +25,6 @@ impl VillageProcess {
         Self {
             pid_cnt: 0,
             processes: LinkedList::new(),
-            executors: LinkedList::new(),
         }
     }
 }
@@ -54,9 +51,6 @@ impl VillageProcess {
     pub fn exit(&mut self) {
         // Clear processes
         self.processes.clear();
-
-        // Clear factories
-        self.executors.clear();
     }
 }
 
@@ -83,38 +77,8 @@ impl VillageProcess {
     }
 }
 
-// Impl village process
-impl VillageProcess {
-    // Create runner
-    fn create_runner(&mut self, path: &str) -> Option<Box<dyn BaseRunner>> {
-        let suffix = match path.rfind('.') {
-            Some(pos) => &path[pos..],
-            None => return None,
-        };
-
-        for executor in self.executors.iter_mut() {
-            if executor.suffixes().contains(&suffix) {
-                return executor.create(suffix);
-            }
-        }
-
-        None
-    }
-}
-
 // Impl process for village process
 impl Process for VillageProcess {
-    // Register executor
-    fn register_executor(&mut self, executor: ExecutorWrapper) {
-        self.executors.push(executor);
-    }
-
-    // Unregister executor
-    fn unregister_executor(&mut self, name: &str) {
-        self.executors
-            .retain_mut(|executor| !(executor.name() == name));
-    }
-
     // Run with args
     fn run_with_args(&mut self, behavior: ProcessBehavior, args: &str) -> i32 {
         // Split args
@@ -133,7 +97,7 @@ impl Process for VillageProcess {
         process.path = path.to_string();
 
         // Create runner
-        process.runner = self.create_runner(path);
+        process.runner = kernel().executer().create_runner(path);
         if process.runner.is_none() {
             kernel().debug().error(&format!("{} unsupported file type!", path));
             return -1;

@@ -11,6 +11,7 @@ use crate::traits::vk_kernel::Debug;
 use crate::traits::vk_kernel::Device;
 use crate::traits::vk_kernel::Event;
 use crate::traits::vk_kernel::Feature;
+use crate::traits::vk_kernel::Executer;
 use crate::traits::vk_kernel::FileSystem;
 use crate::traits::vk_kernel::Interrupt;
 use crate::traits::vk_kernel::Kernel;
@@ -31,6 +32,7 @@ use super::vk_debug::VillageDebug;
 use super::vk_device::VillageDevice;
 use super::vk_event::VillageEvent;
 use super::vk_feature::VillageFeature;
+use super::vk_executer::VillageExecuter;
 use super::vk_interrupt::VillageInterrupt;
 use super::vk_loader::VillageLoader;
 use super::vk_memory::VillageMemory;
@@ -58,6 +60,7 @@ pub struct VillageKernel {
     event: Box<VillageEvent>,
     symbol: Box<VillageSymbol>,
     device: Box<VillageDevice>,
+    executer: Box<VillageExecuter>,
     feature: Box<VillageFeature>,
     filesys: Box<VillageFileSystem>,
     loader: Box<VillageLoader>,
@@ -83,6 +86,7 @@ impl VillageKernel {
             event: Box::new(VillageEvent::new()),
             symbol: Box::new(VillageSymbol::new()),
             device: Box::new(VillageDevice::new()),
+            executer: Box::new(VillageExecuter::new()),
             feature: Box::new(VillageFeature::new()),
             filesys: Box::new(VillageFileSystem::new()),
             loader: Box::new(VillageLoader::new()),
@@ -138,6 +142,9 @@ impl Kernel for VillageKernel {
         // Setup terminal
         self.terminal.setup();
 
+        // Setup executer
+        self.executer.setup();
+
         // Setup feature
         self.feature.setup();
 
@@ -182,6 +189,9 @@ impl Kernel for VillageKernel {
 
         // Exit feature
         self.feature.exit();
+
+        // Exit executer
+        self.executer.exit();
 
         // Exit terminal
         self.terminal.exit();
@@ -268,6 +278,11 @@ impl Kernel for VillageKernel {
     // Device
     fn device(&mut self) -> &mut dyn Device {
         self.device.as_mut()
+    }
+
+    // Executer
+    fn executer(&mut self) -> &mut dyn Executer {
+        self.executer.as_mut()
     }
 
     // Feature
