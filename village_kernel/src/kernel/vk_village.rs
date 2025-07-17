@@ -15,8 +15,9 @@ use crate::traits::vk_kernel::Executer;
 use crate::traits::vk_kernel::FileSystem;
 use crate::traits::vk_kernel::Interrupt;
 use crate::traits::vk_kernel::Kernel;
-use crate::traits::vk_kernel::Loader;
+use crate::traits::vk_kernel::Module;
 use crate::traits::vk_kernel::Memory;
+use crate::traits::vk_kernel::Library;
 use crate::traits::vk_kernel::Process;
 use crate::traits::vk_kernel::Protocol;
 use crate::traits::vk_kernel::Scheduler;
@@ -34,8 +35,9 @@ use super::vk_event::VillageEvent;
 use super::vk_feature::VillageFeature;
 use super::vk_executer::VillageExecuter;
 use super::vk_interrupt::VillageInterrupt;
-use super::vk_loader::VillageLoader;
+use super::vk_module::VillageModule;
 use super::vk_memory::VillageMemory;
+use super::vk_library::VillageLibrary;
 use super::vk_process::VillageProcess;
 use super::vk_signal::VillageSignal;
 use super::vk_symbol::VillageSymbol;
@@ -63,7 +65,8 @@ pub struct VillageKernel {
     executer: Box<VillageExecuter>,
     feature: Box<VillageFeature>,
     filesys: Box<VillageFileSystem>,
-    loader: Box<VillageLoader>,
+    library: Box<VillageLibrary>,
+    module: Box<VillageModule>,
     process: Box<VillageProcess>,
     timer: Box<VillageTimer>,
     terminal: Box<VillageTerminal>,
@@ -89,7 +92,8 @@ impl VillageKernel {
             executer: Box::new(VillageExecuter::new()),
             feature: Box::new(VillageFeature::new()),
             filesys: Box::new(VillageFileSystem::new()),
-            loader: Box::new(VillageLoader::new()),
+            library: Box::new(VillageLibrary::new()),
+            module: Box::new(VillageModule::new()),
             process: Box::new(VillageProcess::new()),
             timer: Box::new(VillageTimer::new()),
             terminal: Box::new(VillageTerminal::new()),
@@ -142,14 +146,17 @@ impl Kernel for VillageKernel {
         // Setup terminal
         self.terminal.setup();
 
+        // Setup library
+        self.library.setup();
+
+        // Setup module
+        self.module.setup();
+
         // Setup executer
         self.executer.setup();
 
         // Setup feature
         self.feature.setup();
-
-        // Setup loader
-        self.loader.setup();
 
         // Setup process
         self.process.setup();
@@ -184,14 +191,17 @@ impl Kernel for VillageKernel {
         // Exit process
         self.process.exit();
 
-        // Exit loader
-        self.loader.exit();
-
         // Exit feature
         self.feature.exit();
 
         // Exit executer
         self.executer.exit();
+
+        // Exit module
+        self.module.exit();
+
+        // Exit library
+        self.library.exit();
 
         // Exit terminal
         self.terminal.exit();
@@ -295,9 +305,14 @@ impl Kernel for VillageKernel {
         self.filesys.as_mut()
     }
 
-    // Loader
-    fn loader(&mut self) -> &mut dyn Loader {
-        self.loader.as_mut()
+    // Library
+    fn library(&mut self) -> &mut dyn Library {
+        self.library.as_mut()
+    }
+
+    // Module
+    fn module(&mut self) -> &mut dyn Module {
+        self.module.as_mut()
     }
 
     // Process

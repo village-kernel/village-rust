@@ -5,12 +5,15 @@ edition = "2024"
 build = "build.rs"
 
 [features]
-default = ["arch_i386", "binding_exec_bin"]
+default = ["arch_i386", "binding_exec_bin", "binding_mod_mbin"]
 arch_arm = []
 arch_i386 = []
 binding_exec_elf = []
 binding_exec_hex = []
 binding_exec_bin = []
+binding_mod_melf = []
+binding_mod_mhex = []
+binding_mod_mbin = []
 
 [lib]
 name = "vk"

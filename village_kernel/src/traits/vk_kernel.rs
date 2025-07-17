@@ -382,20 +382,57 @@ pub trait Event {
     fn get_out_format(&mut self) -> EventOutFormat;
 }
 
-// Loader
-pub trait Loader {
-    // Library Methods
-    fn install_lib(&mut self, name: &str) -> bool;
-    fn uninstall_lib(&mut self, name: &str) -> bool;
-    fn search_symbol(&mut self, symbol: &str) -> usize;
+// Struct ModuleData
+pub struct ModuleData {
+    pub path: String,
+    pub runner: Option<Box<dyn BaseRunner>>,
+}
 
+// Impl ModuleData
+impl ModuleData {
+    pub fn new() -> Self {
+        ModuleData {
+            path: "None".to_string(),
+            runner: None,
+        }
+    }
+}
+
+// Module
+pub trait Module {
     // Module Methods
-    fn install_mod(&mut self, name: &str) -> bool;
-    fn uninstall_mod(&mut self, name: &str) -> bool;
+    fn install(&mut self, path: &str) -> bool;
+    fn uninstall(&mut self, path: &str) -> bool;
 
     // Data Methods
-    fn get_libraries(&mut self) -> Vec<&str>;
-    fn get_modules(&mut self) -> Vec<&str>;
+    fn get_modules(&mut self) -> &mut LinkedList<ModuleData>;
+}
+
+// Struct LibraryData
+pub struct LibraryData {
+    pub path: String,
+    pub runner: Option<Box<dyn BaseRunner>>,
+}
+
+// Impl LibraryData
+impl LibraryData {
+    pub fn new() -> Self {
+        LibraryData {
+            path: "None".to_string(),
+            runner: None,
+        }
+    }
+}
+
+// Library
+pub trait Library {
+    // Library Methods
+    fn install(&mut self, path: &str) -> bool;
+    fn uninstall(&mut self, path: &str) -> bool;
+    fn search_symbol(&mut self, symbol: &str) -> usize;
+
+    // Data Methods
+    fn get_libraries(&mut self) -> &mut LinkedList<LibraryData>;
 }
 
 // Process behavior
@@ -555,7 +592,8 @@ pub trait Kernel {
     fn executer(&mut self) -> &mut dyn Executer;
     fn feature(&mut self) -> &mut dyn Feature;
     fn filesys(&mut self) -> &mut dyn FileSystem;
-    fn loader(&mut self) -> &mut dyn Loader;
+    fn library(&mut self) -> &mut dyn Library;
+    fn module(&mut self) -> &mut dyn Module;
     fn process(&mut self) -> &mut dyn Process;
     fn timer(&mut self) -> &mut dyn Timer;
     fn terminal(&mut self) -> &mut dyn Terminal;

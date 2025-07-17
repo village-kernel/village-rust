@@ -30,9 +30,11 @@ pub mod arch {
 pub mod binutils {
     pub mod decoder {
         pub mod vk_elf_defines;
+        pub mod vk_mod_decode;
         pub mod vk_prog_decode;
     }
     pub mod executor {
+        pub mod vk_mod_executor;
         pub mod vk_prog_executor;
     }
     pub mod loader {
@@ -40,14 +42,10 @@ pub mod binutils {
         pub mod vk_elf_loader;
         pub mod vk_hex_loader;
         pub mod vk_lib_loader;
-        pub mod vk_mod_loader;
     }
     pub mod runner {
+        pub mod vk_mod_runner;
         pub mod vk_prog_runner;
-    }
-    pub mod tool {
-        pub mod vk_library_tool;
-        pub mod vk_module_tool;
     }
 }
 
@@ -91,7 +89,8 @@ pub mod kernel {
     pub mod vk_executer;
     pub mod vk_feature;
     pub mod vk_interrupt;
-    pub mod vk_loader;
+    pub mod vk_library;
+    pub mod vk_module;
     pub mod vk_memory;
     pub mod vk_process;
     pub mod vk_signal;

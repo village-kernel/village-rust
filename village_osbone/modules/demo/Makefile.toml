@@ -23,8 +23,8 @@ script = '''
     else
         CARGO_TARGET_DIR=${BUILD} cargo build --release --target ./triples/${TARGET}.json
     fi
-    rust-objcopy -O ihex      ${PROGRAM}     ${PROGRAM}.hex
-    rust-objcopy -O binary -S ${PROGRAM}     ${PROGRAM}.bin
-    cp -rf                    ${PROGRAM}     ${PROGRAM}.elf
-    cp -rf                    ${PROGRAM}.bin ${PROGRAM}.exec
+    rust-objcopy -O ihex      ${PROGRAM}      ${PROGRAM}.mhex
+    rust-objcopy -O binary -S ${PROGRAM}      ${PROGRAM}.mbin
+    cp -rf                    ${PROGRAM}      ${PROGRAM}.melf
+    cp -rf                    ${PROGRAM}.mbin ${PROGRAM}.mod
 '''

@@ -23,8 +23,8 @@ impl Cmd for CmdListMod {
             return;
         }
 
-        for module in kernel().loader().get_modules().iter_mut() {
-            console.println(&format!("name {}", module));
+        for module in kernel().module().get_modules().iter_mut() {
+            console.println(&format!("name {}", module.path));
         }
     }
 
@@ -45,7 +45,7 @@ impl Cmd for CmdInsMod {
             console.println("Usage: insmod [module]");
             return;
         }
-        if !kernel().loader().install_mod(argv[1]) {
+        if !kernel().module().install(argv[1]) {
             console.error(&format!("Install module {} failed", argv[1]));
         }
     }
@@ -67,7 +67,7 @@ impl Cmd for CmdRmMod {
             console.println("Usage: rmmod [module]");
             return;
         }
-        if !kernel().loader().uninstall_mod(argv[1]) {
+        if !kernel().module().uninstall(argv[1]) {
             console.error(&format!("Uninstall module {} failed", argv[1]));
         }
     }

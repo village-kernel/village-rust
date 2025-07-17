@@ -5,6 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::register_module;
+use crate::traits::vk_kernel::DebugLevel;
 use crate::village::kernel;
 use crate::traits::vk_module::{Module, ModuleID};
 
@@ -15,12 +16,12 @@ struct ModuleDemo;
 impl Module for ModuleDemo {
     // Setup
     fn setup(&mut self) {
-        kernel().debug().info("hello module demo");
+        kernel().debug().output(DebugLevel::Lv2, "hello module demo");
     }
 
     // Exit
     fn exit(&mut self) {
-        kernel().debug().info("exit module demo");
+        kernel().debug().output(DebugLevel::Lv2, "exit module demo");
     }
 }
 
