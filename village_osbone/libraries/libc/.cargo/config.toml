@@ -6,11 +6,13 @@ build-std = ["core", "alloc", "compiler_builtins"]
 
 [target.ia32legacy]
 rustflags = [
-    "-C", "opt-level=2",
-    "-C", "debuginfo=2",
     "-C", "relocation-model=pic",
+    "-C", "code-model=medium",
     "-C", "link-arg=--shared",
+    "-C", "link-arg=--exclude-libs=ALL",
+    "-C", "link-arg=--version-script=./triples/ia32legacy.lds",
     "-C", "link-arg=--gc-sections",
-    "-C", "linker=rust-lld",
-    "-C", "panic=abort",
+    "-C", "link-arg=--as-needed",
+    "-C", "link-arg=--icf=all",
+    "-C", "link-arg=--strip-all",
 ]
