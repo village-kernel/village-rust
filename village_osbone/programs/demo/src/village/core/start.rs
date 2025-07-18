@@ -1,5 +1,5 @@
 //###########################################################################
-// vk_crt0.c
+// start.c
 // Low level file that manages app entry
 //
 // $Copyright: Copyright (C) village
@@ -41,26 +41,6 @@ pub extern "C" fn __fill_bss_zero() {
         while dst < &raw mut _ebss as *mut u8 {
             *dst = 0;
             dst = dst.add(1);
-        }
-    }
-}
-
-// preinit array
-#[unsafe(no_mangle)]
-pub extern "C" fn __preinit_array() {
-    unsafe extern "C" {
-        unsafe static __preinit_array_start: [Option<unsafe extern "C" fn()>; 0];
-        unsafe static __preinit_array_end: [Option<unsafe extern "C" fn()>; 0];
-    }
-
-    unsafe {
-        let start = &__preinit_array_start as *const _ as *const unsafe extern "C" fn();
-        let end = &__preinit_array_end as *const _ as *const unsafe extern "C" fn();
-        let count = (end as usize - start as usize) / core::mem::size_of::<unsafe extern "C" fn()>();
-
-        for i in 0..count {
-            let func = start.add(i);
-            (*func)();
         }
     }
 }
@@ -110,9 +90,7 @@ pub extern "C" fn __fini_array() {
 pub unsafe extern "Rust" fn _start(village: *const c_void, argv: &[&str]) {
     __fill_bss_zero();
 
-    unsafe { set_kernel(village) }; 
-
-    __preinit_array();
+    unsafe { set_kernel(village) };
 
     __init_array();
 

@@ -1,5 +1,5 @@
 //###########################################################################
-// vk_crt0.c
+// start.c
 // Low level file that manages app entry
 //
 // $Copyright: Copyright (C) village
@@ -9,20 +9,22 @@ use core::ffi::c_void;
 // extern set kernel
 unsafe extern "Rust" { unsafe fn set_kernel(village: *const c_void); }
 
+// extern main
+unsafe extern "Rust" { unsafe fn main(argv: &[&str]); }
+
 // image offset
-unsafe extern "Rust" { unsafe fn _IMGOFFS(_: *const c_void); }
+unsafe extern "Rust" { unsafe fn _IMGOFFS(_: *const c_void, _: &[&str]); } 
 
 // dynamic header
-unsafe extern "Rust" { unsafe fn _DYNAMIC(_: *const c_void); }
+unsafe extern "Rust" { unsafe fn _DYNAMIC(_: *const c_void, _: &[&str]); }
 
 // entry section
 #[used]
 #[unsafe(link_section = ".entry")]
-pub static G_PFN_VECTORS: [unsafe extern "Rust" fn(*const c_void); 4] = [
+pub static G_PFN_VECTORS: [unsafe extern "Rust" fn(*const c_void, &[&str]); 3] = [
     _IMGOFFS,
     _DYNAMIC,
-    module_init,
-    module_exit,
+    _start,
 ];
 
 // fill bss zero
@@ -83,20 +85,16 @@ pub extern "C" fn __fini_array() {
     }
 }
 
-// module init
+// _start
 #[unsafe(no_mangle)]
-pub unsafe extern "Rust" fn module_init(village: *const c_void) {
+pub unsafe extern "Rust" fn _start(village: *const c_void, argv: &[&str]) {
     __fill_bss_zero();
 
     unsafe { set_kernel(village) };
 
     __init_array();
-}
 
-// module exit
-#[unsafe(no_mangle)]
-pub unsafe extern "Rust" fn module_exit(village: *const c_void) {
-    unsafe { set_kernel(village) };
-    
+    unsafe { main(argv) };
+
     __fini_array();
 }

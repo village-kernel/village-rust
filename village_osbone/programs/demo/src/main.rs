@@ -7,7 +7,16 @@
 #![no_std]
 #![no_main]
 
-use demo::village::kernel;
+// import alloc
+extern crate alloc;
+
+// import village
+pub mod village;
+pub use village::traits as traits;
+pub use village::misc as misc;
+
+// import kernel
+use village::kernel;
 
 // Main
 #[unsafe(no_mangle)]

@@ -1,6 +1,6 @@
 //###########################################################################
-// vk_crt0.c
-// Low level file that manages app entry
+// start.c
+// Low level file that manages module entry
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
@@ -9,22 +9,20 @@ use core::ffi::c_void;
 // extern set kernel
 unsafe extern "Rust" { unsafe fn set_kernel(village: *const c_void); }
 
-// extern main
-unsafe extern "Rust" { unsafe fn main(argv: &[&str]); }
-
 // image offset
-unsafe extern "Rust" { unsafe fn _IMGOFFS(_: *const c_void, _: &[&str]); } 
+unsafe extern "Rust" { unsafe fn _IMGOFFS(_: *const c_void); }
 
 // dynamic header
-unsafe extern "Rust" { unsafe fn _DYNAMIC(_: *const c_void, _: &[&str]); }
+unsafe extern "Rust" { unsafe fn _DYNAMIC(_: *const c_void); }
 
 // entry section
 #[used]
 #[unsafe(link_section = ".entry")]
-pub static G_PFN_VECTORS: [unsafe extern "Rust" fn(*const c_void, &[&str]); 3] = [
+pub static G_PFN_VECTORS: [unsafe extern "Rust" fn(*const c_void); 4] = [
     _IMGOFFS,
     _DYNAMIC,
-    _start,
+    module_init,
+    module_exit,
 ];
 
 // fill bss zero
@@ -41,26 +39,6 @@ pub extern "C" fn __fill_bss_zero() {
         while dst < &raw mut _ebss as *mut u8 {
             *dst = 0;
             dst = dst.add(1);
-        }
-    }
-}
-
-// preinit array
-#[unsafe(no_mangle)]
-pub extern "C" fn __preinit_array() {
-    unsafe extern "C" {
-        unsafe static __preinit_array_start: [Option<unsafe extern "C" fn()>; 0];
-        unsafe static __preinit_array_end: [Option<unsafe extern "C" fn()>; 0];
-    }
-
-    unsafe {
-        let start = &__preinit_array_start as *const _ as *const unsafe extern "C" fn();
-        let end = &__preinit_array_end as *const _ as *const unsafe extern "C" fn();
-        let count = (end as usize - start as usize) / core::mem::size_of::<unsafe extern "C" fn()>();
-
-        for i in 0..count {
-            let func = start.add(i);
-            (*func)();
         }
     }
 }
@@ -105,18 +83,20 @@ pub extern "C" fn __fini_array() {
     }
 }
 
-// _start
+// module init
 #[unsafe(no_mangle)]
-pub unsafe extern "Rust" fn _start(village: *const c_void, argv: &[&str]) {
+pub unsafe extern "Rust" fn module_init(village: *const c_void) {
     __fill_bss_zero();
 
-    unsafe { set_kernel(village) }; 
-
-    __preinit_array();
+    unsafe { set_kernel(village) };
 
     __init_array();
+}
 
-    unsafe { main(argv) };
-
+// module exit
+#[unsafe(no_mangle)]
+pub unsafe extern "Rust" fn module_exit(village: *const c_void) {
+    unsafe { set_kernel(village) };
+    
     __fini_array();
 }

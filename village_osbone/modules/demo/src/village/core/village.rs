@@ -1,6 +1,6 @@
 //###########################################################################
-// vk_kernel.rs
-// The specific implementation of functions related to village kernel
+// village.rs
+// The specific implementation of functions related to village instance
 //
 // $Copyright: Copyright (C) village
 //###########################################################################

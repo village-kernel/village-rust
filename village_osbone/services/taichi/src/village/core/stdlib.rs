@@ -1,6 +1,6 @@
 //###########################################################################
-// string.rs
-// The specific implementation of functions related to string
+// stdlib.rs
+// The specific implementation of functions related to stdlib
 //
 // $Copyright: Copyright (C) village
 //###########################################################################

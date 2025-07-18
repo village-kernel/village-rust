@@ -8,13 +8,13 @@
 extern crate alloc;
 
 // import village module
-pub use stdlib::village::kernel;
+pub use core::village::kernel;
 
-// import libstd modules
-pub mod stdlib {
-    pub mod crt0;
+// import core modules
+mod core {
+    pub mod alloc;
     pub mod panic;
-    pub mod string;
+    pub mod start;
     pub mod stdlib;
     pub mod village;
 }

@@ -1,6 +1,6 @@
 //###########################################################################
-// stdlib.rs
-// The specific implementation of functions related to stdlib
+// alloc.rs
+// The specific implementation of functions related to alloc
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
