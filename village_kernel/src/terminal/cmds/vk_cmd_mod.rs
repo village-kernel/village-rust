@@ -45,8 +45,11 @@ impl Cmd for CmdInsMod {
             console.println("Usage: insmod [module]");
             return;
         }
-        if !kernel().module().install(argv[1]) {
-            console.error(&format!("Install module {} failed", argv[1]));
+
+        let path = console.real_path(argv[1]);
+
+        if !kernel().module().install(&path) {
+            console.error(&format!("Install module {} failed", path));
         }
     }
 
@@ -67,8 +70,11 @@ impl Cmd for CmdRmMod {
             console.println("Usage: rmmod [module]");
             return;
         }
-        if !kernel().module().uninstall(argv[1]) {
-            console.error(&format!("Uninstall module {} failed", argv[1]));
+
+        let path = console.real_path(argv[1]);
+
+        if !kernel().module().uninstall(&path) {
+            console.error(&format!("Uninstall module {} failed", path));
         }
     }
 
