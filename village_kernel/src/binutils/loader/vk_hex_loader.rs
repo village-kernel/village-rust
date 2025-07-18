@@ -221,7 +221,7 @@ impl HexLoader {
     }
 }
 
-// Imol ProgLoader for HexLoader
+// Imol BaseLoader for HexLoader
 impl BaseLoader for HexLoader {
     // Init
     fn init(&mut self, filename: &str, data: &mut Vec<u8>) -> bool {

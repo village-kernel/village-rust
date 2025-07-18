@@ -118,8 +118,8 @@ impl ElfLoader {
 
         // To estimate how much memory space this program needs.
         for i in 0..self.hdr.prog_hdr_num as usize {
-            let prog_start = self.hdr.prog_hdr_off as usize + i * ProgramHeader::SIZE;
-            let prog_end = prog_start + ProgramHeader::SIZE;
+            let prog_start = self.hdr.prog_hdr_off as usize + i * self.hdr.prog_hdr_size as usize;
+            let prog_end = prog_start + self.hdr.prog_hdr_size as usize;
             let phdr = ProgramHeader::from(&self.elf[prog_start..prog_end]);
 
             // Overwrite the previously obtained data
@@ -160,7 +160,7 @@ impl ElfLoader {
     }
 }
 
-// Impl ProgLoader for ELFLoader
+// Impl BaseLoader for ELFLoader
 impl BaseLoader for ElfLoader {
     // Init
     fn init(&mut self, filename: &str, data: &mut Vec<u8>) -> bool {

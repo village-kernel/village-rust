@@ -52,7 +52,7 @@ impl BinLoader {
     }
 }
 
-// Impl ProgLoader for BinLoader
+// Impl BaseLoader for BinLoader
 impl BaseLoader for BinLoader {
     // Init
     fn init(&mut self, filename: &str, data: &mut Vec<u8>) -> bool {

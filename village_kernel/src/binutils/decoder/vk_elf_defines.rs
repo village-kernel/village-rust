@@ -381,16 +381,16 @@ impl ELFHeader {
 
 // Struct SectionHeader
 pub struct SectionHeader {
-    name: u32,
-    typ: u32,
-    flags: u32,
-    addr: u32,
-    offset: u32,
-    size: u32,
-    link: u32,
-    info: u32,
-    addr_align: u32,
-    entire_size: u32,
+    pub name: u32,
+    pub typ: u32,
+    pub flags: u32,
+    pub addr: u32,
+    pub offset: u32,
+    pub size: u32,
+    pub link: u32,
+    pub info: u32,
+    pub addr_align: u32,
+    pub entire_size: u32,
 }
 
 // Impl SectionHeader
