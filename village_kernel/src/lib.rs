@@ -138,6 +138,7 @@ pub mod terminal {
         pub mod vk_cmd_filesys;
         pub mod vk_cmd_help;
         pub mod vk_cmd_kill;
+        pub mod vk_cmd_lib;
         pub mod vk_cmd_memory;
         pub mod vk_cmd_mod;
         pub mod vk_cmd_null;
