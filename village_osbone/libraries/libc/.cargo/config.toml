@@ -10,7 +10,6 @@ rustflags = [
     "-C", "code-model=medium",
     "-C", "link-arg=--shared",
     "-C", "link-arg=--exclude-libs=ALL",
-    "-C", "link-arg=--version-script=./triples/ia32legacy.lds",
     "-C", "link-arg=--gc-sections",
     "-C", "link-arg=--as-needed",
     "-C", "link-arg=--icf=all",
