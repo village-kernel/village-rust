@@ -21,11 +21,11 @@ mod core {
 
 // import traits modules
 pub mod traits {
+    pub mod vk_builder;
     pub mod vk_callback;
     pub mod vk_command;
     pub mod vk_driver;
     pub mod vk_event_codes;
-    pub mod vk_executor;
     pub mod vk_filesys;
     pub mod vk_kernel;
     pub mod vk_linkedlist;

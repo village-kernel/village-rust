@@ -93,7 +93,7 @@ impl Module for VillageModule {
         module.path = path.to_string();
 
         // Create runner
-        module.runner = kernel().executer().create_runner(path);
+        module.runner = kernel().director().create_runner(path);
         if module.runner.is_none() {
             kernel().debug().error(&format!("{} unsupported file type!", path));
             return false;

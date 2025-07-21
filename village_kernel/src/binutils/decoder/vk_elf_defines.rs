@@ -50,12 +50,12 @@ impl ELFVersion {
     pub const CURRENT: u32 = 0x01;
 }
 
-// Struct RelocationCode
-pub struct RelocationCode;
+// Struct RelocateCode
+pub struct RelocateCode;
 
-// Impl RelocationCode
+// Impl RelocateCode
 #[cfg(feature = "arch_i386")]
-impl RelocationCode {
+impl RelocateCode {
     pub const I386_NONE: u8 = 0;
     pub const I386_32: u8 = 1;
     pub const I386_PC32: u8 = 2;
@@ -77,9 +77,9 @@ impl RelocationCode {
     pub const I386_SIZE32: u8 = 38;
 }
 
-// Impl RelocationCode
+// Impl RelocateCode
 #[cfg(feature = "arch_arm")]
-impl RelocationCode {
+impl RelocateCode {
     pub const ARM_NONE: u8 = 0;
     pub const ARM_ABS32: u8 = 2;
     pub const ARM_THM_CALL: u8 = 10;
@@ -269,16 +269,16 @@ impl SymbolEntry {
     }
 }
 
-// Struct RelocationEntry
-pub struct RelocationEntry {
+// Struct RelocateEntry
+pub struct RelocateEntry {
     pub offset: u32,
     pub typ: u8,
     pub symbol: u8,
     pub reversed: u16,
 }
 
-// Impl RelocationEntry
-impl RelocationEntry {
+// Impl RelocateEntry
+impl RelocateEntry {
     // Size
     pub const SIZE: usize = 8;
 

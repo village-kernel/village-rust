@@ -7,7 +7,7 @@
 use super::vk_callback::Callback;
 use super::vk_command::CmdWrapper;
 use super::vk_driver::{DriverWrapper, PlatDevWrapper, PlatDrvWrapper};
-use super::vk_executor::{BaseRunner, ExecutorWrapper};
+use super::vk_builder::{LibLoader, LibBuilderWrapper, ProgRunner, ProgBuilderWrapper};
 use super::vk_filesys::{FileSysWrapper, FileVol};
 use super::vk_linkedlist::LinkedList;
 use super::vk_extension::ExtensionWrapper;
@@ -385,7 +385,7 @@ pub trait Event {
 // Struct ModuleData
 pub struct ModuleData {
     pub path: String,
-    pub runner: Option<Box<dyn BaseRunner>>,
+    pub runner: Option<Box<dyn ProgRunner>>,
 }
 
 // Impl ModuleData
@@ -411,7 +411,7 @@ pub trait Module {
 // Struct LibraryData
 pub struct LibraryData {
     pub path: String,
-    pub runner: Option<Box<dyn BaseRunner>>,
+    pub loader: Option<Box<dyn LibLoader>>,
 }
 
 // Impl LibraryData
@@ -419,7 +419,7 @@ impl LibraryData {
     pub fn new() -> Self {
         LibraryData {
             path: "None".to_string(),
-            runner: None,
+            loader: None,
         }
     }
 }
@@ -447,7 +447,7 @@ pub struct ProcessData {
     pub path: String,
     pub pid: i32,
     pub tid: i32,
-    pub runner: Option<Box<dyn BaseRunner>>,
+    pub runner: Option<Box<dyn ProgRunner>>,
 }
 
 // Process data
@@ -463,14 +463,17 @@ impl ProcessData {
     }
 }
 
-// Executer
-pub trait Executer {
+// Director
+pub trait Director {
     // Register Methods
-    fn register_executor(&mut self, executor: ExecutorWrapper);
-    fn unregister_executor(&mut self, name: &str);
+    fn register_lib_builder(&mut self, builder: LibBuilderWrapper);
+    fn unregister_lib_builder(&mut self, name: &str);
+    fn register_prog_builder(&mut self, builder: ProgBuilderWrapper);
+    fn unregister_prog_builder(&mut self, name: &str);
 
     // Data Methods
-    fn create_runner(&mut self, path: &str) -> Option<Box<dyn BaseRunner>>;
+    fn create_loader(&mut self, path: &str) -> Option<Box<dyn LibLoader>>;
+    fn create_runner(&mut self, path: &str) -> Option<Box<dyn ProgRunner>>;
 }
 
 // Process
@@ -589,7 +592,7 @@ pub trait Kernel {
     fn event(&mut self) -> &mut dyn Event;
     fn symbol(&mut self) -> &mut dyn Symbol;
     fn device(&mut self) -> &mut dyn Device;
-    fn executer(&mut self) -> &mut dyn Executer;
+    fn director(&mut self) -> &mut dyn Director;
     fn extender(&mut self) -> &mut dyn Extender;
     fn filesys(&mut self) -> &mut dyn FileSystem;
     fn library(&mut self) -> &mut dyn Library;

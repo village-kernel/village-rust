@@ -11,7 +11,7 @@ use crate::traits::vk_kernel::Debug;
 use crate::traits::vk_kernel::Device;
 use crate::traits::vk_kernel::Event;
 use crate::traits::vk_kernel::Extender;
-use crate::traits::vk_kernel::Executer;
+use crate::traits::vk_kernel::Director;
 use crate::traits::vk_kernel::FileSystem;
 use crate::traits::vk_kernel::Interrupt;
 use crate::traits::vk_kernel::Kernel;
@@ -33,7 +33,7 @@ use super::vk_debug::VillageDebug;
 use super::vk_device::VillageDevice;
 use super::vk_event::VillageEvent;
 use super::vk_extender::VillageExtender;
-use super::vk_executer::VillageExecuter;
+use super::vk_director::VillageDirector;
 use super::vk_interrupt::VillageInterrupt;
 use super::vk_module::VillageModule;
 use super::vk_memory::VillageMemory;
@@ -62,7 +62,7 @@ pub struct VillageKernel {
     event: Box<VillageEvent>,
     symbol: Box<VillageSymbol>,
     device: Box<VillageDevice>,
-    executer: Box<VillageExecuter>,
+    director: Box<VillageDirector>,
     extender: Box<VillageExtender>,
     filesys: Box<VillageFileSystem>,
     library: Box<VillageLibrary>,
@@ -89,7 +89,7 @@ impl VillageKernel {
             event: Box::new(VillageEvent::new()),
             symbol: Box::new(VillageSymbol::new()),
             device: Box::new(VillageDevice::new()),
-            executer: Box::new(VillageExecuter::new()),
+            director: Box::new(VillageDirector::new()),
             extender: Box::new(VillageExtender::new()),
             filesys: Box::new(VillageFileSystem::new()),
             library: Box::new(VillageLibrary::new()),
@@ -152,8 +152,8 @@ impl Kernel for VillageKernel {
         // Setup module
         self.module.setup();
 
-        // Setup executer
-        self.executer.setup();
+        // Setup director
+        self.director.setup();
 
         // Setup extender
         self.extender.setup();
@@ -194,8 +194,8 @@ impl Kernel for VillageKernel {
         // Exit extender
         self.extender.exit();
 
-        // Exit executer
-        self.executer.exit();
+        // Exit director
+        self.director.exit();
 
         // Exit module
         self.module.exit();
@@ -290,9 +290,9 @@ impl Kernel for VillageKernel {
         self.device.as_mut()
     }
 
-    // Executer
-    fn executer(&mut self) -> &mut dyn Executer {
-        self.executer.as_mut()
+    // Director
+    fn director(&mut self) -> &mut dyn Director {
+        self.director.as_mut()
     }
 
     // Extender

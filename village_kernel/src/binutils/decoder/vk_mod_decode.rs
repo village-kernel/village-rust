@@ -4,8 +4,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use super::vk_elf_defines::{DynamicHeader, DynamicType, RelocationCode, RelocationEntry};
-use crate::traits::vk_executor::BaseDecoder;
+use super::vk_elf_defines::{DynamicHeader, DynamicType, RelocateCode, RelocateEntry};
+use crate::traits::vk_builder::ProgDecoder;
 use crate::traits::vk_kernel::Kernel;
 use crate::village::kernel;
 use alloc::vec::Vec;
@@ -135,9 +135,9 @@ impl ModDecoder {
             }
 
             let relocate_entry =
-                RelocationEntry::from(&self.data[relocate_offset..relocate_offset + 8]);
+                RelocateEntry::from(&self.data[relocate_offset..relocate_offset + 8]);
 
-            if relocate_entry.typ == RelocationCode::TYPE_RELATIVE {
+            if relocate_entry.typ == RelocateCode::TYPE_RELATIVE {
                 let rel_addr_offset = (relocate_entry.offset - self.offset) as usize;
                 if rel_addr_offset + 4 > self.data.len() {
                     continue;
@@ -168,8 +168,8 @@ impl ModDecoder {
     }
 }
 
-// Impl ModDecoder
-impl BaseDecoder for ModDecoder {
+// Impl ProgDecpder for ModDecoder
+impl ProgDecoder for ModDecoder {
     // Init
     fn init(&mut self, data: Vec<u8>) -> bool {
         if !self.decode(data) {

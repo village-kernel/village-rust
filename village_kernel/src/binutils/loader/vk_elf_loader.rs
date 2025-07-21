@@ -7,7 +7,7 @@
 use crate::binutils::decoder::vk_elf_defines::{ELFClass, ELFVersion, ELFMachine, ELFType};
 use crate::binutils::decoder::vk_elf_defines::{ELFHeader, ProgramHeader, ProgHdrType};
 use crate::misc::fopts::vk_file_fopt::FileFopt;
-use crate::traits::vk_executor::BaseLoader;
+use crate::traits::vk_builder::ProgLoader;
 use crate::traits::vk_filesys::FileMode;
 use crate::traits::vk_kernel::DebugLevel;
 use crate::village::kernel;
@@ -160,8 +160,8 @@ impl ElfLoader {
     }
 }
 
-// Impl BaseLoader for ELFLoader
-impl BaseLoader for ElfLoader {
+// Impl ProgLoader for ELFLoader
+impl ProgLoader for ElfLoader {
     // Init
     fn init(&mut self, filename: &str, data: &mut Vec<u8>) -> bool {
         // Save filename in local

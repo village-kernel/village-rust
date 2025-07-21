@@ -1,11 +1,11 @@
 //###########################################################################
-// vk_prog_decode.rs
-// The specific implementation of functions related to prog decode
+// vk_exec_decode.rs
+// The specific implementation of functions related to exec decode
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use super::vk_elf_defines::{DynamicHeader, DynamicType, RelocationCode, RelocationEntry};
-use crate::traits::vk_executor::BaseDecoder;
+use super::vk_elf_defines::{DynamicHeader, DynamicType, RelocateCode, RelocateEntry};
+use crate::traits::vk_builder::ProgDecoder;
 use crate::traits::vk_kernel::Kernel;
 use crate::village::kernel;
 use alloc::vec::Vec;
@@ -16,8 +16,8 @@ type DynKernel = fn() -> &'static mut dyn Kernel;
 // Type aliases for start entry
 type StartEntry = fn(DynKernel, &[&str]);
 
-// Struct ProgDecoder
-pub struct ProgDecoder {
+// Struct ExecDecoder
+pub struct ExecDecoder {
     data: Vec<u8>,
 
     load: u32,
@@ -29,8 +29,8 @@ pub struct ProgDecoder {
     entry: u32,
 }
 
-// Impl ProgDecoder
-impl ProgDecoder {
+// Impl ExecDecoder
+impl ExecDecoder {
     // New
     pub const fn new() -> Self {
         Self {
@@ -52,8 +52,8 @@ impl ProgDecoder {
     }
 }
 
-// Impl ProgDecoder
-impl ProgDecoder {
+// Impl ExecDecoder
+impl ExecDecoder {
     // decode
     fn decode(&mut self, data: Vec<u8>) -> bool {
         if data.len() < 12 {
@@ -129,9 +129,9 @@ impl ProgDecoder {
             }
 
             let relocate_entry =
-                RelocationEntry::from(&self.data[relocate_offset..relocate_offset + 8]);
+                RelocateEntry::from(&self.data[relocate_offset..relocate_offset + 8]);
 
-            if relocate_entry.typ == RelocationCode::TYPE_RELATIVE {
+            if relocate_entry.typ == RelocateCode::TYPE_RELATIVE {
                 let rel_addr_offset = (relocate_entry.offset - self.offset) as usize;
                 if rel_addr_offset + 4 > self.data.len() {
                     continue;
@@ -162,8 +162,8 @@ impl ProgDecoder {
     }
 }
 
-// Impl ProgDecoder
-impl BaseDecoder for ProgDecoder {
+// Impl ProgDecoder for ExecDecoder
+impl ProgDecoder for ExecDecoder {
     // Init
     fn init(&mut self, data: Vec<u8>) -> bool {
         if !self.decode(data) {

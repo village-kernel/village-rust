@@ -1,11 +1,11 @@
 //###########################################################################
-// vk_prog_runner.rs
-// The specific implementation of functions related to prog runner
+// vk_exec_runner.rs
+// The specific implementation of functions related to exec runner
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::traits::vk_callback::Callback;
-use crate::traits::vk_executor::{BaseLoader, BaseDecoder, BaseRunner};
+use crate::traits::vk_builder::{ProgLoader, ProgDecoder, ProgRunner};
 use crate::village::kernel;
 use alloc::format;
 use alloc::vec::Vec;
@@ -13,18 +13,18 @@ use alloc::boxed::Box;
 use alloc::string::{String, ToString};
 
 // Sturct ProgRunner
-pub struct ProgRunner {
-    loader: Box<dyn BaseLoader>,
-    decoder: Box<dyn BaseDecoder>,
+pub struct ExecRunner {
+    loader: Box<dyn ProgLoader>,
+    decoder: Box<dyn ProgDecoder>,
     path: String,
     argv: Vec<String>,
     tid: i32,
 }
 
-// Impl ProgRunner
-impl ProgRunner {
+// Impl ExecRunner
+impl ExecRunner {
     // New
-    pub const fn new(loader: Box<dyn BaseLoader>, decoder: Box<dyn BaseDecoder>) -> Self {
+    pub const fn new(loader: Box<dyn ProgLoader>, decoder: Box<dyn ProgDecoder>) -> Self {
         Self {
             loader,
             decoder,
@@ -35,8 +35,8 @@ impl ProgRunner {
     }
 }
 
-// Impl ProgRunner
-impl ProgRunner {
+// Impl ExecRunner
+impl ExecRunner {
     // Sandbox
     fn sandbox(&mut self) {
         let argv = self.argv.iter_mut().map(|s| s.as_str()).collect();
@@ -45,8 +45,8 @@ impl ProgRunner {
     }
 }
 
-// Impl base runner for prog runner
-impl BaseRunner for ProgRunner {
+// Impl ProgRunner for ExecRunner
+impl ProgRunner for ExecRunner {
     // Run
     fn run(&mut self, path: &str, argv: Vec<&str>) -> i32 {
         // Set path and argv

@@ -5,7 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::misc::fopts::vk_file_fopt::FileFopt;
-use crate::traits::vk_executor::BaseLoader;
+use crate::traits::vk_builder::ProgLoader;
 use crate::traits::vk_filesys::FileMode;
 use crate::village::kernel;
 use alloc::format;
@@ -221,8 +221,8 @@ impl HexLoader {
     }
 }
 
-// Imol BaseLoader for HexLoader
-impl BaseLoader for HexLoader {
+// Imol ProgLoader for HexLoader
+impl ProgLoader for HexLoader {
     // Init
     fn init(&mut self, filename: &str, data: &mut Vec<u8>) -> bool {
         //Save filename in local

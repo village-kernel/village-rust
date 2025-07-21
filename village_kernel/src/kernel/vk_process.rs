@@ -96,7 +96,7 @@ impl Process for VillageProcess {
         process.path = path.to_string();
 
         // Create runner
-        process.runner = kernel().executer().create_runner(path);
+        process.runner = kernel().director().create_runner(path);
         if process.runner.is_none() {
             kernel().debug().error(&format!("{} unsupported file type!", path));
             return -1;

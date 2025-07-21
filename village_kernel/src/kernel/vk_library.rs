@@ -10,7 +10,6 @@ use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
 use alloc::format;
 use alloc::string::ToString;
-use alloc::vec::Vec;
 
 // Struct village library
 pub struct VillageLibrary {
@@ -92,15 +91,15 @@ impl Library for VillageLibrary {
         // Set the path
         lib.path = path.to_string();
 
-        // Create runner
-        lib.runner = kernel().executer().create_runner(path);
-        if lib.runner.is_none() {
+        // Create loader
+        lib.loader = kernel().director().create_loader(path);
+        if lib.loader.is_none() {
             kernel().debug().error(&format!("{} unsupported file type!", path));
             return false;
         }
 
-        // Run lib without argv
-        if lib.runner.as_mut().unwrap().run(path, Vec::new()) < 0 {
+        // Init library
+        if !lib.loader.as_mut().unwrap().init(path) {
             kernel().debug().error(&format!("{} install failed!", path));
             return false;
         }
@@ -121,7 +120,7 @@ impl Library for VillageLibrary {
         self.libs.retain_mut(|lib| {
             if lib.path == path {
                 is_unistall = true;
-                lib.runner.as_mut().unwrap().kill();
+                lib.loader.as_mut().unwrap().exit();
                 kernel().debug().info(&format!("{} uninstall successful!", path));
                 false
             } else {
@@ -138,9 +137,9 @@ impl Library for VillageLibrary {
     }
 
     // Search symbol
-    fn search_symbol(&mut self, _symbol: &str) -> usize {
-        for _lib in self.libs.iter_mut() {
-            let addr = 0;//lib.get_dym_sym_addr_by_name(symbol);
+    fn search_symbol(&mut self, symbol: &str) -> usize {
+        for lib in self.libs.iter_mut() {
+            let addr = lib.loader.as_mut().unwrap().get(symbol);
             if addr != 0 {
                 return addr;
             }

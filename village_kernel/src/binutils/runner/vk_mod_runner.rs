@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::traits::vk_executor::{BaseLoader, BaseDecoder, BaseRunner};
+use crate::traits::vk_builder::{ProgLoader, ProgDecoder, ProgRunner};
 use crate::village::kernel;
 use alloc::format;
 use alloc::vec::Vec;
@@ -13,15 +13,15 @@ use alloc::string::{String, ToString};
 
 // Sturct ModRunner
 pub struct ModRunner {
-    loader: Box<dyn BaseLoader>,
-    decoder: Box<dyn BaseDecoder>,
+    loader: Box<dyn ProgLoader>,
+    decoder: Box<dyn ProgDecoder>,
     path: String,
 }
 
 // Impl ModRunner
 impl ModRunner {
     // New
-    pub const fn new(loader: Box<dyn BaseLoader>, decoder: Box<dyn BaseDecoder>) -> Self {
+    pub const fn new(loader: Box<dyn ProgLoader>, decoder: Box<dyn ProgDecoder>) -> Self {
         Self {
             loader,
             decoder,
@@ -30,8 +30,8 @@ impl ModRunner {
     }
 }
 
-// Impl base runner for mod runner
-impl BaseRunner for ModRunner {
+// Impl ExecRunner for ModRunner
+impl ProgRunner for ModRunner {
     // Run
     fn run(&mut self, path: &str, _argv: Vec<&str>) -> i32 {
         // Set path and argv

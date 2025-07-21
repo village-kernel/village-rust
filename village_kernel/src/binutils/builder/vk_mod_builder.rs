@@ -1,6 +1,6 @@
 //###########################################################################
-// vk_prog_executor.rs
-// The specific implementation of functions related to prog executor
+// vk_prog_builder.rs
+// The specific implementation of functions related to prog builder
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
@@ -9,24 +9,24 @@ use crate::binutils::loader::vk_hex_loader::HexLoader;
 use crate::binutils::loader::vk_elf_loader::ElfLoader;
 use crate::binutils::decoder::vk_mod_decode::ModDecoder;
 use crate::binutils::runner::vk_mod_runner::ModRunner;
-use crate::traits::vk_executor::{BaseRunner, BaseExecutor};
-use crate::register_executor;
+use crate::traits::vk_builder::{ProgRunner, ProgBuilder};
+use crate::register_prog_builder;
 use alloc::vec;
 use alloc::vec::Vec;
 use alloc::boxed::Box;
 
-// Struct ModExecutor
-struct ModExecutor;
+// Struct ModBuilder
+struct ModBuilder;
 
-// Impl executor for ModExecutor
-impl BaseExecutor for ModExecutor {
+// Impl ProgBuilder for ModBuilder
+impl ProgBuilder for ModBuilder {
     // Suffixes
     fn suffixes(&self) -> Vec<&str> {
         return vec![".mbin", ".mhex", ".melf", ".mod"];
     }
 
     // Create
-    fn create(&self, mut suffix: &str) -> Option<Box<dyn BaseRunner>> {
+    fn create(&self, mut suffix: &str) -> Option<Box<dyn ProgRunner>> {
         #[cfg(feature = "binding_mod_mbin")]
         if suffix == ".mod" { suffix = ".mbin"; }
         
@@ -59,4 +59,4 @@ impl BaseExecutor for ModExecutor {
 }
 
 // Register executor
-register_executor!(ModExecutor, mod_executor);
+register_prog_builder!(ModBuilder, mod_builder);

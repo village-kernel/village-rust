@@ -28,24 +28,25 @@ pub mod arch {
 
 // import binutils modules
 pub mod binutils {
+    pub mod builder {
+        pub mod vk_dylib_builder;
+        pub mod vk_exec_builder;
+        pub mod vk_mod_builder;
+    }
     pub mod decoder {
         pub mod vk_elf_defines;
+        pub mod vk_exec_decode;
         pub mod vk_mod_decode;
-        pub mod vk_prog_decode;
-    }
-    pub mod executor {
-        pub mod vk_mod_executor;
-        pub mod vk_prog_executor;
     }
     pub mod loader {
         pub mod vk_bin_loader;
         pub mod vk_elf_loader;
         pub mod vk_hex_loader;
-        pub mod vk_lib_loader;
+        pub mod vk_so_loader;
     }
     pub mod runner {
         pub mod vk_mod_runner;
-        pub mod vk_prog_runner;
+        pub mod vk_exec_runner;
     }
 }
 
@@ -86,7 +87,7 @@ pub mod kernel {
     pub mod vk_debug;
     pub mod vk_device;
     pub mod vk_event;
-    pub mod vk_executer;
+    pub mod vk_director;
     pub mod vk_extender;
     pub mod vk_interrupt;
     pub mod vk_library;
@@ -158,7 +159,7 @@ pub mod traits {
     pub mod vk_command;
     pub mod vk_driver;
     pub mod vk_event_codes;
-    pub mod vk_executor;
+    pub mod vk_builder;
     pub mod vk_filesys;
     pub mod vk_kernel;
     pub mod vk_linkedlist;

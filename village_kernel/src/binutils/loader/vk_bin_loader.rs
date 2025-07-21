@@ -5,7 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::misc::fopts::vk_file_fopt::FileFopt;
-use crate::traits::vk_executor::BaseLoader;
+use crate::traits::vk_builder::ProgLoader;
 use crate::traits::vk_filesys::FileMode;
 use crate::village::kernel;
 use alloc::format;
@@ -52,8 +52,8 @@ impl BinLoader {
     }
 }
 
-// Impl BaseLoader for BinLoader
-impl BaseLoader for BinLoader {
+// Impl ProgLoader for BinLoader
+impl ProgLoader for BinLoader {
     // Init
     fn init(&mut self, filename: &str, data: &mut Vec<u8>) -> bool {
         // Save filename in local

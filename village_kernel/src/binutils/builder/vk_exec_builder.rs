@@ -1,32 +1,32 @@
 //###########################################################################
-// vk_prog_executor.rs
-// The specific implementation of functions related to prog executor
+// vk_exec_builder.rs
+// The specific implementation of functions related to exec builder
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::binutils::loader::vk_bin_loader::BinLoader;
 use crate::binutils::loader::vk_hex_loader::HexLoader;
 use crate::binutils::loader::vk_elf_loader::ElfLoader;
-use crate::binutils::decoder::vk_prog_decode::ProgDecoder;
-use crate::binutils::runner::vk_prog_runner::ProgRunner;
-use crate::traits::vk_executor::{BaseRunner, BaseExecutor};
-use crate::register_executor;
+use crate::binutils::decoder::vk_exec_decode::ExecDecoder;
+use crate::binutils::runner::vk_exec_runner::ExecRunner;
+use crate::traits::vk_builder::{ProgRunner, ProgBuilder};
+use crate::register_prog_builder;
 use alloc::vec;
 use alloc::vec::Vec;
 use alloc::boxed::Box;
 
-// Struct ProgExecutor
-struct ProgExecutor;
+// Struct ExecBuilder
+struct ExecBuilder;
 
-// Impl executor for ProgExecutor
-impl BaseExecutor for ProgExecutor {
+// Impl ProgBuilder for ExecBuilder
+impl ProgBuilder for ExecBuilder {
     // Suffixes
     fn suffixes(&self) -> Vec<&str> {
         return vec![".bin", ".hex", ".elf", ".exec"];
     }
 
     // Create
-    fn create(&self, mut suffix: &str) -> Option<Box<dyn BaseRunner>> {
+    fn create(&self, mut suffix: &str) -> Option<Box<dyn ProgRunner>> {
         #[cfg(feature = "binding_exec_bin")]
         if suffix == ".exec" { suffix = ".bin"; }
         
@@ -38,20 +38,20 @@ impl BaseExecutor for ProgExecutor {
 
         if suffix == ".bin" {
             let loader = Box::new(BinLoader::new());
-            let decoder = Box::new(ProgDecoder::new());
-            return Some(Box::new(ProgRunner::new(loader, decoder)))
+            let decoder = Box::new(ExecDecoder::new());
+            return Some(Box::new(ExecRunner::new(loader, decoder)))
         }
         
         else if suffix == ".hex" {
             let loader = Box::new(HexLoader::new());
-            let decoder = Box::new(ProgDecoder::new());
-            return Some(Box::new(ProgRunner::new(loader, decoder)))
+            let decoder = Box::new(ExecDecoder::new());
+            return Some(Box::new(ExecRunner::new(loader, decoder)))
         }
 
         else if suffix == ".elf" {
             let loader = Box::new(ElfLoader::new());
-            let decoder = Box::new(ProgDecoder::new());
-            return Some(Box::new(ProgRunner::new(loader, decoder)))
+            let decoder = Box::new(ExecDecoder::new());
+            return Some(Box::new(ExecRunner::new(loader, decoder)))
         }
         
         None
@@ -59,4 +59,4 @@ impl BaseExecutor for ProgExecutor {
 }
 
 // Register executor
-register_executor!(ProgExecutor, prog_executor);
+register_prog_builder!(ExecBuilder, exec_builder);
