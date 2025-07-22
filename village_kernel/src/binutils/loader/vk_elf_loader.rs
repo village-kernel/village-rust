@@ -4,8 +4,8 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::binutils::decoder::vk_elf_defines::{ELFClass, ELFVersion, ELFMachine, ELFType};
-use crate::binutils::decoder::vk_elf_defines::{ELFHeader, ProgramHeader, ProgHdrType};
+use crate::binutils::decoder::vk_defs_elf::{ELFClass, ELFVersion, ELFMachine, ELFType};
+use crate::binutils::decoder::vk_defs_elf::{ELFHeader, ProgramHeader, ProgHdrType};
 use crate::misc::fopts::vk_file_fopt::FileFopt;
 use crate::traits::vk_builder::ProgLoader;
 use crate::traits::vk_filesys::FileMode;
@@ -13,7 +13,6 @@ use crate::traits::vk_kernel::DebugLevel;
 use crate::village::kernel;
 use alloc::format;
 use alloc::string::{String, ToString};
-use alloc::vec;
 use alloc::vec::Vec;
 
 // Struct ElfLoader
@@ -41,7 +40,7 @@ impl ElfLoader {
 
         if file.open(&self.filename, FileMode::READ) {
             let size = file.size();
-            self.elf = vec![0u8; size];
+            self.elf.resize(size, 0);
             result = file.read(&mut self.elf, size, 0) == size;
             file.close();
         }
@@ -145,7 +144,7 @@ impl ElfLoader {
         }
 
         // Allocate the memory space required by the program
-        *data = vec![0u8; prog_size as usize];
+        data.resize(prog_size as usize, 0);
 
         // Load the program from the ELF file
         for phdr in phdrs.iter_mut() {

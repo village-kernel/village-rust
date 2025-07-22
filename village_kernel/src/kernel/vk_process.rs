@@ -96,14 +96,14 @@ impl Process for VillageProcess {
         process.path = path.to_string();
 
         // Create runner
-        process.runner = kernel().director().create_runner(path);
-        if process.runner.is_none() {
+        process.container = kernel().director().create_prog_container(path);
+        if process.container.is_none() {
             kernel().debug().error(&format!("{} unsupported file type!", path));
             return -1;
         }
 
         // Run with argv
-        process.tid = process.runner.as_mut().unwrap().run(path, argv);
+        process.tid = process.container.as_mut().unwrap().run(path, argv);
         if process.tid < 0 {
             kernel().debug().error(&format!("{} create task failed!", path));
             return -1;
@@ -126,7 +126,7 @@ impl Process for VillageProcess {
                 .iter_mut()
                 .find(|p| p.pid == (self.pid_cnt - 1))
             {
-                if let Some(runner) = &mut process.runner {
+                if let Some(runner) = &mut process.container {
                     runner.wait();
                 }
             }
@@ -138,7 +138,7 @@ impl Process for VillageProcess {
     // Kill by path
     fn kill_by_path(&mut self, path: &str) {
         if let Some(data) = self.processes.iter_mut().find(|d| d.path == path) {
-            if let Some(runner) = &mut data.runner {
+            if let Some(runner) = &mut data.container {
                 runner.kill();
             }
         }
@@ -147,7 +147,7 @@ impl Process for VillageProcess {
     // Kill by pid
     fn kill_by_pid(&mut self, pid: i32) {
         if let Some(data) = self.processes.iter_mut().find(|d| d.pid == pid) {
-            if let Some(runner) = &mut data.runner {
+            if let Some(runner) = &mut data.container {
                 runner.kill();
             }
         }

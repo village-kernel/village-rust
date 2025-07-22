@@ -92,14 +92,14 @@ impl Library for VillageLibrary {
         lib.path = path.to_string();
 
         // Create loader
-        lib.loader = kernel().director().create_loader(path);
-        if lib.loader.is_none() {
+        lib.container = kernel().director().create_lib_container(path);
+        if lib.container.is_none() {
             kernel().debug().error(&format!("{} unsupported file type!", path));
             return false;
         }
 
         // Init library
-        if !lib.loader.as_mut().unwrap().init(path) {
+        if !lib.container.as_mut().unwrap().init(path) {
             kernel().debug().error(&format!("{} install failed!", path));
             return false;
         }
@@ -120,7 +120,7 @@ impl Library for VillageLibrary {
         self.libs.retain_mut(|lib| {
             if lib.path == path {
                 is_unistall = true;
-                lib.loader.as_mut().unwrap().exit();
+                lib.container.as_mut().unwrap().exit();
                 kernel().debug().info(&format!("{} uninstall successful!", path));
                 false
             } else {
@@ -139,7 +139,7 @@ impl Library for VillageLibrary {
     // Search symbol
     fn search(&mut self, symbol: &str) -> usize {
         for lib in self.libs.iter_mut() {
-            let addr = lib.loader.as_mut().unwrap().get(symbol);
+            let addr = lib.container.as_mut().unwrap().get(symbol);
             if addr != 0 {
                 return addr;
             }

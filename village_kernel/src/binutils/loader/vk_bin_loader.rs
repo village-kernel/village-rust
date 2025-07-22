@@ -10,7 +10,6 @@ use crate::traits::vk_filesys::FileMode;
 use crate::village::kernel;
 use alloc::format;
 use alloc::string::{String, ToString};
-use alloc::vec;
 use alloc::vec::Vec;
 
 // Struct BinLoader
@@ -35,7 +34,7 @@ impl BinLoader {
         // Read bin file
         if file.open(&self.filename, FileMode::READ) {
             let size = file.size();
-            *data = vec![0u8; size];
+            data.resize(size, 0);
             result = file.read(data, size, 0) == size;
             file.close();
         }

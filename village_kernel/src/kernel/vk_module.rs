@@ -93,14 +93,14 @@ impl Module for VillageModule {
         module.path = path.to_string();
 
         // Create runner
-        module.runner = kernel().director().create_runner(path);
-        if module.runner.is_none() {
+        module.container = kernel().director().create_prog_container(path);
+        if module.container.is_none() {
             kernel().debug().error(&format!("{} unsupported file type!", path));
             return false;
         }
 
         // Run module without argv
-        if module.runner.as_mut().unwrap().run(path, Vec::new()) < 0 {
+        if module.container.as_mut().unwrap().run(path, Vec::new()) < 0 {
             kernel().debug().error(&format!("{} install failed!", path));
             return false;
         }
@@ -121,7 +121,7 @@ impl Module for VillageModule {
         self.mods.retain_mut(|module| {
             if module.path == path {
                 is_unistall = true;
-                module.runner.as_mut().unwrap().kill();
+                module.container.as_mut().unwrap().kill();
                 kernel().debug().info(&format!("{} uninstall successful!", path));
                 false
             } else {

@@ -8,8 +8,8 @@ use crate::binutils::loader::vk_bin_loader::BinLoader;
 use crate::binutils::loader::vk_hex_loader::HexLoader;
 use crate::binutils::loader::vk_elf_loader::ElfLoader;
 use crate::binutils::decoder::vk_exec_decode::ExecDecoder;
-use crate::binutils::runner::vk_exec_runner::ExecRunner;
-use crate::traits::vk_builder::{ProgRunner, ProgBuilder};
+use crate::binutils::container::vk_exec_container::ExecRunner;
+use crate::traits::vk_builder::{ProgContainer, ProgBuilder};
 use crate::register_prog_builder;
 use alloc::vec;
 use alloc::vec::Vec;
@@ -26,7 +26,7 @@ impl ProgBuilder for ExecBuilder {
     }
 
     // Create
-    fn create(&self, mut suffix: &str) -> Option<Box<dyn ProgRunner>> {
+    fn create(&self, mut suffix: &str) -> Option<Box<dyn ProgContainer>> {
         #[cfg(feature = "binding_exec_bin")]
         if suffix == ".exec" { suffix = ".bin"; }
         

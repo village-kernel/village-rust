@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::traits::vk_builder::{ProgLoader, ProgDecoder, ProgRunner};
+use crate::traits::vk_builder::{ProgLoader, ProgDecoder, ProgContainer};
 use crate::village::kernel;
 use alloc::format;
 use alloc::vec::Vec;
@@ -31,7 +31,7 @@ impl ModRunner {
 }
 
 // Impl ExecRunner for ModRunner
-impl ProgRunner for ModRunner {
+impl ProgContainer for ModRunner {
     // Run
     fn run(&mut self, path: &str, _argv: Vec<&str>) -> i32 {
         // Set path and argv
@@ -47,7 +47,7 @@ impl ProgRunner for ModRunner {
         }
 
         // Decoder module data
-        if !self.decoder.init(data) {
+        if !self.decoder.init(&self.path, data) {
             kernel().debug().error(&format!("{} module decode failed", self.path));
             return -1;
         }

@@ -7,7 +7,7 @@
 use super::vk_callback::Callback;
 use super::vk_command::CmdWrapper;
 use super::vk_driver::{DriverWrapper, PlatDevWrapper, PlatDrvWrapper};
-use super::vk_builder::{LibLoader, LibBuilderWrapper, ProgRunner, ProgBuilderWrapper};
+use super::vk_builder::{LibContainer, LibBuilderWrapper, ProgContainer, ProgBuilderWrapper};
 use super::vk_filesys::{FileSysWrapper, FileVol};
 use super::vk_linkedlist::LinkedList;
 use super::vk_extension::ExtensionWrapper;
@@ -378,7 +378,7 @@ pub trait Event {
 // Struct ModuleData
 pub struct ModuleData {
     pub path: String,
-    pub runner: Option<Box<dyn ProgRunner>>,
+    pub container: Option<Box<dyn ProgContainer>>,
 }
 
 // Impl ModuleData
@@ -386,7 +386,7 @@ impl ModuleData {
     pub fn new() -> Self {
         ModuleData {
             path: "None".to_string(),
-            runner: None,
+            container: None,
         }
     }
 }
@@ -404,7 +404,7 @@ pub trait Module {
 // Struct LibraryData
 pub struct LibraryData {
     pub path: String,
-    pub loader: Option<Box<dyn LibLoader>>,
+    pub container: Option<Box<dyn LibContainer>>,
 }
 
 // Impl LibraryData
@@ -412,7 +412,7 @@ impl LibraryData {
     pub fn new() -> Self {
         LibraryData {
             path: "None".to_string(),
-            loader: None,
+            container: None,
         }
     }
 }
@@ -447,7 +447,7 @@ pub struct ProcessData {
     pub path: String,
     pub pid: i32,
     pub tid: i32,
-    pub runner: Option<Box<dyn ProgRunner>>,
+    pub container: Option<Box<dyn ProgContainer>>,
 }
 
 // Process data
@@ -458,7 +458,7 @@ impl ProcessData {
             path: "None".to_string(),
             pid: -1,
             tid: -1,
-            runner: None,
+            container: None,
         }
     }
 }
@@ -472,8 +472,8 @@ pub trait Director {
     fn unregister_prog_builder(&mut self, name: &str);
 
     // Data Methods
-    fn create_loader(&mut self, path: &str) -> Option<Box<dyn LibLoader>>;
-    fn create_runner(&mut self, path: &str) -> Option<Box<dyn ProgRunner>>;
+    fn create_lib_container(&mut self, path: &str) -> Option<Box<dyn LibContainer>>;
+    fn create_prog_container(&mut self, path: &str) -> Option<Box<dyn ProgContainer>>;
 }
 
 // Process

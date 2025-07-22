@@ -10,7 +10,6 @@ use crate::traits::vk_filesys::FileMode;
 use crate::village::kernel;
 use alloc::format;
 use alloc::string::{String, ToString};
-use alloc::vec;
 use alloc::vec::Vec;
 
 // Const members
@@ -127,7 +126,7 @@ impl HexLoader {
 
         if file.open(&self.filename, FileMode::READ) {
             let size = file.size();
-            data = vec![0u8; size];
+            data.resize(size, 0);
             result = file.read(&mut data, size, 0) == size;
             file.close();
         }
@@ -201,7 +200,7 @@ impl HexLoader {
 
         // Allocate the memory space required by the program
         let start_addr = records[0].addr as usize;
-        *data = vec![0u8; data_size - start_addr];
+        data.resize(data_size - start_addr, 0);
 
         // Load program data
         for record in records.iter_mut() {

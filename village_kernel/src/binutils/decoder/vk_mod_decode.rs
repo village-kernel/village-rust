@@ -4,10 +4,11 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use super::vk_elf_defines::{DynamicHeader, DynamicType, RelocateCode, RelocateEntry};
+use super::vk_defs_elf::{DynamicHeader, DynamicType, RelocateCode, RelocateEntry};
 use crate::traits::vk_builder::ProgDecoder;
 use crate::traits::vk_kernel::Kernel;
 use crate::village::kernel;
+use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 
 // Type aliases for start entry
@@ -29,6 +30,8 @@ pub struct ModDecoder {
     dynamic: u32,
     init_entry: u32,
     exit_entry: u32,
+
+    filename: String,
 }
 
 // Impl ModDecoder
@@ -47,6 +50,8 @@ impl ModDecoder {
             dynamic: 0,
             init_entry: 0,
             exit_entry: 0,
+
+            filename: String::new(),
         }
     }
 
@@ -171,7 +176,9 @@ impl ModDecoder {
 // Impl ProgDecpder for ModDecoder
 impl ProgDecoder for ModDecoder {
     // Init
-    fn init(&mut self, data: Vec<u8>) -> bool {
+    fn init(&mut self, path: &str, data: Vec<u8>) -> bool {
+        self.filename = path.to_string();
+
         if !self.decode(data) {
             return false;
         }

@@ -9,7 +9,20 @@ use alloc::vec::Vec;
 
 // LibLoader
 pub trait LibLoader {
-    fn init(&mut self, filename: &str) -> bool;
+    fn init(&mut self, path: &str, elf: &mut Vec<u8>, prog: &mut Vec<u8>) -> bool;
+    fn exit(&mut self) -> bool;
+}
+
+// LibDecoder
+pub trait LibDecoder {
+    fn init(&mut self, path: &str, elf: Vec<u8>, prog: Vec<u8>) -> bool;
+    fn get(&mut self, symbol: &str) -> usize;
+    fn exit(&mut self) -> bool;
+}
+
+// LibContainer
+pub trait LibContainer {
+    fn init(&mut self, path: &str) -> bool;
     fn get(&mut self, symbol: &str) -> usize;
     fn exit(&mut self) -> bool;
 }
@@ -17,24 +30,24 @@ pub trait LibLoader {
 // LibBuiulder
 pub trait LibBuilder {
     fn suffixes(&self) -> Vec<&str>;
-    fn create(&self, suffix: &str) -> Option<Box<dyn LibLoader>>;
+    fn create(&self, suffix: &str) -> Option<Box<dyn LibContainer>>;
 }
 
 // ProgLoader
 pub trait ProgLoader {
-    fn init(&mut self, filename: &str, data: &mut Vec<u8>) -> bool;
+    fn init(&mut self, path: &str, data: &mut Vec<u8>) -> bool;
     fn exit(&mut self) -> bool;
 }
 
 // ProgDecoder
 pub trait ProgDecoder {
-    fn init(&mut self, data: Vec<u8>) -> bool;
+    fn init(&mut self, path: &str, data: Vec<u8>) -> bool;
     fn exec(&mut self, argv: Vec<&str>) -> bool;
     fn exit(&mut self) -> bool;
 }
 
-// ProgRunner
-pub trait ProgRunner {
+// ProgContainer
+pub trait ProgContainer {
     fn run(&mut self, path: &str, argv: Vec<&str>) -> i32;
     fn wait(&mut self);
     fn kill(&mut self);
@@ -43,7 +56,7 @@ pub trait ProgRunner {
 // ProgBuilder
 pub trait ProgBuilder {
     fn suffixes(&self) -> Vec<&str>;
-    fn create(&self, suffix: &str) -> Option<Box<dyn ProgRunner>>;
+    fn create(&self, suffix: &str) -> Option<Box<dyn ProgContainer>>;
 }
 
 // Struct LibBuilderWrapper
@@ -74,7 +87,7 @@ impl LibBuilderWrapper {
 
     // create
     #[inline]
-    pub fn create(&self, suffix: &str) -> Option<Box<dyn LibLoader>> {
+    pub fn create(&self, suffix: &str) -> Option<Box<dyn LibContainer>> {
         self.inner.create(suffix)
     }
 }
@@ -107,7 +120,7 @@ impl ProgBuilderWrapper {
 
     // create
     #[inline]
-    pub fn create(&self, suffix: &str) -> Option<Box<dyn ProgRunner>> {
+    pub fn create(&self, suffix: &str) -> Option<Box<dyn ProgContainer>> {
         self.inner.create(suffix)
     }
 }

@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::traits::vk_builder::{ProgRunner, ProgBuilderWrapper, LibLoader, LibBuilderWrapper};
+use crate::traits::vk_builder::{ProgContainer, ProgBuilderWrapper, LibContainer, LibBuilderWrapper};
 use crate::traits::vk_kernel::Director;
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
@@ -69,7 +69,7 @@ impl Director for VillageDirector {
     }
 
     // Create loader
-    fn create_loader(&mut self, path: &str) -> Option<Box<dyn LibLoader>> {
+    fn create_lib_container(&mut self, path: &str) -> Option<Box<dyn LibContainer>> {
         let suffix = match path.rfind('.') {
             Some(pos) => &path[pos..],
             None => return None,
@@ -85,7 +85,7 @@ impl Director for VillageDirector {
     }
 
     // Create runner
-    fn create_runner(&mut self, path: &str) -> Option<Box<dyn ProgRunner>> {
+    fn create_prog_container(&mut self, path: &str) -> Option<Box<dyn ProgContainer>> {
         let suffix = match path.rfind('.') {
             Some(pos) => &path[pos..],
             None => return None,

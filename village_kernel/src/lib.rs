@@ -33,8 +33,14 @@ pub mod binutils {
         pub mod vk_exec_builder;
         pub mod vk_mod_builder;
     }
+    pub mod container {
+        pub mod vk_dylib_container;
+        pub mod vk_mod_container;
+        pub mod vk_exec_container;
+    }
     pub mod decoder {
-        pub mod vk_elf_defines;
+        pub mod vk_defs_elf;
+        pub mod vk_dylib_decode;
         pub mod vk_exec_decode;
         pub mod vk_mod_decode;
     }
@@ -43,10 +49,6 @@ pub mod binutils {
         pub mod vk_elf_loader;
         pub mod vk_hex_loader;
         pub mod vk_so_loader;
-    }
-    pub mod runner {
-        pub mod vk_mod_runner;
-        pub mod vk_exec_runner;
     }
 }
 

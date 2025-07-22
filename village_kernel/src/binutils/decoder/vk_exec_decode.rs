@@ -4,10 +4,11 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use super::vk_elf_defines::{DynamicHeader, DynamicType, RelocateCode, RelocateEntry};
+use super::vk_defs_elf::{DynamicHeader, DynamicType, RelocateCode, RelocateEntry};
 use crate::traits::vk_builder::ProgDecoder;
 use crate::traits::vk_kernel::Kernel;
 use crate::village::kernel;
+use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 
 // Type aliases for start entry
@@ -27,6 +28,8 @@ pub struct ExecDecoder {
     offset: u32,
     dynamic: u32,
     entry: u32,
+
+    filename: String,
 }
 
 // Impl ExecDecoder
@@ -43,6 +46,8 @@ impl ExecDecoder {
             offset: 0,
             dynamic: 0,
             entry: 0,
+
+            filename: String::new(),
         }
     }
 
@@ -165,7 +170,9 @@ impl ExecDecoder {
 // Impl ProgDecoder for ExecDecoder
 impl ProgDecoder for ExecDecoder {
     // Init
-    fn init(&mut self, data: Vec<u8>) -> bool {
+    fn init(&mut self, path: &str, data: Vec<u8>) -> bool {
+        self.filename = path.to_string();
+
         if !self.decode(data) {
             return false;
         }

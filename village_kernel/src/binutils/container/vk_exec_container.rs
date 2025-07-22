@@ -5,7 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::traits::vk_callback::Callback;
-use crate::traits::vk_builder::{ProgLoader, ProgDecoder, ProgRunner};
+use crate::traits::vk_builder::{ProgLoader, ProgDecoder, ProgContainer};
 use crate::village::kernel;
 use alloc::format;
 use alloc::vec::Vec;
@@ -46,7 +46,7 @@ impl ExecRunner {
 }
 
 // Impl ProgRunner for ExecRunner
-impl ProgRunner for ExecRunner {
+impl ProgContainer for ExecRunner {
     // Run
     fn run(&mut self, path: &str, argv: Vec<&str>) -> i32 {
         // Set path and argv
@@ -63,7 +63,7 @@ impl ProgRunner for ExecRunner {
         }
 
         // Decoder program data
-        if !self.decoder.init(data) {
+        if !self.decoder.init(&self.path, data) {
             kernel().debug().error(&format!("{} program decode failed", self.path));
             return -1;
         }
