@@ -137,7 +137,7 @@ impl Library for VillageLibrary {
     }
 
     // Search symbol
-    fn search_symbol(&mut self, symbol: &str) -> usize {
+    fn search(&mut self, symbol: &str) -> usize {
         for lib in self.libs.iter_mut() {
             let addr = lib.loader.as_mut().unwrap().get(symbol);
             if addr != 0 {

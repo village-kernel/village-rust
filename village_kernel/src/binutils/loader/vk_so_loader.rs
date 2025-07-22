@@ -4,11 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::binutils::decoder::vk_elf_defines::{ELFClass, ELFVersion, ELFMachine, ELFType};
-use crate::binutils::decoder::vk_elf_defines::{ELFHeader, ProgHdrType, ProgramHeader};
-use crate::binutils::decoder::vk_elf_defines::{SectionHdrType, SectionHeader};
-use crate::binutils::decoder::vk_elf_defines::{DynamicHeader, DynamicType, RelocateCode};
-use crate::binutils::decoder::vk_elf_defines::{RelocateEntry, SymbolEntry};
+use crate::binutils::decoder::vk_elf_defines::*;
 use crate::misc::fopts::vk_file_fopt::FileFopt;
 use crate::traits::vk_builder::LibLoader;
 use crate::traits::vk_filesys::FileMode;
@@ -163,7 +159,7 @@ impl SoLoader {
 
     // Pre load
     fn pre_load(&mut self) -> bool {
-        //Parser section headers
+        // Parser section headers
         for i in 0..self.hdr.sect_hdr_num as usize {
             let sect_start = self.hdr.sect_hdr_off as usize + i * self.hdr.sect_hdr_size as usize;
             let sect_end = sect_start + self.hdr.sect_hdr_size as usize;
@@ -256,32 +252,21 @@ impl SoLoader {
             let dhdr = DynamicHeader::from(&&self.prog[dhdr_offset..dhdr_offset + 8]);
 
             // Get info
-            if dhdr.tag == DynamicType::DT_REL {
-                self.rel = dhdr.val;
-            } else if dhdr.tag == DynamicType::DT_RELSZ {
-                self.relsz = dhdr.val;
-            } else if dhdr.tag == DynamicType::DT_RELENT {
-                self.relent = dhdr.val;
-            } else if dhdr.tag == DynamicType::DT_RELCOUNT {
-                self.relcount = dhdr.val;
-            } else if dhdr.tag == DynamicType::DT_JMPREL {
-                self.jmprel = dhdr.val;
-            } else if dhdr.tag == DynamicType::DT_PLTGOT {
-                self.pltgot = dhdr.val;
-            } else if dhdr.tag == DynamicType::DT_PLTRELSZ {
-                self.pltrelsz = dhdr.val;
-            } else if dhdr.tag == DynamicType::DT_SYMTAB {
-                self.symtab = dhdr.val;
-            } else if dhdr.tag == DynamicType::DT_SYMENT {
-                self.syment = dhdr.val;
-            } else if dhdr.tag == DynamicType::DT_STRTAB {
-                self.strtab = dhdr.val;
-            } else if dhdr.tag == DynamicType::DT_STRSZ {
-                self.strsz = dhdr.val;
-            } else if dhdr.tag == DynamicType::DT_NEEDED {
-                self.load_needed_lib(dhdr.val);
-            } else if dhdr.tag == DynamicType::DT_NULL {
-                break;
+            match dhdr.tag {
+                DynamicType::DT_REL      => self.rel      = dhdr.val,
+                DynamicType::DT_RELSZ    => self.relsz    = dhdr.val,
+                DynamicType::DT_RELENT   => self.relent   = dhdr.val,
+                DynamicType::DT_RELCOUNT => self.relcount = dhdr.val,
+                DynamicType::DT_JMPREL   => self.jmprel   = dhdr.val,
+                DynamicType::DT_PLTGOT   => self.pltgot   = dhdr.val,
+                DynamicType::DT_PLTRELSZ => self.pltrelsz = dhdr.val,
+                DynamicType::DT_SYMTAB   => self.symtab   = dhdr.val,
+                DynamicType::DT_SYMENT   => self.syment   = dhdr.val,
+                DynamicType::DT_STRTAB   => self.strtab   = dhdr.val,
+                DynamicType::DT_STRSZ    => self.strsz    = dhdr.val,
+                DynamicType::DT_NEEDED   => self.load_needed_lib(dhdr.val),
+                DynamicType::DT_NULL     => break,
+                _ => {}
             }
 
             i += 1;
@@ -316,67 +301,36 @@ impl SoLoader {
         unsafe {
             let a = *(rel_addr as *const u32);
             let b = self.base;
-            let g = 0;
-            let got = 0;
-            let l = 0;
-            let z = 0;
+            let got = self.pltgot;
+            let g = rel_addr;
+            let l = sym_addr;
+            let z = size;
             let p = rel_addr;
             let s = sym_addr;
-            let rel_val = rel_addr as *mut u32;
+            let rel_ptr = rel_addr as *mut u32;
 
             match typ {
-                RelocateCode::I386_32 => 
-                    *rel_val = s + a,
-
-                RelocateCode::I386_PC32 =>
-                    *rel_val = s + a - p,
-
-                RelocateCode::I386_GOT32 =>
-                    *rel_val = g + a,
-
-                RelocateCode::I386_PLT32 =>
-                    *rel_val = l + a - p,
-
-                RelocateCode::I386_COPY => {
+                RelocateCode::I386_32       => *rel_ptr = s + a,
+                RelocateCode::I386_PC32     => *rel_ptr = s + a - p,
+                RelocateCode::I386_GOT32    => *rel_ptr = g + a,
+                RelocateCode::I386_PLT32    => *rel_ptr = l + a - p,
+                RelocateCode::I386_COPY     => {
                     let src = s as *const u8;
-                    let dst: *mut u8 = rel_val as *mut u8;
+                    let dst = rel_ptr as *mut u8;
                     let count = size as usize;
                     core::ptr::copy_nonoverlapping(src, dst, count);
                 },
-                
-                RelocateCode::I386_GLOB_DAT =>
-                    *rel_val = s,
-
-                RelocateCode::I386_JMP_SLOT =>
-                    *rel_val = s,
-
-                RelocateCode::I386_RELATIVE =>
-                    *rel_val = b + a,
-
-                RelocateCode::I386_GOTOFF =>
-                    *rel_val = s + a + got,
-
-                RelocateCode::I386_GOTPC =>
-                    *rel_val = got + a - p,
-
-                RelocateCode::I386_32PLT =>
-                    *rel_val = l + a,
-
-                RelocateCode::I386_16 =>
-                    *rel_val = s + a,
-
-                RelocateCode::I386_PC16 =>
-                    *rel_val = s + a - p,
-
-                RelocateCode::I386_8 =>
-                    *rel_val = s + a,
-
-                RelocateCode::I386_PC8 =>
-                    *rel_val = s + a - p,
-
-                RelocateCode::I386_SIZE32 =>
-                    *rel_val = z + a,
-
+                RelocateCode::I386_GLOB_DAT => *rel_ptr = s,
+                RelocateCode::I386_JMP_SLOT => *rel_ptr = s,
+                RelocateCode::I386_RELATIVE => *rel_ptr = b + a,
+                RelocateCode::I386_GOTOFF   => *rel_ptr = s + a + got,
+                RelocateCode::I386_GOTPC    => *rel_ptr = got + a - p,
+                RelocateCode::I386_32PLT    => *rel_ptr = l + a,
+                RelocateCode::I386_16       => *rel_ptr = s + a,
+                RelocateCode::I386_PC16     => *rel_ptr = s + a - p,
+                RelocateCode::I386_8        => *rel_ptr = s + a,
+                RelocateCode::I386_PC8      => *rel_ptr = s + a - p,
+                RelocateCode::I386_SIZE32   => *rel_ptr = z + a,
                 _ => {}
             }
         }
@@ -384,7 +338,7 @@ impl SoLoader {
 
     // rel_symbol
     fn rel_symbol(&mut self, rel: u32, count: u32) -> bool {
-        // Check if relocation is needed
+        // Check if relocate is needed
         if rel == 0 && count == 0 {
             return true;
         }
@@ -403,7 +357,7 @@ impl SoLoader {
                 continue;
             }
 
-            // Get relocation entry
+            // Get relocate entry
             let rel_bytes = &self.prog[relent_off..relent_off + 8];
             let rel_entry = RelocateEntry::from(rel_bytes);
 
@@ -417,14 +371,14 @@ impl SoLoader {
             let rel_addr = self.base + rel_entry.offset;
             let mut sym_addr = 0;
 
-            // Get the address of symbol entry when the relocation entry type is relative
+            // Get the address of symbol entry when the relocate entry type is relative
             if rel_entry.typ == RelocateCode::TYPE_RELATIVE {
                 sym_addr = self.base;
             }
 
-            // Get the address of symbol entry when the relocation entry type is copy
+            // Get the address of symbol entry when the relocate entry type is copy
             if rel_entry.typ == RelocateCode::TYPE_COPY {
-                sym_addr = kernel().library().search_symbol(&sym_name) as u32;
+                sym_addr = kernel().library().search(&sym_name) as u32;
             }
 
             // Get the address of object symbol entry
@@ -434,28 +388,28 @@ impl SoLoader {
 
             // Get the address of undefined symbol entry
             if 0 == sym_addr {
-                sym_addr = kernel().symbol().search(&sym_name);
+                sym_addr = kernel().symbol().search(&sym_name) as u32;
             }
 
             // Searching for symbol entry in libraries
             if 0 == sym_addr {
-                sym_addr = kernel().library().search_symbol(&sym_name) as u32;
+                sym_addr = kernel().library().search(&sym_name) as u32;
             }
 
             // Return when sym addr is 0
             if sym_addr == 0 {
                 if self.is_ignore_unresolved_symbols {
                     kernel().debug().warning(
-                        &format!("{} relocation symbols ignore, symbol {} not found", self.filename, sym_name)
+                        &format!("{} relocate symbol ignore, {} not found", self.filename, sym_name)
                     );
                 } else {
                     kernel().debug().error(
-                        &format!("{} relocation symbols failed, symbol {} not found", self.filename, sym_name)
+                        &format!("{} relocate symbol failed, {} not found", self.filename, sym_name)
                     );
                 }
             }
 
-            // Relocation symbol
+            // Relocate symbol
             self.rel_sym_call(rel_addr, sym_addr, rel_entry.typ, sym_entry.size);
 
             // Output debug message
@@ -467,7 +421,7 @@ impl SoLoader {
 
         // Output debug message
         kernel().debug().output(DebugLevel::Lv1, &format!(
-            "{} relocation entries successful", self.filename
+            "{} relocate entries successful", self.filename
         ));
         true
     }

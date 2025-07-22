@@ -192,13 +192,6 @@ pub trait Thread {
     fn select_next_task(&mut self);
 }
 
-// Symbol
-pub trait Symbol {
-    fn export(&mut self, sym_addr: u32, name: &str);
-    fn unexport(&mut self, sym_addr: u32, name: &str);
-    fn search(&mut self, name: &str) -> u32;
-}
-
 // Device
 pub trait Device {
     // Register driver methods
@@ -429,10 +422,17 @@ pub trait Library {
     // Library Methods
     fn install(&mut self, path: &str) -> bool;
     fn uninstall(&mut self, path: &str) -> bool;
-    fn search_symbol(&mut self, symbol: &str) -> usize;
+    fn search(&mut self, symbol: &str) -> usize;
 
     // Data Methods
     fn get_libraries(&mut self) -> &mut LinkedList<LibraryData>;
+}
+
+// Symbol
+pub trait Symbol {
+    fn export(&mut self, sym_addr: usize, name: &str);
+    fn unexport(&mut self, sym_addr: usize, name: &str);
+    fn search(&mut self, symbol: &str) -> usize;
 }
 
 // Process behavior

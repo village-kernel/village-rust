@@ -11,13 +11,13 @@ use crate::village::kernel;
 // Struct entry
 struct Entry {
     name: *const str,
-    addr: u32,
+    addr: usize,
 }
 
 // Impl entry
 impl Entry {
     // New
-    const fn new(addr: u32, name: &str) -> Self {
+    const fn new(addr: usize, name: &str) -> Self {
         Self { name, addr }
     }
 }
@@ -51,20 +51,20 @@ impl VillageSymbol {
 // Impl symbol for village symbol
 impl Symbol for VillageSymbol {
     // Export
-    fn export(&mut self, sym_addr: u32, name: &str) {
+    fn export(&mut self, sym_addr: usize, name: &str) {
         let entry = Entry::new(sym_addr, name);
         self.entrys.push(entry);
     }
 
     // Unexport
-    fn unexport(&mut self, sym_addr: u32, name: &str) {
+    fn unexport(&mut self, sym_addr: usize, name: &str) {
         self.entrys
             .retain_mut(|entry| !(entry.addr == sym_addr && entry.name == name));
     }
 
     // Search
-    fn search(&mut self, name: &str) -> u32 {
-        if let Some(entry) = self.entrys.iter_mut().find(|t| t.name == name) {
+    fn search(&mut self, symbol: &str) -> usize {
+        if let Some(entry) = self.entrys.iter_mut().find(|t| t.name == symbol) {
             return entry.addr;
         }
         0
