@@ -74,7 +74,11 @@ impl VillageThread {
     // Idle task
     fn idle_task(&mut self) {
         loop {
-            self.sleep(1);
+            if let Some(task) = self.tasks.item() {
+                task.state = ThreadState::Ready;
+                kernel().scheduler().sched();
+                while task.state == ThreadState::Ready {}
+            }
         }
     }
 
