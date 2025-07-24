@@ -4,7 +4,7 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use crate::binutils::loader::vk_so_loader::SoLoader;
+use crate::binutils::loader::vk_elf_loader::ElfLoader;
 use crate::binutils::decoder::vk_dylib_decode::DylibDecoder;
 use crate::binutils::container::vk_dylib_container::DylibContainer;
 use crate::traits::vk_builder::{LibBuilder, LibContainer};
@@ -26,7 +26,7 @@ impl LibBuilder for DylibBuilder {
     // Create
     fn create(&self, suffix: &str) -> Option<Box<dyn LibContainer>> {
         if suffix == ".so" {
-            let loader = Box::new(SoLoader::new());
+            let loader = Box::new(ElfLoader::new());
             let decoder = Box::new(DylibDecoder::new());
             return Some(Box::new(DylibContainer::new(loader, decoder)))
         }

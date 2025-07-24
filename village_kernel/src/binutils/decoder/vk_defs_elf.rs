@@ -202,6 +202,10 @@ impl DynamicType {
     pub const DT_DEBUG: u32 = 21;
     pub const DT_TEXTREL: u32 = 22;
     pub const DT_JMPREL: u32 = 23;
+    pub const DT_INIT_ARRAY: u32 = 25;
+    pub const DT_FINI_ARRAY: u32 = 26;
+    pub const DT_INIT_ARRAYSZ: u32 = 27;
+    pub const DT_FINI_ARRAYSZ: u32 = 28;
     pub const DT_ENCODING: u32 = 32;
     pub const OLD_DT_LOOS: u32 = 0x60000000;
     pub const DT_LOOS: u32 = 0x6000000d;

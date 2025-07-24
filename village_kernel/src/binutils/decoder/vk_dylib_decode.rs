@@ -14,15 +14,13 @@ use alloc::vec::Vec;
 
 // Struct DylibDecoder
 pub struct DylibDecoder {
-    elf: Vec<u8>,
-    prog: Vec<u8>,
+    data: Vec<u8>,
 
     hdr: ELFHeader,
 
     load: u32,
     base: u32,
     dynamic: u32,
-    dynamicsz: u32,
 
     rel: u32,
     relsz: u32,
@@ -35,6 +33,7 @@ pub struct DylibDecoder {
     pltcount: u32,
 
     symtab: u32,
+    symtabsz: u32,
     syment: u32,
     symcount: u32,
     strtab: u32,
@@ -49,15 +48,13 @@ impl DylibDecoder {
     // New
     pub const fn new() -> Self {
         Self {
-            elf: Vec::new(),
-            prog: Vec::new(),
+            data: Vec::new(),
 
             hdr: ELFHeader::new(),
 
             load: 0,
             base: 0,
             dynamic: 0,
-            dynamicsz: 0,
 
             rel: 0,
             relsz: 0,
@@ -70,6 +67,7 @@ impl DylibDecoder {
             pltcount: 0,
 
             symtab: 0,
+            symtabsz: 0,
             syment: 0,
             symcount: 0,
             strtab: 0,
@@ -81,26 +79,24 @@ impl DylibDecoder {
     }
 
     // Decode
-    fn decode(&mut self, elf: Vec<u8>, prog: Vec<u8>) -> bool {
+    fn decode(&mut self, data: Vec<u8>) -> bool {
         // Set data
-        self.elf = elf;
-        self.prog = prog;
-        self.load = self.prog.as_ptr() as u32;
+        self.data = data;
+        self.load = self.data.as_ptr() as u32;
         self.base = self.load;
 
         // Set elf header
-        self.hdr = ELFHeader::from(&self.prog[0..ELFHeader::SIZE]);
+        self.hdr = ELFHeader::from(&self.data[0..ELFHeader::SIZE]);
 
-        // Parser section headers
-        for i in 0..self.hdr.sect_hdr_num as usize {
-            let sect_start = self.hdr.sect_hdr_off as usize + i * self.hdr.sect_hdr_size as usize;
-            let sect_end = sect_start + self.hdr.sect_hdr_size as usize;
-            let shdr = SectionHeader::from(&self.elf[sect_start..sect_end]);
+        // Get dynmaic offset
+        for i in 0..self.hdr.prog_hdr_num as usize {
+            let prog_start = self.hdr.prog_hdr_off as usize + i * self.hdr.prog_hdr_size as usize;
+            let prog_end = prog_start + self.hdr.prog_hdr_size as usize;
+            let phdr = ProgramHeader::from(&&self.data[prog_start..prog_end]);
 
-            // Get the dynmaic address and size
-            if shdr.typ == SectionHdrType::SHT_DYNAMIC {
-                self.dynamic = shdr.addr;
-                self.dynamicsz = shdr.size;
+            if phdr.typ == ProgHdrType::PT_DYNAMIC {
+                self.dynamic = phdr.vaddr;
+                break;
             }
         }
 
@@ -112,15 +108,16 @@ impl DylibDecoder {
         loop {
             // Calc dynamic entry offset
             let dhdr_offset = self.dynamic as usize + i * 8;
-            if dhdr_offset + 8 > self.prog.len() {
+            if dhdr_offset + 8 > self.data.len() {
                 break;
             }
 
             // Convert bytes into dynamic header
-            let dhdr = DynamicHeader::from(&self.prog[dhdr_offset..dhdr_offset + 8]);
+            let dhdr = DynamicHeader::from(&self.data[dhdr_offset..dhdr_offset + 8]);
 
             // Get info
             match dhdr.tag {
+                DynamicType::DT_NEEDED   => dt_neededs.push(dhdr),
                 DynamicType::DT_REL      => self.rel      = dhdr.val,
                 DynamicType::DT_RELSZ    => self.relsz    = dhdr.val,
                 DynamicType::DT_RELENT   => self.relent   = dhdr.val,
@@ -132,7 +129,6 @@ impl DylibDecoder {
                 DynamicType::DT_SYMENT   => self.syment   = dhdr.val,
                 DynamicType::DT_STRTAB   => self.strtab   = dhdr.val,
                 DynamicType::DT_STRSZ    => self.strsz    = dhdr.val,
-                DynamicType::DT_NEEDED   => dt_neededs.push(dhdr),
                 DynamicType::DT_NULL     => break,
                 _ => {}
             }
@@ -145,11 +141,20 @@ impl DylibDecoder {
             self.load_needed_lib(dhdr.val);
         }
 
+        // Calc symtabsz 
+        // Force the strtab section to be after 
+        // the symtab section in the linked file
+        self.symtabsz = self.strtab - self.symtab;
+
         // Calc symcount
-        self.symcount = self.dynamicsz / self.syment;
+        if self.syment != 0 {
+            self.symcount = self.symtabsz / self.syment;
+        }
 
         // Calc pltcount
-        self.pltcount = self.pltrelsz / self.relent;
+        if self.relent != 0 {
+            self.pltcount = self.pltrelsz / self.relent;
+        }
 
         true
     }
@@ -226,12 +231,12 @@ impl DylibDecoder {
         for i in 0..count {
             // Get rel entry offset
             let relent_off = rel_off + (i * 8) as usize;
-            if relent_off + 8 > self.prog.len() {
+            if relent_off + 8 > self.data.len() {
                 continue;
             }
 
             // Get relocate entry
-            let rel_bytes = &self.prog[relent_off..relent_off + 8];
+            let rel_bytes = &self.data[relent_off..relent_off + 8];
             let rel_entry = RelocateEntry::from(rel_bytes);
 
             // Get symbol entry
@@ -326,14 +331,14 @@ impl DylibDecoder {
     fn get_symbol_entry(&mut self, ndx: usize) -> SymbolEntry {
         let symbol_start = self.symtab as usize + ndx * self.syment as usize;
         let symbol_end = symbol_start + self.syment as usize;
-        SymbolEntry::from(&self.prog[symbol_start..symbol_end])
+        SymbolEntry::from(&self.data[symbol_start..symbol_end])
     }
 
     // Get dyn sym name
     fn get_symbol_name(&mut self, name: usize) -> String {
         let name_start = self.strtab as usize + name;
-        let name_end = name_start + self.prog[name_start..].iter().position(|v| *v == 0).unwrap();
-        String::from_utf8_lossy(&self.prog[name_start..name_end]).to_string()
+        let name_end = name_start + self.data[name_start..].iter().position(|v| *v == 0).unwrap();
+        String::from_utf8_lossy(&self.data[name_start..name_end]).to_string()
     }
 
     // Get dym sym addr by name
@@ -352,10 +357,10 @@ impl DylibDecoder {
 // Impl LibDecoder for DylibDecoder
 impl LibDecoder for DylibDecoder {
     // Init
-    fn init(&mut self, path: &str, elf: Vec<u8>, prog: Vec<u8>) -> bool {
+    fn init(&mut self, path: &str, data: Vec<u8>) -> bool {
         self.filename = path.to_string();
 
-        if !self.decode(elf, prog) {
+        if !self.decode(data) {
             return false;
         }
 
@@ -373,10 +378,8 @@ impl LibDecoder for DylibDecoder {
     
     // Exit
     fn exit(&mut self) -> bool {
-        self.elf.clear();
-        self.prog.clear();
-        self.elf.shrink_to_fit();
-        self.prog.shrink_to_fit();
+        self.data.clear();
+        self.data.shrink_to_fit();
         true
     }
 }

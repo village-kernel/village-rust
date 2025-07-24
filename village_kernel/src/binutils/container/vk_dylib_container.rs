@@ -38,17 +38,16 @@ impl LibContainer for DylibContainer {
         self.path = path.to_string();
 
         // New library data
-        let mut elf: Vec<u8> = Vec::new();
         let mut prog: Vec<u8> = Vec::new();
 
         // Load library data
-        if !self.loader.init(&self.path, &mut elf, &mut prog) {
+        if !self.loader.init(&self.path, &mut prog) {
             kernel().debug().error(&format!("{} library load failed", self.path));
             return false;
         }
 
         // Decoder library data
-        if !self.decoder.init(&self.path, elf, prog) {
+        if !self.decoder.init(&self.path, prog) {
             kernel().debug().error(&format!("{} library decode failed", self.path));
             return false;
         }

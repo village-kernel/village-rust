@@ -9,13 +9,13 @@ use alloc::vec::Vec;
 
 // LibLoader
 pub trait LibLoader {
-    fn init(&mut self, path: &str, elf: &mut Vec<u8>, prog: &mut Vec<u8>) -> bool;
+    fn init(&mut self, path: &str, data: &mut Vec<u8>) -> bool;
     fn exit(&mut self) -> bool;
 }
 
 // LibDecoder
 pub trait LibDecoder {
-    fn init(&mut self, path: &str, elf: Vec<u8>, prog: Vec<u8>) -> bool;
+    fn init(&mut self, path: &str, data: Vec<u8>) -> bool;
     fn get(&mut self, symbol: &str) -> usize;
     fn exit(&mut self) -> bool;
 }

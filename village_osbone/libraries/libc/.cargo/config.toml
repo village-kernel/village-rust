@@ -14,4 +14,5 @@ rustflags = [
     "-C", "link-arg=--as-needed",
     "-C", "link-arg=--icf=all",
     "-C", "link-arg=--strip-all",
+    "-C", "link-arg=-T./triples/linker.lds",
 ]

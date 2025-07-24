@@ -8,6 +8,7 @@ use crate::binutils::decoder::vk_defs_elf::{ELFClass, ELFVersion, ELFMachine, EL
 use crate::binutils::decoder::vk_defs_elf::{ELFHeader, ProgramHeader, ProgHdrType};
 use crate::misc::fopts::vk_file_fopt::FileFopt;
 use crate::traits::vk_builder::ProgLoader;
+use crate::traits::vk_builder::LibLoader;
 use crate::traits::vk_filesys::FileMode;
 use crate::traits::vk_kernel::DebugLevel;
 use crate::village::kernel;
@@ -159,8 +160,8 @@ impl ElfLoader {
     }
 }
 
-// Impl ProgLoader for ELFLoader
-impl ProgLoader for ElfLoader {
+// Impl ELFLoader
+impl ElfLoader {
     // Init
     fn init(&mut self, filename: &str, data: &mut Vec<u8>) -> bool {
         // Save filename in local
@@ -184,5 +185,31 @@ impl ProgLoader for ElfLoader {
     fn exit(&mut self) -> bool {
         self.elf.clear();
         true
+    }
+}
+
+// Impl ProgLoader for ELFLoader
+impl ProgLoader for ElfLoader {
+    // Init
+    fn init(&mut self, filename: &str, data: &mut Vec<u8>) -> bool {
+        self.init(filename, data)
+    }
+    
+    // Exit
+    fn exit(&mut self) -> bool {
+        self.exit()
+    }
+}
+
+// Impl LibLoader for ELFLoader
+impl LibLoader for ElfLoader {
+    // Init
+    fn init(&mut self, filename: &str, data: &mut Vec<u8>) -> bool {
+        self.init(filename, data)
+    }
+    
+    // Exit
+    fn exit(&mut self) -> bool {
+        self.exit()
     }
 }

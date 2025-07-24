@@ -13,5 +13,5 @@ rustflags = [
     "-C", "link-arg=--gc-sections",
     "-C", "linker=rust-lld",
     "-C", "panic=abort",
-    "-C", "link-arg=-T./triples/ia32legacy.lds",
+    "-C", "link-arg=-T./triples/linker.lds",
 ]

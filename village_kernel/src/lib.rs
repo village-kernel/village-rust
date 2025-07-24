@@ -48,7 +48,6 @@ pub mod binutils {
         pub mod vk_bin_loader;
         pub mod vk_elf_loader;
         pub mod vk_hex_loader;
-        pub mod vk_so_loader;
     }
 }
 
