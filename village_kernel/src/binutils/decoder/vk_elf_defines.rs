@@ -1,5 +1,5 @@
 //###########################################################################
-// vk_defs_elf.rs
+// vk_elf_defines.rs
 // The specific implementation of functions related to elf defines
 //
 // $Copyright: Copyright (C) village

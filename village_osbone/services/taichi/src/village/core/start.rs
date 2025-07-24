@@ -12,17 +12,13 @@ unsafe extern "Rust" { unsafe fn set_kernel(village: *const c_void); }
 // extern main
 unsafe extern "Rust" { unsafe fn main(argv: &[&str]); }
 
-// image offset
-unsafe extern "Rust" { unsafe fn _IMGOFFS(_: *const c_void, _: &[&str]); } 
-
 // dynamic header
 unsafe extern "Rust" { unsafe fn _DYNAMIC(_: *const c_void, _: &[&str]); }
 
 // entry section
 #[used]
 #[unsafe(link_section = ".entry")]
-pub static G_PFN_VECTORS: [unsafe extern "Rust" fn(*const c_void, &[&str]); 3] = [
-    _IMGOFFS,
+pub static G_PFN_VECTORS: [unsafe extern "Rust" fn(*const c_void, &[&str]); 2] = [
     _DYNAMIC,
     _start,
 ];

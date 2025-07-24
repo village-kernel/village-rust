@@ -9,17 +9,13 @@ use core::ffi::c_void;
 // extern set kernel
 unsafe extern "Rust" { unsafe fn set_kernel(village: *const c_void); }
 
-// image offset
-unsafe extern "Rust" { unsafe fn _IMGOFFS(_: *const c_void); }
-
 // dynamic header
 unsafe extern "Rust" { unsafe fn _DYNAMIC(_: *const c_void); }
 
 // entry section
 #[used]
 #[unsafe(link_section = ".entry")]
-pub static G_PFN_VECTORS: [unsafe extern "Rust" fn(*const c_void); 4] = [
-    _IMGOFFS,
+pub static G_PFN_VECTORS: [unsafe extern "Rust" fn(*const c_void); 3] = [
     _DYNAMIC,
     module_init,
     module_exit,

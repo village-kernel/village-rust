@@ -39,8 +39,9 @@ pub mod binutils {
         pub mod vk_exec_container;
     }
     pub mod decoder {
-        pub mod vk_defs_elf;
         pub mod vk_dylib_decode;
+        pub mod vk_elf_decode;
+        pub mod vk_elf_defines;
         pub mod vk_exec_decode;
         pub mod vk_mod_decode;
     }

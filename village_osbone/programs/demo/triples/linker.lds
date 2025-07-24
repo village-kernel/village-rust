@@ -8,9 +8,6 @@ PHDRS {
 }
 
 SECTIONS {
-    /* Get image offset */
-    _IMGOFFS = .;
-
     /* Elf entry sections */
     .entry : { KEEP(*(.entry)) } :load
 
