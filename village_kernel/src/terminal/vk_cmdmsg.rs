@@ -111,11 +111,7 @@ impl CmdMsgMgr {
 impl CmdMsgMgr {
     // Write
     pub fn write(&mut self, data: &str) {
-        // Copy msg data into txBuffer
-        // Directly append data and control it not to exceed the maximum limit through length checking.
-        let available_cap = ARG_BUFFER_SIZE.saturating_sub(self.tx_buf.len());
-        let data_to_add = data.chars().take(available_cap).collect::<String>();
-        self.tx_buf.push_str(&data_to_add);
+        self.tx_buf.push_str(data);
         self.sending();
     }
 
