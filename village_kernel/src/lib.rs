@@ -69,6 +69,12 @@ pub mod drivers {
         pub mod block {
             pub mod vk_ata_lba_disk;
         }
+        pub mod keyboard {
+            pub mod vk_ps2_keyboard;
+        }
+        pub mod mouse {
+            pub mod vk_ps2_mouse;
+        }
         pub mod serial {
             pub mod vk_pic32_uart;
         }
