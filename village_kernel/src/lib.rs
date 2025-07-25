@@ -59,6 +59,12 @@ pub mod board {
 
 // import drivers modules
 pub mod drivers {
+    pub mod chipdrv {
+        pub mod ia32legacy {
+            pub mod vk_pci_controller;
+            pub mod vk_ps2_controller;
+        }
+    }
     pub mod platdrv {
         pub mod block {
             pub mod vk_ata_lba_disk;
