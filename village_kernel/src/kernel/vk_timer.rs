@@ -13,7 +13,7 @@ use crate::village::kernel;
 // Struct village timer
 pub struct VillageTimer {
     jobs: LinkedList<Job>,
-    id_cnt: u32,
+    id_cnt: i32,
 }
 
 // Impl village timer
@@ -67,25 +67,28 @@ impl VillageTimer {
 // Impl timer for village timer
 impl Timer for VillageTimer {
     // Create
-    fn create(&mut self, callback: Callback) -> Option<&mut Job> {
+    fn create(&mut self, callback: Callback) -> i32 {
         let id = self.id_cnt;
         self.id_cnt += 1;
         let job = Job::new(id, callback);
         self.jobs.push(job);
-        self.jobs.iter_mut().rev().next()
-    }
-
-    // Modify
-    fn modify(&mut self, job: &mut Job, ticks: u32) {
-        if let Some(job) = self.jobs.iter_mut().find(|t| t.id == job.id) {
-            job.ticks = ticks;
-            job.state = JobState::Ready;
-        }
+        id
     }
 
     // Delete
-    fn delete(&mut self, job: &mut Job) {
-        self.jobs
-            .retain_mut(|j| !(j.id == job.id && j.callback == job.callback));
+    fn delete(&mut self, job_id: i32) {
+        self.jobs.retain_mut(|j|
+            !(j.id == job_id && j.state == JobState::Terminated)
+        );
+    }
+
+    // Modify
+    fn modify(&mut self, job_id: i32, ticks: u32) -> bool {
+        if let Some(job) = self.jobs.iter_mut().find(|t| t.id == job_id) {
+            job.ticks = ticks;
+            job.state = JobState::Ready;
+            return true;
+        }
+        false
     }
 }

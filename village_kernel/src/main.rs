@@ -14,5 +14,4 @@ use vk::village::kernel;
 pub fn main() {
     kernel().setup();
     kernel().start();
-    kernel().exit();
 }

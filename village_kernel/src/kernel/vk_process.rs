@@ -38,9 +38,7 @@ impl VillageProcess {
 
         // Create a monitor thread alive task
         let monitor_cb = Callback::new(Self::monitor as u32).with_instance(self);
-        kernel()
-            .thread()
-            .create_task("Process::monitor", monitor_cb);
+        kernel().thread().create_task("Process::monitor", monitor_cb);
 
         // Output debug info
         kernel().debug().info("Process setup completed!");
@@ -60,17 +58,16 @@ impl VillageProcess {
         let taichi = "/services/taichi/taichi.exec";
 
         if self.run_with_args(ProcessBehavior::Background, taichi) < 0 {
-            kernel()
-                .debug()
-                .error(&format!("{} execute failed!", taichi));
+            kernel().debug().error(&format!("{} execute failed!", taichi));
         }
     }
 
     // Monitor
     fn monitor(&mut self) {
         loop {
-            self.processes
-                .retain_mut(|data| kernel().thread().is_task_alive(data.tid));
+            self.processes.retain_mut(|data| 
+                kernel().thread().is_task_alive(data.tid)
+            );
             kernel().thread().sleep(10);
         }
     }
@@ -121,10 +118,8 @@ impl Process for VillageProcess {
 
         // Wait for task done
         if behavior == ProcessBehavior::Foreground {
-            if let Some(process) = self
-                .processes
-                .iter_mut()
-                .find(|p| p.pid == (self.pid_cnt - 1))
+            if let Some(process) = self.processes
+                .iter_mut().find(|p| p.pid == (self.pid_cnt - 1))
             {
                 if let Some(runner) = &mut process.container {
                     runner.wait();
@@ -137,8 +132,10 @@ impl Process for VillageProcess {
 
     // Kill by path
     fn kill_by_path(&mut self, path: &str) {
-        if let Some(data) = self.processes.iter_mut().find(|d| d.path == path) {
-            if let Some(runner) = &mut data.container {
+        if let Some(process) = self.processes
+            .iter_mut().find(|p| p.path == path)
+        {
+            if let Some(runner) = &mut process.container {
                 runner.kill();
             }
         }
@@ -146,8 +143,10 @@ impl Process for VillageProcess {
 
     // Kill by pid
     fn kill_by_pid(&mut self, pid: i32) {
-        if let Some(data) = self.processes.iter_mut().find(|d| d.pid == pid) {
-            if let Some(runner) = &mut data.container {
+        if let Some(process) = self.processes
+            .iter_mut().find(|p| p.pid == pid)
+        {
+            if let Some(runner) = &mut process.container {
                 runner.kill();
             }
         }
@@ -155,7 +154,7 @@ impl Process for VillageProcess {
 
     // Is exist by path
     fn is_exist_by_path(&mut self, path: &str) -> bool {
-        if let Some(_) = self.processes.iter_mut().find(|d| d.path == path) {
+        if let Some(_) = self.processes.iter_mut().find(|p| p.path == path) {
             return true;
         }
         false
@@ -163,7 +162,7 @@ impl Process for VillageProcess {
 
     // Is exist by pid
     fn is_exist_by_pid(&mut self, pid: i32) -> bool {
-        if let Some(_) = self.processes.iter_mut().find(|d| d.pid == pid) {
+        if let Some(_) = self.processes.iter_mut().find(|p| p.pid == pid) {
             return true;
         }
         false

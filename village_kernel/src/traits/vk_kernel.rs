@@ -110,88 +110,6 @@ pub trait Interrupt {
     fn handler(&mut self, irq: isize);
 }
 
-// Scheduler
-pub trait Scheduler {
-    fn start(&mut self);
-    fn sched(&mut self);
-}
-
-// Thread state
-#[derive(PartialEq)]
-pub enum ThreadState {
-    New = 0,
-    Ready,
-    Running,
-    Blocked,
-    Terminated,
-}
-
-// Impl thread state
-impl ThreadState {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            ThreadState::New => "NEW",
-            ThreadState::Ready => "READY",
-            ThreadState::Running => "RUNNING",
-            ThreadState::Blocked => "BLOCKED",
-            ThreadState::Terminated => "TERMINATED",
-        }
-    }
-}
-
-// Thread task
-pub struct ThreadTask {
-    pub name: String,
-    pub id: i32,
-    pub psp: u32,
-    pub ticks: u32,
-    pub stack_start: u32,
-    pub stack_ended: u32,
-    pub state: ThreadState,
-}
-
-// ThreadTask
-impl ThreadTask {
-    // default
-    pub fn default() -> Self {
-        ThreadTask {
-            name: "None".to_string(),
-            id: -1,
-            psp: 0,
-            ticks: 0,
-            stack_start: 0,
-            stack_ended: 0,
-            state: ThreadState::New,
-        }
-    }
-}
-
-// Thread
-pub trait Thread {
-    // Create Methods
-    fn create_task(&mut self, name: &str, callback: Callback) -> i32;
-
-    // Task Methods
-    fn start_task(&mut self, tid: i32);
-    fn stop_task(&mut self, tid: i32);
-    fn wait_for_task(&mut self, tid: i32);
-    fn exit_blocked(&mut self, tid: i32);
-    fn delete_task(&mut self, tid: i32);
-    fn is_task_alive(&mut self, tid: i32) -> bool;
-    fn get_tasks(&mut self) -> &mut LinkedList<ThreadTask>;
-
-    // State Methods
-    fn get_task_id(&mut self) -> i32;
-    fn sleep(&mut self, ticks: u32);
-    fn blocked(&mut self);
-    fn terminated(&mut self);
-
-    // Scheduler Methods
-    fn save_task_psp(&mut self, psp: u32);
-    fn get_task_psp(&mut self) -> u32;
-    fn select_next_task(&mut self);
-}
-
 // Device
 pub trait Device {
     // Register driver methods
@@ -221,6 +139,19 @@ pub trait Extender {
     fn get_extension(&mut self, name: &str) -> Option<&mut ExtensionWrapper>;
 }
 
+// Director
+pub trait Director {
+    // Register Methods
+    fn register_lib_builder(&mut self, builder: LibBuilderWrapper);
+    fn unregister_lib_builder(&mut self, name: &str);
+    fn register_prog_builder(&mut self, builder: ProgBuilderWrapper);
+    fn unregister_prog_builder(&mut self, name: &str);
+
+    // Data Methods
+    fn create_lib_container(&mut self, path: &str) -> Option<Box<dyn LibContainer>>;
+    fn create_prog_container(&mut self, path: &str) -> Option<Box<dyn ProgContainer>>;
+}
+
 // FileSystem
 pub trait FileSystem {
     // Hard drive methods
@@ -233,45 +164,6 @@ pub trait FileSystem {
 
     // Volume methods
     fn get_volume(&mut self, name: &str) -> Option<&mut Box<dyn FileVol>>;
-}
-
-// Work state
-#[derive(PartialEq)]
-pub enum WorkState {
-    New = 0,
-    Ready,
-    Running,
-    Terminated,
-}
-
-// Struct work
-pub struct Work {
-    pub id: u32,
-    pub ticks: u32,
-    pub state: WorkState,
-    pub callback: Callback,
-}
-
-// Impl work
-impl Work {
-    pub const fn new(id: u32, ticks: u32, callback: Callback) -> Self {
-        Self {
-            id,
-            ticks,
-            state: WorkState::New,
-            callback,
-        }
-    }
-}
-
-// WorkQueue
-pub trait WorkQueue {
-    // Create Methods
-    fn create(&mut self, callback: Callback, ticks: u32) -> Option<&mut Work>;
-
-    // Feature Methods
-    fn delete(&mut self, work: &mut Work) -> bool;
-    fn sched(&mut self, work: &mut Work) -> bool;
 }
 
 // Enum EventType
@@ -435,6 +327,88 @@ pub trait Symbol {
     fn search(&mut self, symbol: &str) -> usize;
 }
 
+// Scheduler
+pub trait Scheduler {
+    fn start(&mut self);
+    fn sched(&mut self);
+}
+
+// Thread state
+#[derive(PartialEq)]
+pub enum ThreadState {
+    New = 0,
+    Ready,
+    Running,
+    Blocked,
+    Terminated,
+}
+
+// Impl thread state
+impl ThreadState {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            ThreadState::New => "NEW",
+            ThreadState::Ready => "READY",
+            ThreadState::Running => "RUNNING",
+            ThreadState::Blocked => "BLOCKED",
+            ThreadState::Terminated => "TERMINATED",
+        }
+    }
+}
+
+// Thread task
+pub struct ThreadTask {
+    pub name: String,
+    pub id: i32,
+    pub psp: u32,
+    pub ticks: u32,
+    pub stack_start: u32,
+    pub stack_ended: u32,
+    pub state: ThreadState,
+}
+
+// ThreadTask
+impl ThreadTask {
+    // default
+    pub fn default() -> Self {
+        ThreadTask {
+            name: "None".to_string(),
+            id: -1,
+            psp: 0,
+            ticks: 0,
+            stack_start: 0,
+            stack_ended: 0,
+            state: ThreadState::New,
+        }
+    }
+}
+
+// Thread
+pub trait Thread {
+    // Create Methods
+    fn create_task(&mut self, name: &str, callback: Callback) -> i32;
+
+    // Task Methods
+    fn start_task(&mut self, tid: i32);
+    fn stop_task(&mut self, tid: i32);
+    fn wait_for_task(&mut self, tid: i32);
+    fn exit_blocked(&mut self, tid: i32);
+    fn delete_task(&mut self, tid: i32);
+    fn is_task_alive(&mut self, tid: i32) -> bool;
+    fn get_tasks(&mut self) -> &mut LinkedList<ThreadTask>;
+
+    // State Methods
+    fn get_task_id(&mut self) -> i32;
+    fn sleep(&mut self, ticks: u32);
+    fn blocked(&mut self);
+    fn terminated(&mut self);
+
+    // Scheduler Methods
+    fn save_task_psp(&mut self, psp: u32);
+    fn get_task_psp(&mut self) -> u32;
+    fn select_next_task(&mut self);
+}
+
 // Process behavior
 #[derive(PartialEq)]
 pub enum ProcessBehavior {
@@ -461,19 +435,6 @@ impl ProcessData {
             container: None,
         }
     }
-}
-
-// Director
-pub trait Director {
-    // Register Methods
-    fn register_lib_builder(&mut self, builder: LibBuilderWrapper);
-    fn unregister_lib_builder(&mut self, name: &str);
-    fn register_prog_builder(&mut self, builder: ProgBuilderWrapper);
-    fn unregister_prog_builder(&mut self, name: &str);
-
-    // Data Methods
-    fn create_lib_container(&mut self, path: &str) -> Option<Box<dyn LibContainer>>;
-    fn create_prog_container(&mut self, path: &str) -> Option<Box<dyn ProgContainer>>;
 }
 
 // Process
@@ -504,7 +465,7 @@ pub enum JobState {
 
 // Struct timer job
 pub struct Job {
-    pub id: u32,
+    pub id: i32,
     pub ticks: u32,
     pub state: JobState,
     pub callback: Callback,
@@ -513,7 +474,7 @@ pub struct Job {
 // Impl timer job
 impl Job {
     // New
-    pub const fn new(id: u32, callback: Callback) -> Self {
+    pub const fn new(id: i32, callback: Callback) -> Self {
         Job {
             id,
             ticks: 0,
@@ -526,11 +487,50 @@ impl Job {
 // Timer
 pub trait Timer {
     // Create Methods
-    fn create(&mut self, callback: Callback) -> Option<&mut Job>;
+    fn create(&mut self, callback: Callback) -> i32;
 
     // Feature Methods
-    fn modify(&mut self, job: &mut Job, ticks: u32);
-    fn delete(&mut self, job: &mut Job);
+    fn delete(&mut self, job_id: i32);
+    fn modify(&mut self, job_id: i32, ticks: u32) -> bool;
+}
+
+// Work state
+#[derive(PartialEq)]
+pub enum WorkState {
+    New = 0,
+    Ready,
+    Running,
+    Terminated,
+}
+
+// Struct work
+pub struct Work {
+    pub id: i32,
+    pub ticks: u32,
+    pub state: WorkState,
+    pub callback: Callback,
+}
+
+// Impl work
+impl Work {
+    pub const fn new(id: i32, ticks: u32, callback: Callback) -> Self {
+        Self {
+            id,
+            ticks,
+            state: WorkState::New,
+            callback,
+        }
+    }
+}
+
+// WorkQueue
+pub trait WorkQueue {
+    // Create Methods
+    fn create(&mut self, callback: Callback, ticks: u32) -> i32;
+
+    // Feature Methods
+    fn delete(&mut self, work_id: i32);
+    fn sched(&mut self, work_id: i32) -> bool;
 }
 
 // Terminal
