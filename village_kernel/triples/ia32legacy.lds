@@ -2,120 +2,83 @@ OUTPUT_FORMAT("elf32-i386", "elf32-i386","elf32-i386")
 OUTPUT_ARCH(i386)
 ENTRY(_start)
 
-_estack = 0x2000000;
-_rsvd_heap  = 0x400;
-_rsvd_stack = 0x800;
+_estack     = 0x2000000;
+_rsvd_heap  = 0x0000400;
+_rsvd_stack = 0x0000400;
 
 MEMORY
 {
-	RAM  (xrw)    : ORIGIN = 0x100000, LENGTH = 10M
+	RAM  (xrw) : ORIGIN = 0x100000, LENGTH = 10M
+}
+
+PHDRS {
+    load  PT_LOAD  FLAGS(4);     /* R   */
+    text  PT_LOAD  FLAGS(5);     /* R E */
+    data  PT_LOAD  FLAGS(6);     /* RW  */
 }
 
 SECTIONS
 {
-	_sivector = LOADADDR(.isr_vector);
+    /* Program start address */
+    . = ORIGIN(RAM);
 
-	.isr_vector :
-	{
-		. = ALIGN(4);
-		_svector = .;
-		KEEP(*(.isr_vector))
-		. = ALIGN(4);
-		_evector = .;
-	} > RAM
+    /* ISR vector sections */
+    .isr_vector : {
+        _svector = .;
+        KEEP(*(.isr_vector))
+        _evector = .;
+    } :load
 
-	.text :
-	{
-		. = ALIGN(4);
-		*(.text)
-		*(.text*)
+    /* Preinit array linking section */
+    .preinit_array : {
+        __perinit_array_start = .;
+        *(.preinit_array .preinit_array.*)
+        __preinit_array_end = .;
+    } :load
 
-		KEEP (*(.init))
-		KEEP (*(.fini))
+    /* Init array linking section */
+    .init_array : {
+        __init_array_start = .;
+        *(.ctors .init_array .init_array.*)
+        __init_array_end = .;
+    } :load
 
-		. = ALIGN(4);
-		 _etext = .; 
-	} > RAM
+    /* Fini array linking section */
+    .fini_array : {
+        __fini_array_start = .;
+        *(.dtors .fini_array .fini_array.*)
+        __fini_array_end = .;
+    } :load
 
-	.rodata :
-	{
-		. = ALIGN(4);
-		*(.rodata)
-		*(.rodata*)
-		. = ALIGN(4);
-	} > RAM
+    /* Read-only data */
+    .rodata : {
+        *(.rodata .rodata.* .gnu.linkonce.r.*)
+    } :load
 
-	.x86.extab : { *(.gcc_except_table.*  .got.plt ) } > RAM
-	.x86 : {
-		__exidx_start = .;
-		*(.x86.extab*)
-		__exidx_end = .;
-	} > RAM
+    /* Executable code */
+    .text : {
+        *(.text .text.* .gnu.linkonce.t.*)
+    } :text
 
-	.preinit_array :
-	{
-		PROVIDE_HIDDEN (__preinit_array_start = .);
-		KEEP (*(SORT(.preinit_array.*)))
-		KEEP (*(SORT(.preinit_array*)))
-		PROVIDE_HIDDEN (__preinit_array_end = .);
-	} > RAM
+    /* Data sections */
+    _sidata = LOADADDR(.data);
+    .data : {
+        _sdata = .;  
+        *(.data .data.*)
+        _edata = .; 
+    } :data
 
-	.init_array :
-	{
-		PROVIDE_HIDDEN (__init_array_start = .);
-		KEEP (*(SORT(.init_array.*)))
-		KEEP (*(SORT(.init_array*)))
-		KEEP (*(SORT(.ctors*)))
-		PROVIDE_HIDDEN (__init_array_end = .);
-	} > RAM
+    /* Bss sections */
+    .bss : {
+        _sbss = .;
+        *(.dynbss .bss .bss.* .gnu.linkonce.b.*)
+        _ebss = .;
+    } :data
 
-	.fini_array :
-	{
-		PROVIDE_HIDDEN (__fini_array_start = .);
-		KEEP (*(SORT(.fini_array.*)))
-		KEEP (*(SORT(.fini_array*)))
-		KEEP (*(SORT(.dtors*)))
-		PROVIDE_HIDDEN (__fini_array_end = .);
-	} > RAM
-
-	_sidata = LOADADDR(.data);
-
-	.data :
-	{
-		. = ALIGN(4);
-		_sdata = .;  
-		*(.data)
-		*(.data*)
-		. = ALIGN(4);
-		_edata = .; 
-	} > RAM
-
-	.bss :
-	{
-		. = ALIGN(4);
-		_sbss = .; 
-		*(.bss)
-		*(.bss*)
-		*(COMMON)
-
-		. = ALIGN(4);
-		_ebss = .; 
-	} > RAM
-
-	._user_heap_stack :
-	{
-		. = ALIGN(4);
-		PROVIDE ( end = . );
-		PROVIDE ( _end = . );
-		. = . + _rsvd_heap;
-		. = . + _rsvd_stack;
-		. = ALIGN(4);
-	} > RAM
-
-	/*/DISCARD/ :
-	{
-		libc.a ( * )
-		libm.a ( * )
-		libgcc.a ( * )
-	}*/
+    /* Standard sections */
+    /DISCARD/ : {
+        *(.note.GNU-stack)
+        *(.gnu_debuglink)
+        *(.gnu.lto_*)
+    }
 }

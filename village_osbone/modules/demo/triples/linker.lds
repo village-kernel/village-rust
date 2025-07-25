@@ -3,6 +3,7 @@ PHDRS {
     text    PT_LOAD    FLAGS(5);     /* R E */
     data    PT_LOAD    FLAGS(6);     /* RW  */
     dynamic PT_DYNAMIC FLAGS(6);     /* RW  */
+    relro   PT_GNU_RELRO;
 }
 
 SECTIONS {
@@ -16,6 +17,20 @@ SECTIONS {
     .hash     : { *(.hash)     } :load
     .rel.dyn  : { *(.rel.dyn)  } :load
     .rel.plt  : { *(.rel.plt)  } :load
+
+    /* Init array linking section */
+    .init_array : {
+        __init_array_start = .;
+        *(.ctors .init_array .init_array.*)
+        __init_array_end = .;
+    } :load
+
+    /* Fini array linking section */
+    .fini_array : {
+        __fini_array_start = .;
+        *(.dtors .fini_array .fini_array.*)
+        __fini_array_end = .;
+    } :load
 
     /* Read-only data */
     .rodata : {
@@ -33,20 +48,6 @@ SECTIONS {
         *(.plt.*)
     } :text
 
-    /* Init array linking section */
-    .init_array : {
-        __init_array_start = .;
-        *(.ctors .init_array .init_array.*)
-        __init_array_end = .;
-    } :data
-
-    /* Fini array linking section */
-    .fini_array : {
-        __fini_array_start = .;
-        *(.dtors .fini_array .fini_array.*)
-        __fini_array_end = .;
-    } :data
-
     /* Bss sections */
     .bss : {
         _sbss = .;
@@ -63,26 +64,12 @@ SECTIONS {
     .got     : { *(.got)     } :data
     .got.plt : { *(.got.plt) } :data
 
-    /* BSS and padding */
+    /* Relro padding */
     .relro_padding : {
         . = ALIGN(4);
         *(.relro_padding)
         . = ALIGN(4);
     } :data
-
-    /* Comment and other non-allocated sections */
-    .comment : {
-        *(.comment)
-    } :NONE
-
-    .rustc : {
-        *(.rustc)
-    } :NONE
-
-    /* Section header string table */
-    .shstrtab : {
-        *(.shstrtab)
-    } :NONE
 
     /* Standard sections */
     /DISCARD/ : {

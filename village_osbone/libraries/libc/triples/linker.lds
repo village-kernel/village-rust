@@ -4,7 +4,7 @@ PHDRS {
     text    PT_LOAD    FLAGS(5);            /* R E */
     data    PT_LOAD    FLAGS(6);            /* RW  */
     dynamic PT_DYNAMIC FLAGS(6);            /* RW  */
-    relro PT_GNU_RELRO;
+    relro   PT_GNU_RELRO;
 }
 
 SECTIONS {
@@ -44,26 +44,12 @@ SECTIONS {
     .got     : { *(.got)     } :data
     .got.plt : { *(.got.plt) } :data
 
-    /* BSS and padding */
+    /* Relro padding */
     .relro_padding : {
         . = ALIGN(4);
         *(.relro_padding)
         . = ALIGN(4);
     } :data
-
-    /* Comment and other non-allocated sections */
-    .comment : {
-        *(.comment)
-    } :NONE
-
-    .rustc : {
-        *(.rustc)
-    } :NONE
-
-    /* Section header string table */
-    .shstrtab : {
-        *(.shstrtab)
-    } :NONE
 
     /* Standard sections */
     /DISCARD/ : {
