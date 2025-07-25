@@ -23,8 +23,8 @@ impl VillageInstance {
         }
     }
 
-    // set village instance
-    pub fn set(&'static self) {
+    // init village instance
+    pub fn init(&'static self) {
         unsafe {
             *self.inner.get() = Some(Box::new(VillageKernel::new()));
         }
@@ -47,13 +47,14 @@ unsafe impl Sync for VillageInstance {}
 // Static village instance
 static VILLAGE_INSTANCE: VillageInstance = VillageInstance::new();
 
-// Set village instance
+// Init village instance
 #[unsafe(no_mangle)]
 pub fn init_kernel() {
-    VILLAGE_INSTANCE.set();
+    VILLAGE_INSTANCE.init();
 }
 
 // Get village instance
+#[unsafe(no_mangle)]
 pub fn kernel() -> &'static mut dyn Kernel {
     VILLAGE_INSTANCE.get()
 }
