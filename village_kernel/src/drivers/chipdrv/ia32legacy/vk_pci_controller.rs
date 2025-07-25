@@ -14,11 +14,10 @@ impl PCIController {
     // Read data
     fn read_data(&mut self, bus: u8, dev: u8, func: u8, offset: u8) -> u32 {
         // Crate configuration address
-        let address = ((bus as u32) << 16) | 
-                      ((dev as u32) << 16)    |
-                      ((dev as u32) << 16)    |
-                      ((func as u32) << 16)   |
-                      ((offset as u32) << 16) | 
+        let address = ((bus as u32) << 16)  |
+                      ((dev as u32)  << 11)    |
+                      ((func as u32) << 8)     |
+                      ((offset & 0xFC) as u32) |
                       (0x80000000);
         // Write out the address
         port_long_out(0xCF8, address);
