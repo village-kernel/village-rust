@@ -7,8 +7,7 @@
 use crate::misc::fopts::vk_file_fopt::FileFopt;
 use crate::traits::vk_builder::ProgLoader;
 use crate::traits::vk_filesys::FileMode;
-use crate::village::kernel;
-use alloc::format;
+use crate::debug_error;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 
@@ -134,9 +133,7 @@ impl HexLoader {
         if result {
             self.text = String::from_utf8(data).unwrap();
         } else {
-            kernel()
-                .debug()
-                .error(&format!("{} no such file!", self.filename));
+            debug_error!("{} no such file!", self.filename);
         }
 
         result
@@ -183,18 +180,14 @@ impl HexLoader {
             }
             // Reture false when decode failed
             else {
-                kernel()
-                    .debug()
-                    .error(&format!("{} hex file pre parser failed", self.filename));
+                debug_error!("{} hex file pre parser failed", self.filename);
                 return false;
             }
         }
 
         // Return false when records is empty
         if records.len() == 0 {
-            kernel()
-                .debug()
-                .error(&format!("{} hex file no valid record", self.filename));
+            debug_error!("{} hex file no valid record", self.filename);
             return false;
         }
 

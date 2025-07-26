@@ -7,8 +7,7 @@
 use crate::misc::fopts::vk_file_fopt::FileFopt;
 use crate::traits::vk_builder::ProgLoader;
 use crate::traits::vk_filesys::FileMode;
-use crate::village::kernel;
-use alloc::format;
+use crate::debug_error;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 
@@ -41,9 +40,7 @@ impl BinLoader {
 
         // Return false when read bin file failed
         if !result {
-            kernel()
-                .debug()
-                .error(&format!("{} no such file!", self.filename));
+            debug_error!("{} no such file!", self.filename);
             return false;
         }
 

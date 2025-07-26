@@ -7,7 +7,7 @@
 use crate::traits::vk_kernel::Extender;
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::traits::vk_extension::{ExtensionID, ExtensionWrapper};
-use crate::village::kernel;
+use crate::debug_info;
 
 // Struct village extender
 pub struct VillageExtender {
@@ -46,7 +46,7 @@ impl VillageExtender {
         self.is_runtime = true;
 
         // Output debug info
-        kernel().debug().info("Feature setup completed!");
+        debug_info!("Extender setup completed!");
     }
 
     // Exit

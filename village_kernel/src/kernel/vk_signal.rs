@@ -6,6 +6,7 @@
 //###########################################################################
 use crate::traits::vk_kernel::{Signal, Signals};
 use crate::village::kernel;
+use crate::debug_info;
 
 // Struct village signal
 pub struct VillageSignal;
@@ -22,7 +23,7 @@ impl VillageSignal {
     // Setup
     pub fn setup(&mut self) {
         // output debug info
-        kernel().debug().info("Signal setup completed!");
+        debug_info!("Signal setup completed!");
     }
 
     // Exit

@@ -7,6 +7,8 @@
 use alloc::format;
 use alloc::vec;
 //use alloc::vec::Vec;
+use crate::debug_error;
+use crate::debug_info;
 use crate::misc::fopts::vk_dev_fopt::DevFopt;
 use crate::traits::vk_driver::DriverID;
 use crate::traits::vk_filesys::{FileSysWrapper, FileVol};
@@ -400,9 +402,9 @@ impl VillageFileSystem {
 
         // Mount root node
         if self.mount_root_node() {
-            kernel().debug().info("File system setup completed!");
+            debug_info!("File system setup completed!");
         } else {
-            kernel().debug().error("File system setup failed!");
+            debug_error!("File system setup failed!");
         }
     }
 
@@ -445,9 +447,7 @@ impl VillageFileSystem {
         }
 
         // Output info
-        kernel()
-            .debug()
-            .error("Mount root node failed, 'VILLAGE OS' not found");
+        debug_error!("Mount root node failed, 'VILLAGE OS' not found");
         false
     }
 
@@ -496,18 +496,14 @@ impl FileSystem for VillageFileSystem {
 
     // Mount hard drive
     fn mount_hard_drive(&mut self, disk: &str) -> bool {
-        kernel()
-            .debug()
-            .info(&format!("Setup the hard drive {}", disk));
+        debug_info!("Setup the hard drive {}", disk);
 
         // Create an devstream object
         let mut device = DevFopt::new();
 
         // Open the disk device
         if !device.open(disk) {
-            kernel()
-                .debug()
-                .error(&format!("hard drive {} open failed", disk));
+            debug_error!("hard drive {} open failed", disk);
             return false;
         }
 
@@ -578,7 +574,7 @@ impl FileSystem for VillageFileSystem {
             // Add to medias list
             self.medias.push(media);
         } else {
-            kernel().debug().error("Not a vaild disk");
+            debug_error!("Not a vaild disk");
             device.close();
             return false;
         }

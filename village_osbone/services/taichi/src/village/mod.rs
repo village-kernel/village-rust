@@ -30,6 +30,7 @@ pub mod traits {
     pub mod vk_kernel;
     pub mod vk_linkedlist;
     pub mod vk_extension;
+    pub mod vk_macro;
 }
 
 // import misc modules

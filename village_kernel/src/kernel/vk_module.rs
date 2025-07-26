@@ -8,7 +8,9 @@ use crate::misc::parser::vk_rc_parser::RcParser;
 use crate::traits::vk_kernel::{ModuleData, Module};
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
-use alloc::format;
+use crate::debug_error;
+use crate::debug_info;
+use crate::debug_warning;
 use alloc::string::ToString;
 use alloc::vec::Vec;
 
@@ -35,7 +37,7 @@ impl VillageModule {
         self.load_mods("/modules/_load_.rc");
 
         // Output debug info
-        kernel().debug().info("Module setup completed!");
+        debug_info!("Module setup completed!");
     }
 
     // Exit
@@ -81,7 +83,7 @@ impl Module for VillageModule {
         // Check the module if it has been installed
         for module in self.mods.iter_mut() {
             if module.path == path {
-                kernel().debug().warning(&format!("{} has already been installed!", path));
+                debug_warning!("{} has already been installed!", path);
                 return true;
             }
         }
@@ -95,13 +97,13 @@ impl Module for VillageModule {
         // Create runner
         module.container = kernel().director().create_prog_container(path);
         if module.container.is_none() {
-            kernel().debug().error(&format!("{} unsupported file type!", path));
+            debug_error!("{} unsupported file type!", path);
             return false;
         }
 
         // Run module without argv
         if module.container.as_mut().unwrap().run(path, Vec::new()) < 0 {
-            kernel().debug().error(&format!("{} install failed!", path));
+            debug_error!("{} install failed!", path);
             return false;
         }
 
@@ -109,7 +111,7 @@ impl Module for VillageModule {
         self.mods.push(module);
 
         // Output debug info
-        kernel().debug().info(&format!("{} install successful!", path));
+        debug_info!("{} install successful!", path);
 
         true
     }
@@ -122,7 +124,7 @@ impl Module for VillageModule {
             if module.path == path {
                 is_unistall = true;
                 module.container.as_mut().unwrap().kill();
-                kernel().debug().info(&format!("{} uninstall successful!", path));
+                debug_info!("{} uninstall successful!", path);
                 false
             } else {
                 true
@@ -130,7 +132,7 @@ impl Module for VillageModule {
         });
 
         if !is_unistall {
-            kernel().debug().error(&format!("{} module not found!", path));
+            debug_error!("{} module not found!", path);
             return false;
         }
         

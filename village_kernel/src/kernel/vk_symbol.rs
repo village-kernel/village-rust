@@ -6,7 +6,7 @@
 //###########################################################################
 use crate::traits::vk_kernel::Symbol;
 use crate::traits::vk_linkedlist::LinkedList;
-use crate::village::kernel;
+use crate::debug_info;
 
 // Struct entry
 struct Entry {
@@ -41,7 +41,7 @@ impl VillageSymbol {
     // Setup
     pub fn setup(&mut self) {
         // Output debug info
-        kernel().debug().info("Symbol setup completed!");
+        debug_info!("Symbol setup completed!");
     }
 
     // Exit

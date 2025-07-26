@@ -5,8 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::traits::vk_builder::{ProgLoader, ProgDecoder, ProgContainer};
-use crate::village::kernel;
-use alloc::format;
+use crate::debug_error;
 use alloc::vec::Vec;
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
@@ -42,13 +41,13 @@ impl ProgContainer for ModRunner {
 
         // Load module data
         if !self.loader.init(&self.path, &mut data) {
-            kernel().debug().error(&format!("{} module load failed", self.path));
+            debug_error!("{} module load failed", self.path);
             return -1;
         }
 
         // Decoder module data
         if !self.decoder.init(&self.path, data) {
-            kernel().debug().error(&format!("{} module decode failed", self.path));
+            debug_error!("{} module decode failed", self.path);
             return -1;
         }
 

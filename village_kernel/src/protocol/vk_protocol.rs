@@ -5,7 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::traits::vk_kernel::Protocol;
-use crate::village::kernel;
+use crate::debug_info;
 
 // struct village protocol
 pub struct VillageProtocol;
@@ -22,7 +22,7 @@ impl VillageProtocol {
     // setup
     pub fn setup(&mut self) {
         //output debug info
-        kernel().debug().info("Protocol setup completed!");
+        debug_info!("Protocol setup completed!");
     }
 
     // exit

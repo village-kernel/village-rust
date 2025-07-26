@@ -12,6 +12,7 @@ use crate::traits::vk_kernel::{Event, EventOutFormat, EventType};
 use crate::traits::vk_kernel::{EventInputAxis, EventInputKey, EventOutputAxis, EventOutputText};
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
+use crate::debug_info;
 
 // Struct village event
 pub struct VillageEvent {
@@ -58,7 +59,7 @@ impl VillageEvent {
         self.output_format = EventOutFormat::Noraml;
 
         // Output debug info
-        kernel().debug().info("Input event setup completed!");
+        debug_info!("Input event setup completed!");
     }
 
     // Exit

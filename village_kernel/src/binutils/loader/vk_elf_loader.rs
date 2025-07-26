@@ -11,8 +11,8 @@ use crate::traits::vk_builder::ProgLoader;
 use crate::traits::vk_builder::LibLoader;
 use crate::traits::vk_filesys::FileMode;
 use crate::traits::vk_kernel::DebugLevel;
-use crate::village::kernel;
-use alloc::format;
+use crate::debug_error;
+use crate::debug_output;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 
@@ -47,9 +47,7 @@ impl ElfLoader {
         }
 
         if !result {
-            kernel()
-                .debug()
-                .error(&format!("{} no such file!", self.filename));
+            debug_error!("{} no such file!", self.filename);
         }
 
         result
@@ -93,18 +91,13 @@ impl ElfLoader {
 
         // Check elf type
         if self.hdr.typ != ELFType::DYN {
-            kernel().debug().error(&format!(
-                "{} is not Position-Independent Executable file",
-                self.filename
-            ));
+            debug_error!("{} is not Position-Independent Executable file", self.filename);
             return false;
         }
 
         // Output debug info
-        kernel().debug().output(
-            DebugLevel::Lv1,
-            &format!("{} pre parser successful", self.filename),
-        );
+        debug_output!(DebugLevel::Lv1, "{} pre parser successful", self.filename);
+        
         true
     }
 
@@ -137,10 +130,7 @@ impl ElfLoader {
 
         // Return false when phdrs is empty
         if phdrs.len() == 0 {
-            kernel().debug().error(&format!(
-                "{} elf file no valid program section",
-                self.filename
-            ));
+            debug_error!("{} elf file no valid program section", self.filename);
             return false;
         }
 

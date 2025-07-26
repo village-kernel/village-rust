@@ -9,6 +9,7 @@ use crate::traits::vk_kernel::{Job, JobState, Timer};
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::vendor::ia32legacy::core::i686::SYSTICK_IRQN;
 use crate::village::kernel;
+use crate::debug_info;
 
 // Struct village timer
 pub struct VillageTimer {
@@ -35,7 +36,7 @@ impl VillageTimer {
         kernel().interrupt().add_isr_cb(SYSTICK_IRQN, exec_cb);
 
         //output debug info
-        kernel().debug().info("Timer setup completed!");
+        debug_info!("Timer setup completed!");
     }
 
     // Exit

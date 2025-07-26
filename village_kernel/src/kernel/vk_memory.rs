@@ -4,8 +4,9 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
+use crate::debug_error;
+use crate::debug_info;
 use crate::traits::vk_kernel::Memory;
-use crate::village::kernel;
 use core::alloc::{GlobalAlloc, Layout};
 use core::ptr;
 use core::sync::atomic::{AtomicBool, AtomicPtr, AtomicU32, Ordering};
@@ -261,7 +262,7 @@ impl MemoryAllocator {
 
         // Alloc failed
         if alloc_addr == 0 {
-            kernel().debug().error("out of memory.");
+            debug_error!("out of memory.");
         }
 
         alloc_addr
@@ -273,7 +274,7 @@ impl MemoryAllocator {
         if memory < self.sram_start.load(Ordering::Acquire)
             || memory > self.sram_ended.load(Ordering::Acquire)
         {
-            kernel().debug().error("invalid memory.");
+            debug_error!("invalid memory.");
         }
 
         // Gets the curret node ptr
@@ -304,9 +305,9 @@ impl MemoryAllocator {
                     else if size < (*curr_node).map.size {
                         // No deal
                     } else {
-                        kernel().debug().error(
+                        debug_error!(
                             "The size to be released is larger than the size of the current node."
-                        )
+                        );
                     }
 
                     // Update current node
@@ -325,7 +326,7 @@ impl MemoryAllocator {
                     } else if memory >= (*curr_node).map.ended {
                         curr_node = (*curr_node).next.load(Ordering::Acquire);
                     } else {
-                        kernel().debug().error("The memory is already been released.")
+                        debug_error!("The memory is already been released.");
                     }
                 }
             }
@@ -367,7 +368,7 @@ impl VillageMemory {
         ALLOCATOR.memory.lock().initiate();
 
         // Output debug info
-        kernel().debug().info("Memory setup completed!");
+        debug_info!("Memory setup completed!");
     }
 
     // Exit

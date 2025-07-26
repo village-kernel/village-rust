@@ -7,7 +7,7 @@
 use crate::traits::vk_builder::{ProgContainer, ProgBuilderWrapper, LibContainer, LibBuilderWrapper};
 use crate::traits::vk_kernel::Director;
 use crate::traits::vk_linkedlist::LinkedList;
-use crate::village::kernel;
+use crate::debug_info;
 use alloc::boxed::Box;
 
 // Struct village director
@@ -31,7 +31,7 @@ impl VillageDirector {
     // Setup
     pub fn setup(&mut self) {
         // Output debug info
-        kernel().debug().info("Director setup completed!");
+        debug_info!("Director setup completed!");
     }
 
     // Exit

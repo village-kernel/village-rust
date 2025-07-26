@@ -8,6 +8,7 @@ use crate::traits::vk_callback::Callback;
 use crate::traits::vk_kernel::{Work, WorkQueue, WorkState};
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
+use crate::debug_info;
 
 // Struct village work queue
 pub struct VillageWorkQueue {
@@ -34,7 +35,7 @@ impl VillageWorkQueue {
         kernel().thread().create_task("WorkQueue::execute", execute_cb);
 
         //output debug info
-        kernel().debug().info("Work queue setup completed!");
+        debug_info!("Work queue setup completed!");
     }
 
     // Exit

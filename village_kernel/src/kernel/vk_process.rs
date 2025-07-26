@@ -8,7 +8,8 @@ use crate::traits::vk_callback::Callback;
 use crate::traits::vk_kernel::{Process, ProcessBehavior, ProcessData};
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
-use alloc::format;
+use crate::debug_error;
+use crate::debug_info;
 use alloc::string::ToString;
 use alloc::vec::Vec;
 
@@ -41,7 +42,7 @@ impl VillageProcess {
         kernel().thread().create_task("Process::monitor", monitor_cb);
 
         // Output debug info
-        kernel().debug().info("Process setup completed!");
+        debug_info!("Process setup completed!");
     }
 
     // Exit
@@ -58,7 +59,7 @@ impl VillageProcess {
         let taichi = "/services/taichi/taichi.exec";
 
         if self.run_with_args(ProcessBehavior::Background, taichi) < 0 {
-            kernel().debug().error(&format!("{} execute failed!", taichi));
+            debug_error!("{} execute failed!", taichi);
         }
     }
 
@@ -95,14 +96,14 @@ impl Process for VillageProcess {
         // Create runner
         process.container = kernel().director().create_prog_container(path);
         if process.container.is_none() {
-            kernel().debug().error(&format!("{} unsupported file type!", path));
+            debug_error!("{} unsupported file type!", path);
             return -1;
         }
 
         // Run with argv
         process.tid = process.container.as_mut().unwrap().run(path, argv);
         if process.tid < 0 {
-            kernel().debug().error(&format!("{} create task failed!", path));
+            debug_error!("{} create task failed!", path);
             return -1;
         }
 

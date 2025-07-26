@@ -7,7 +7,7 @@
 use crate::traits::vk_callback::Callback;
 use crate::traits::vk_builder::{ProgLoader, ProgDecoder, ProgContainer};
 use crate::village::kernel;
-use alloc::format;
+use crate::debug_error;
 use alloc::vec::Vec;
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
@@ -58,13 +58,13 @@ impl ProgContainer for ExecRunner {
 
         // Load program data
         if !self.loader.init(&self.path, &mut data) {
-            kernel().debug().error(&format!("{} program load failed", self.path));
+            debug_error!("{} program load failed", self.path);
             return -1;
         }
 
         // Decoder program data
         if !self.decoder.init(&self.path, data) {
-            kernel().debug().error(&format!("{} program decode failed", self.path));
+            debug_error!("{} program decode failed", self.path);
             return -1;
         }
 

@@ -4,28 +4,24 @@
 //
 // $Copyright: Copyright (C) village
 //###########################################################################
-use alloc::format;
 use core::panic::PanicInfo;
-use crate::village::kernel;
+use crate::debug_error;
 
 // Panic
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     // print panic message
-    kernel().debug().error(&format!("{}", info.message()));
+    debug_error!("{}", info.message());
 
     // print panic location
     if let Some(location) = info.location() {
-        let msg = format!(
+        debug_error!(
             "panic occurred in file '{}' at line {}",
             location.file(),
             location.line(),
         );
-        kernel().debug().error(&msg);
     } else {
-        kernel()
-            .debug()
-            .error("panic occurred but can't get location information...");
+        debug_error!("panic occurred but can't get location information...");
     }
 
     loop {}

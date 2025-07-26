@@ -6,8 +6,8 @@
 //###########################################################################
 use crate::misc::fopts::vk_dev_fopt::DevFopt;
 use crate::traits::vk_kernel::{Debug, DebugLevel};
-use crate::village::kernel;
-use alloc::format;
+use crate::debug_info;
+use crate::debug_error;
 use core::panic::PanicInfo;
 
 // Static const
@@ -46,7 +46,7 @@ impl VillageDebug {
         self.is_ready = true;
 
         // Output debug info
-        kernel().debug().info("Debug setup completed!");
+        debug_info!("Debug setup completed!");
     }
 
     // Exit
@@ -136,6 +136,12 @@ impl Debug for VillageDebug {
         self.write("\r\n\x1b[39m");
     }
 
+    // Println
+    fn println(&mut self, msg: &str) {
+        self.write(msg);
+        self.write("\r\n");
+    }
+
     // Output
     fn output(&mut self, level: DebugLevel, msg: &str) {
         if level >= self.debug_level {
@@ -150,7 +156,7 @@ impl Debug for VillageDebug {
         if level >= DebugLevel::Lv0 && level <= DebugLevel::Lv5 {
             self.debug_level = level;
         } else {
-            self.error(&format!("The level {} out of range", level.as_str()));
+            debug_error!("The level {} out of range", level.as_str());
         }
     }
 }
@@ -159,20 +165,17 @@ impl Debug for VillageDebug {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     // print panic message
-    kernel().debug().error(&format!("{}", info.message()));
+    debug_error!("{}", info.message());
 
     // print panic location
     if let Some(location) = info.location() {
-        let msg = format!(
+        debug_error!(
             "panic occurred in file '{}' at line {}",
             location.file(),
             location.line(),
         );
-        kernel().debug().error(&msg);
     } else {
-        kernel()
-            .debug()
-            .error("panic occurred but can't get location information...");
+        debug_error!("panic occurred but can't get location information...");
     }
 
     loop {}

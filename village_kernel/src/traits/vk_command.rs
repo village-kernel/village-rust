@@ -65,30 +65,3 @@ impl CmdWrapper {
         self.inner.help(console);
     }
 }
-
-// Register cmd macro
-#[macro_export]
-macro_rules! register_cmd {
-    ($cmd:expr, $name:ident) => {
-        paste::paste! {
-            #[used]
-            #[unsafe(link_section = ".init_array")]
-            static [<INIT_ $name:upper>]: fn() = [<$name _init>];
-
-            #[used]
-            #[unsafe(link_section = ".fini_array")]
-            static [<EXIT_ $name:upper>]: fn() = [<$name _exit>];
-
-            fn [<$name _init>]() {
-                let command = crate::traits::vk_command::CmdWrapper::new(
-                    Box::new($cmd), stringify!($name)
-                );
-                crate::village::kernel().terminal().register_cmd(command);
-            }
-
-            fn [<$name _exit>]() {
-                crate::village::kernel().terminal().unregister_cmd(stringify!($name));
-            }
-        }
-    };
-}

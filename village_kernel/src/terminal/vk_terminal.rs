@@ -10,6 +10,7 @@ use crate::traits::vk_command::CmdWrapper;
 use crate::traits::vk_kernel::Terminal;
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
+use crate::debug_info;
 use alloc::boxed::Box;
 use alloc::format;
 use alloc::string::{String, ToString};
@@ -65,7 +66,7 @@ impl VillageTerminal {
             .create_task("Terminal::execute", execute_cb);
 
         // Output debug info
-        kernel().debug().info("Terminal setup completed!");
+        debug_info!("Terminal setup completed!");
     }
 
     // Execute

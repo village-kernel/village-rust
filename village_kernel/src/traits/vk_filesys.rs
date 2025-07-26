@@ -143,30 +143,3 @@ impl FileSysWrapper {
         self.inner.create_volume()
     }
 }
-
-// Register filesys macro
-#[macro_export]
-macro_rules! register_filesys {
-    ($filsys:expr, $name:ident) => {
-        paste::paste! {
-            #[used]
-            #[unsafe(link_section = ".init_array")]
-            static [<INIT_ $name:upper>]: fn() = [<$name _init>];
-
-            #[used]
-            #[unsafe(link_section = ".fini_array")]
-            static [<EXIT_ $name:upper>]: fn() = [<$name _exit>];
-
-            fn [<$name _init>]() {
-                let filesys = crate::traits::vk_filesys::FileSysWrapper::new(
-                    Box::new($filsys), stringify!($name)
-                );
-                crate::village::kernel().filesys().register_fs(filesys);
-            }
-
-            fn [<$name _exit>]() {
-                crate::village::kernel().filesys().unregister_fs(stringify!($name));
-            }
-        }
-    };
-}

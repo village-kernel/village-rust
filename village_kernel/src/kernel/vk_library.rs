@@ -8,7 +8,9 @@ use crate::misc::parser::vk_rc_parser::RcParser;
 use crate::traits::vk_kernel::{LibraryData, Library};
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
-use alloc::format;
+use crate::debug_error;
+use crate::debug_info;
+use crate::debug_warning;
 use alloc::string::ToString;
 
 // Struct village library
@@ -34,7 +36,7 @@ impl VillageLibrary {
         self.load_libs("/libraries/_load_.rc");
 
         // Output debug info
-        kernel().debug().info("Library setup completed!");
+        debug_info!("Library setup completed!");
     }
 
     // Exit
@@ -80,7 +82,7 @@ impl Library for VillageLibrary {
         // Check the library if it has been installed
         for lib in self.libs.iter_mut() {
             if lib.path == path {
-                kernel().debug().warning(&format!("{} has already been installed!", path));
+                debug_warning!("{} has already been installed!", path);
                 return true;
             }
         }
@@ -94,13 +96,13 @@ impl Library for VillageLibrary {
         // Create loader
         lib.container = kernel().director().create_lib_container(path);
         if lib.container.is_none() {
-            kernel().debug().error(&format!("{} unsupported file type!", path));
+            debug_error!("{} unsupported file type!", path);
             return false;
         }
 
         // Init library
         if !lib.container.as_mut().unwrap().init(path) {
-            kernel().debug().error(&format!("{} install failed!", path));
+            debug_error!("{} install failed!", path);
             return false;
         }
 
@@ -108,7 +110,7 @@ impl Library for VillageLibrary {
         self.libs.push(lib);
 
         // Output debug info
-        kernel().debug().info(&format!("{} install successful!", path));
+        debug_info!("{} install successful!", path);
 
         true
     }
@@ -121,7 +123,7 @@ impl Library for VillageLibrary {
             if lib.path == path {
                 is_unistall = true;
                 lib.container.as_mut().unwrap().exit();
-                kernel().debug().info(&format!("{} uninstall successful!", path));
+                debug_info!("{} uninstall successful!", path);
                 false
             } else {
                 true
@@ -129,7 +131,7 @@ impl Library for VillageLibrary {
         });
 
         if !is_unistall {
-            kernel().debug().error(&format!("{} library not found!", path));
+            debug_error!("{} library not found!", path);
             return false;
         }
         

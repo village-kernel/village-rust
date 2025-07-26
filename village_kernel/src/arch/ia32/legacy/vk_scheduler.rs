@@ -8,6 +8,7 @@ use crate::traits::vk_callback::Callback;
 use crate::traits::vk_kernel::Scheduler;
 use crate::vendor::ia32legacy::core::i686::{PENDSV_IRQN, SYSTICK_IRQN};
 use crate::village::kernel;
+use crate::debug_info;
 use core::arch::{asm, naked_asm};
 
 // Struct village scheduler
@@ -39,7 +40,7 @@ impl VillageScheduler {
         kernel().interrupt().add_isr_cb(SYSTICK_IRQN, sched_cb);
 
         // Output debug info
-        kernel().debug().info("Scheduler setup completed!");
+        debug_info!("Scheduler setup completed!");
     }
 
     // Exit
@@ -58,7 +59,7 @@ impl Scheduler for VillageScheduler {
     // Start scheduler
     fn start(&mut self) {
         // Output debug info
-        kernel().debug().info("Scheduler starts scheduling!");
+        debug_info!("Scheduler starts scheduling!");
 
         // Set interrupt flag
         kernel().system().enable_irq();

@@ -11,6 +11,7 @@ use crate::traits::vk_driver::PlatDrvWrapper;
 use crate::traits::vk_kernel::Device;
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
+use crate::debug_info;
 
 // Struct village device
 pub struct VillageDevice {
@@ -46,7 +47,7 @@ impl VillageDevice {
         self.is_runtime = true;
 
         //output debug info
-        kernel().debug().info("Device setup completed!");
+        debug_info!("Device setup completed!");
     }
 
     // Exit

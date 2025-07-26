@@ -76,31 +76,3 @@ impl ExtensionWrapper {
         self.inner.exit();
     }
 }
-
-
-// Register module macro
-#[macro_export]
-macro_rules! register_extension {
-    ($mod:expr, $id:expr, $name:ident) => {
-        paste::paste! {
-            #[used]
-            #[unsafe(link_section = ".init_array")]
-            static [<INIT_ $name:upper>]: fn() = [<$name _init>];
-
-            #[used]
-            #[unsafe(link_section = ".fini_array")]
-            static [<EXIT_ $name:upper>]: fn() = [<$name _exit>];
-
-            fn [<$name _init>]() {
-                let module = crate::traits::vk_extension::ExtensionWrapper::new(
-                    alloc::boxed::Box::new($mod), $id, stringify!($name)
-                );
-                crate::village::kernel().extender().register_extension(module);
-            }
-
-            fn [<$name _exit>]() {
-                crate::village::kernel().extender().unregister_extension(stringify!($name));
-            }
-        }
-    };
-}

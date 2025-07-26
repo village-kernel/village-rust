@@ -6,6 +6,9 @@
 //###########################################################################
 use crate::binutils::decoder::vk_elf_defines::*;
 use crate::traits::vk_kernel::DebugLevel;
+use crate::debug_error;
+use crate::debug_warning;
+use crate::debug_output;
 use crate::village::kernel;
 use alloc::format;
 use alloc::string::{String, ToString};
@@ -146,9 +149,7 @@ impl ElfDecoder {
         let path = format!("/libraries/{}", name);
 
         if !kernel().library().install(&path) {
-            kernel().debug().error(
-                &format!("{} load shared object {} failed", self.filename, path)
-            );
+            debug_error!("{} load shared object {} failed", self.filename, path);
         }
     }
 }
@@ -258,13 +259,9 @@ impl ElfDecoder {
             // Return when sym addr is 0
             if sym_addr == 0 {
                 if self.is_ignore_unresolved_symbols {
-                    kernel().debug().warning(
-                        &format!("{} relocate symbol ignore, {} not found", self.filename, sym_name)
-                    );
+                    debug_warning!("{} relocate symbol ignore, {} not found", self.filename, sym_name);
                 } else {
-                    kernel().debug().error(
-                        &format!("{} relocate symbol failed, {} not found", self.filename, sym_name)
-                    );
+                    debug_error!("{} relocate symbol failed, {} not found", self.filename, sym_name);
                 }
             }
 
@@ -272,16 +269,15 @@ impl ElfDecoder {
             self.rel_sym_call(rel_addr, sym_addr, rel_entry.typ, sym_entry.size);
 
             // Output debug message
-            kernel().debug().output(DebugLevel::Lv0, &format!(
-                    "{} rel name {}, relAddr 0x{:08x}, symAddr 0x{:08x}", 
-                    self.filename, sym_name, rel_addr, sym_addr
-            ));
+            debug_output!(DebugLevel::Lv0, 
+                "{} rel name {}, relAddr 0x{:08x}, symAddr 0x{:08x}", 
+                self.filename, sym_name, rel_addr, sym_addr
+            );
         }
 
         // Output debug message
-        kernel().debug().output(DebugLevel::Lv1, &format!(
-            "{} relocate entries successful", self.filename
-        ));
+        debug_output!(DebugLevel::Lv1, "{} relocate entries successful", self.filename);
+
         true
     }
 

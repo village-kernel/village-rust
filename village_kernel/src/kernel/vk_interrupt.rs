@@ -8,8 +8,9 @@ use crate::arch::ia32::legacy::vk_exception::{VillageException, ISR_NUM, RSVD_IS
 use crate::traits::vk_callback::Callback;
 use crate::traits::vk_kernel::Interrupt;
 use crate::traits::vk_linkedlist::LinkedList;
-use crate::village::kernel;
-use alloc::format;
+use crate::debug_info;
+use crate::debug_error;
+use crate::debug_warning;
 
 // Struct village interrupt
 pub struct VillageInterrupt {
@@ -42,7 +43,7 @@ impl VillageInterrupt {
         self.is_ready = true;
 
         // Output debug info
-        kernel().debug().info("Interrupt setup completed!");
+        debug_info!("Interrupt setup completed!");
     }
 
     // Exit
@@ -107,15 +108,10 @@ impl Interrupt for VillageInterrupt {
 
         if isrs.len() == 0 {
             if self.warnings[irq_idx] >= 10 {
-                kernel().debug().error(&format!(
-                    "IRQ {} no being handled correctly, system will halt on here",
-                    irq
-                ));
+                debug_error!("IRQ {} no being handled correctly, system will halt on here", irq);
                 loop {}
             }
-            kernel()
-                .debug()
-                .warning(&format!("IRQ {} has no interrupt service function", irq));
+            debug_warning!("IRQ {} has no interrupt service function", irq);
             self.warnings[irq_idx] += 1;
             return;
         } else {

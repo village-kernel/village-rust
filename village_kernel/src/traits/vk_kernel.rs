@@ -85,6 +85,7 @@ pub trait Debug {
     fn info(&mut self, info: &str);
     fn error(&mut self, error: &str);
     fn warning(&mut self, warning: &str);
+    fn println(&mut self, msg: &str);
     fn output(&mut self, level: DebugLevel, msg: &str);
     fn set_debug_level(&mut self, level: DebugLevel);
 }

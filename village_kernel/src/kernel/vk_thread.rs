@@ -9,6 +9,7 @@ use crate::traits::vk_callback::{Callback, FnCallback};
 use crate::traits::vk_kernel::{Thread, ThreadState, ThreadTask};
 use crate::traits::vk_linkedlist::LinkedList;
 use crate::village::kernel;
+use crate::debug_info;
 use alloc::string::ToString;
 use core::ptr;
 
@@ -43,7 +44,7 @@ impl VillageThread {
         self.create_task("Thread::monitor", monitor_cb);
 
         // Output debug info
-        kernel().debug().info("Thread setup completed!");
+        debug_info!("Thread setup completed!");
     }
 
     // Start
