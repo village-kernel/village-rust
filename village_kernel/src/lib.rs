@@ -69,6 +69,9 @@ pub mod drivers {
         pub mod block {
             pub mod vk_ata_lba_disk;
         }
+        pub mod display {
+            pub mod vk_bochs_vbe;
+        }
         pub mod keyboard {
             pub mod vk_ps2_keyboard;
         }

@@ -5,6 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::drivers::platdrv::block::vk_ata_lba_disk::AtaLbaDiskConfig;
+use crate::drivers::platdrv::display::vk_bochs_vbe::BochsVBEConfig;
 use crate::drivers::platdrv::keyboard::vk_ps2_keyboard::PS2KeyboardConfig;
 use crate::drivers::platdrv::mouse::vk_ps2_mouse::PS2MouseConfig;
 use crate::drivers::platdrv::serial::vk_pic32_uart::Pic32UartConfig;
@@ -144,3 +145,41 @@ impl PlatDevice for PS2MouseDev {
 
 // Register plat device
 register_plat_device!(PS2MouseDev::new(), ps2mouse, ps2_mouse_dev);
+
+// Struct bochs vbe dev
+struct BochsVBEDev {
+    plat: PlatData,
+    config: BochsVBEConfig,
+}
+
+// Impl bochs vbe dev
+impl BochsVBEDev {
+    pub const fn new() -> Self {
+        Self {
+            plat: PlatData::new(),
+            config: BochsVBEConfig::new(),
+        }
+    }
+}
+
+// Impl plat device for bochs vbe dev
+impl PlatDevice for BochsVBEDev {
+    fn plat(&mut self) -> &mut PlatData {
+        &mut self.plat
+    }
+
+    fn config(&mut self) {
+        self.config = BochsVBEConfig {
+            vmap: 0xA00000 as *mut u16,
+            width: 1024,
+            height: 768,
+            bit_depth: 16,
+        };
+        self.plat.set_drvdata(&self.config);
+        self.plat.set_drvid(DriverID::Display);
+        self.plat.set_drvname("display0");
+    }
+}
+
+// Register plat device
+register_plat_device!(BochsVBEDev::new(), bochsVBE, bochs_vbe_dev);

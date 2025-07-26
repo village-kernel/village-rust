@@ -6,6 +6,7 @@
 //###########################################################################
 use crate::village::kernel;
 use alloc::boxed::Box;
+use alloc::vec::Vec;
 
 // Driver id
 #[derive(PartialEq, Clone)]
@@ -47,10 +48,8 @@ impl DriverID {
         ]
         .into_iter()
     }
-}
 
-// Impl driver id
-impl DriverID {
+    // as string
     pub fn as_str(&self) -> &'static str {
         match self {
             DriverID::Block => "block driver",
@@ -64,19 +63,43 @@ impl DriverID {
     }
 }
 
+// Common command
+pub enum Command {
+    FB(FBCommand),
+    NULL(),
+}
+
+// FBCommand
+pub enum FBCommand {
+    Width     { width: u32 },
+    Height    { height: u32 },
+    DrawPoint { x: u32, y: u32, color: u32 },
+    ReadPoint { x: u32, y: u32, color: u32 },
+    FillColor { sx: u32, sy: u32, ex: u32, ey: u32, color: u32 },
+    FillPixel { sx: u32, sy: u32, ex: u32, ey: u32, pixel: Vec<u16> },
+    Clear     { },
+}
+
 // Trait Driver
 pub trait Driver {
     fn open(&mut self, data: *mut ()) -> bool;
-    fn write(&mut self, _data: &[u8], _size: usize, _offset: usize) -> usize {
-        0
-    }
-    fn read(&mut self, _data: &mut [u8], _size: usize, _offset: usize) -> usize {
-        0
-    }
-    fn ioctrl(&mut self, _cmd: u8, _data: &[u8]) -> usize {
-        0
-    }
+    fn write(&mut self, _data: &[u8], _size: usize, _offset: usize) -> usize { 0 }
+    fn read(&mut self, _data: &mut [u8], _size: usize, _offset: usize) -> usize { 0 }
+    fn ioctrl(&mut self, _command: &mut Command) -> bool { false }
     fn close(&mut self);
+}
+
+// Trait FBDriver
+pub trait FBDriver {
+    fn init(&mut self) -> bool;
+    fn width(&mut self) -> u32;
+    fn height(&mut self) -> u32;
+    fn draw_point(&mut self, x: u32, y: u32, color: u32);
+    fn read_point(&mut self, x: u32, y: u32) -> u32;
+    fn fill_color(&mut self, sx: u32, sy: u32, ex: u32, ey: u32, color: u32);
+    fn fill_pixel(&mut self, sx: u32, sy: u32, ex: u32, ey: u32, pixel: &[u16]);
+    fn clear(&mut self);
+    fn exit(&mut self);
 }
 
 // Struct Platdata
@@ -210,8 +233,8 @@ impl DriverWrapper {
 
     // IOctrl
     #[inline]
-    pub fn ioctrl(&mut self, cmd: u8, data: &[u8]) -> usize {
-        self.inner.ioctrl(cmd, data)
+    pub fn ioctrl(&mut self, command: &mut Command) -> bool {
+        self.inner.ioctrl(command)
     }
 
     // Close

@@ -5,6 +5,7 @@
 // $Copyright: Copyright (C) village
 //###########################################################################
 use crate::village::kernel;
+use crate::traits::vk_driver::Command;
 use alloc::string::{String, ToString};
 
 // Struct DevFopt
@@ -50,11 +51,11 @@ impl DevFopt {
     }
 
     // Ioctrl
-    pub fn ioctrl(&mut self, cmd: u8, data: &[u8]) -> usize {
+    pub fn ioctrl(&mut self, command: &mut Command) -> bool {
         if let Some(driver) = kernel().device().get_driver(&self.name) {
-            return driver.ioctrl(cmd, data);
+            return driver.ioctrl(command);
         }
-        0
+        false
     }
 
     // Close
