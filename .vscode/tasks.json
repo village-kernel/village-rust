@@ -16,7 +16,38 @@
 			"isBackground":true,
 			"dependsOn": ["Build"],
 			"command": "qemu-system-i386 -hda ${workspaceFolder}/build/village_os.img -hdb ${workspaceFolder}/build/village_fs.img -monitor null -serial stdio -s -S -nographic",
-			//"command": "qemu-system-i386 -hda ${workspaceFolder}/build/village_os.img -hdb ${workspaceFolder}/build/village_fs.img -monitor null -serial stdio -s -S",
+			"presentation": {
+				"echo": false,
+				"reveal": "never",
+				"focus": false, 
+				"panel": "shared",
+				"showReuseMessage": false,
+				"clear": false,
+			},
+			"problemMatcher":
+			{
+				"owner": "external",
+				"pattern": [
+					{
+					  "regexp": ".",
+					  "file": 1,
+					  "location": 2,
+					  "message": 3
+					}
+				],
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": ".",
+					"endsPattern": "."
+				}  
+			}
+		},
+        {
+			"label": "Run QEMU x86 bios graphic",
+			"type":"shell",
+			"isBackground":true,
+			"dependsOn": ["Build"],
+			"command": "qemu-system-i386 -hda ${workspaceFolder}/build/village_os.img -hdb ${workspaceFolder}/build/village_fs.img -monitor null -serial stdio -s -S",
 			"presentation": {
 				"echo": false,
 				"reveal": "never",

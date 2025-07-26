@@ -44,6 +44,27 @@
             "preLaunchTask": "Run QEMU x86 bios",
         },
         {
+            "name": "QEMU Debug x86 bios kernel graphic",
+            "type": "lldb",
+            "request": "launch",
+            "console": "internalConsole",
+            "internalConsoleOptions": "openOnSessionStart",
+            "targetCreateCommands": [
+                "file ${workspaceFolder}/build/village_kernel.elf",
+            ],
+            "processCreateCommands": [
+                "gdb-remote localhost:1234"
+            ],
+            "initCommands": [
+                "settings set target.load-script-from-symbol-file true",
+                "settings set target.inline-breakpoint-strategy always",
+                "breakpoint set --name main",
+                "process handle SIGTRAP -n true -p true -s false",
+            ],
+            "sourceLanguages": ["rust"],
+            "preLaunchTask": "Run QEMU x86 bios graphic",
+        },
+        {
             "name": "QEMU Debug x86 bios kernel gdb",
             "type": "cppdbg",
             "request": "launch",
