@@ -1,11 +1,11 @@
 [package]
-name = "demo"
+name = "hello"
 version = "0.1.0"
 edition = "2024"
 build = "build.rs"
 
 [[bin]]
-name = "demo"
+name = "hello"
 test = false
 bench = false
 
